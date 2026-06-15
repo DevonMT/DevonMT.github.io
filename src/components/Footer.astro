@@ -1,0 +1,129 @@
+---
+const year = new Date().getFullYear();
+const email = 'devon.troedel@gmail.com';
+const githubPro = 'https://github.com/DevonMT';
+const githubPersonal = 'https://github.com/ArcheKnight';
+const linkedin = 'https://www.linkedin.com/in/dtroedel';
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' },
+];
+---
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col footer-brand">
+      <a href="/" class="brand mono">Devon Troedel</a>
+      <p class="footer-tagline">
+        Data engineer. BI nerd. Making data useful in NW Arkansas.
+      </p>
+    </div>
+
+    <nav class="footer-col footer-nav" aria-label="Footer">
+      <h2 class="footer-heading mono">Site</h2>
+      <ul>
+        {navLinks.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="footer-col footer-social">
+      <h2 class="footer-heading mono">Elsewhere</h2>
+      <ul>
+        <li>
+          <a href={githubPro} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </li>
+        <li>
+          <a href={githubPersonal} target="_blank" rel="noopener noreferrer">GitHub (lab) ↗</a>
+        </li>
+        <li>
+          <a href={linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        </li>
+        <li>
+          <a href={`mailto:${email}`}>Email</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="footer-copy mono">
+    &copy; {year} Devon Troedel · Built with
+    <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>,
+    deployed on GitHub Pages.
+  </p>
+</footer>
+
+<style>
+  .site-footer {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--space-2xl);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: var(--space-lg);
+  }
+
+  .footer-col .brand {
+    font-weight: 700;
+    color: var(--color-text);
+    font-size: 1rem;
+  }
+  .footer-tagline {
+    margin-top: var(--space-xs);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    max-width: 32ch;
+  }
+
+  .footer-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-faint);
+    margin-bottom: var(--space-sm);
+    font-weight: 500;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .footer-col ul a {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+  .footer-col ul a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-copy {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    color: var(--color-text-faint);
+  }
+  .footer-copy a {
+    color: var(--color-text-muted);
+  }
+  .footer-copy a:hover {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+  }
+</style>

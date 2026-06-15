@@ -1,25 +1,58 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { featuredProjects } from '../data/projects';
 
 const email = 'devon.troedel@gmail.com';
-const github = 'https://github.com/devontroedel';
 
-const stack = ['Python', 'Streamlit', 'SQLite', 'Plaid', 'TypeScript'];
+const stack = ['SQL', 'Python', 'Power BI', 'Data Engineering', 'ETL', 'Streamlit'];
+
+const recentPosts = [
+  {
+    title: 'Building a Finance Dashboard with Plaid',
+    date: '2026-05-28',
+    excerpt:
+      'How I wired Plaid into a local SQLite database and built a Streamlit dashboard to track my own spending — and the privacy tradeoffs that shaped the design.',
+    slug: '#',
+  },
+  {
+    title: 'Why I Use SQLite for Everything',
+    date: '2026-05-10',
+    excerpt:
+      'SQLite is not a toy. For most of the tools I build, a single file beats a database server. Here is when it works, and the few times it does not.',
+    slug: '#',
+  },
+  {
+    title: 'Streamlit Is My Default UI',
+    date: '2026-04-22',
+    excerpt:
+      'For internal tools and personal projects, reaching for Streamlit instead of a frontend framework saves me days. A look at where it shines and where it bites.',
+    slug: '#',
+  },
+];
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 ---
 
 <BaseLayout>
+  <Header />
   <main>
     <section class="hero">
-      <p class="eyebrow mono">// devontroedel.com</p>
+      <p class="eyebrow mono">// devondoes.dev</p>
 
-      <h1>
-        Devon Troedel
-      </h1>
+      <h1>Devon Troedel</h1>
 
       <p class="tagline">
-        Tools builder. I ship practical software with
-        <span class="accent">Python</span>,
-        <span class="accent">Streamlit</span>, and a little bit of everything else.
+        Data engineer. BI nerd. I wrangle data into things people actually use —
+        pipelines, dashboards, automations, and the occasional weekend project
+        that got a little out of hand.
       </p>
 
       <ul class="stack" aria-label="Tech stack">
@@ -27,38 +60,60 @@ const stack = ['Python', 'Streamlit', 'SQLite', 'Plaid', 'TypeScript'];
       </ul>
 
       <div class="actions">
-        <a class="btn btn-primary" href={`mailto:${email}`}>
-          Get in touch
-        </a>
-        <a class="btn" href={github} target="_blank" rel="noopener noreferrer">
-          GitHub ↗
-        </a>
+        <a class="btn btn-primary" href="/projects">View Projects</a>
+        <a class="btn" href={`mailto:${email}`}>Get in touch</a>
       </div>
-
-      <p class="soon mono">
-        Portfolio &amp; blog coming soon — currently under construction.
-      </p>
     </section>
 
-    <footer class="footer">
-      <p class="mono">
-        &copy; {new Date().getFullYear()} Devon Troedel · Built with
-        <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>,
-        deployed on GitHub Pages.
-      </p>
-    </footer>
+    <section class="section" aria-labelledby="featured-heading">
+      <div class="section-head">
+        <h2 id="featured-heading">Featured Projects</h2>
+        <a class="section-link mono" href="/projects">All projects →</a>
+      </div>
+
+      <div class="card-grid">
+        {featuredProjects.map((project) => <ProjectCard project={project} />)}
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="posts-heading">
+      <div class="section-head">
+        <h2 id="posts-heading">Recent Posts</h2>
+        <a class="section-link mono" href="/blog">All posts →</a>
+      </div>
+
+      <div class="post-list">
+        {
+          recentPosts.map((post) => (
+            <article class="blog-card">
+              <div class="blog-meta mono">
+                <time datetime={post.date}>{fmtDate(post.date)}</time>
+              </div>
+              <h3>
+                <a href={post.slug}>{post.title}</a>
+              </h3>
+              <p class="card-desc">{post.excerpt}</p>
+              <a class="read-more mono" href={post.slug}>
+                Read more →
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </section>
   </main>
+  <Footer />
 </BaseLayout>
 
 <style>
   .hero {
-    min-height: 78vh;
+    min-height: 62vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     gap: var(--space-md);
-    padding-block: var(--space-2xl);
+    padding-block: var(--space-2xl) var(--space-xl);
   }
 
   .eyebrow {
@@ -78,7 +133,7 @@ const stack = ['Python', 'Streamlit', 'SQLite', 'Plaid', 'TypeScript'];
   .tagline {
     font-size: clamp(1.1rem, 2.5vw, 1.4rem);
     color: var(--color-text-muted);
-    max-width: 38ch;
+    max-width: 42ch;
     line-height: 1.5;
   }
 
@@ -100,23 +155,5 @@ const stack = ['Python', 'Streamlit', 'SQLite', 'Plaid', 'TypeScript'];
     flex-wrap: wrap;
     gap: var(--space-sm);
     margin-top: var(--space-xs);
-  }
-
-  .soon {
-    color: var(--color-text-faint);
-    font-size: 0.85rem;
-    margin-top: var(--space-lg);
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--color-border);
-    width: 100%;
-  }
-
-  .footer {
-    padding-block: var(--space-lg);
-    border-top: 1px solid var(--color-border);
-  }
-  .footer p {
-    color: var(--color-text-faint);
-    font-size: 0.8rem;
   }
 </style>
