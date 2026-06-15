@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout
+  title="Blog — Devon Troedel"
+  description="Notes on data engineering, BI, analytics, and the occasional weekend project."
+>
+  <Header />
+  <main>
+    <section class="page-head">
+      <p class="eyebrow mono">// blog</p>
+      <h1>Blog</h1>
+      <p class="intro">
+        Notes on data engineering, BI, analytics, and the occasional weekend
+        project that got a little out of hand.
+      </p>
+    </section>
+
+    <section class="section" aria-label="Blog posts">
+      <ul class="post-list">
+        {
+          posts.map((post) => (
+            <li class="blog-card">
+              <p class="blog-meta mono">
+                <time datetime={post.data.date.toISOString()}>
+                  {dateFmt.format(post.data.date)}
+                </time>
+              </p>
+              <h3>
+                <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+              </h3>
+              <p class="card-desc">{post.data.excerpt}</p>
+              <ul class="card-tags">
+                {post.data.tags.map((tag) => (
+                  <li class="tag">{tag}</li>
+                ))}
+              </ul>
+              <a class="read-more mono" href={`/blog/${post.slug}`}>
+                Read more →
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: var(--space-xl) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .eyebrow {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+  }
+  .intro {
+    font-size: clamp(1.05rem, 2vw, 1.2rem);
+    color: var(--color-text-muted);
+    max-width: 52ch;
+    line-height: 1.5;
+  }
+</style>
