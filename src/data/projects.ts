@@ -47,30 +47,6 @@ export const projects: Project[] = [
     featured: true,
     status: 'complete',
   },
-  {
-    slug: 'csvkit-tui',
-    title: 'csvkit-tui',
-    description:
-      'A terminal UI for slicing, filtering, and previewing large CSV files without loading them into a spreadsheet. Built for quick data spelunking from the command line.',
-    longDescription:
-      'A keyboard-driven terminal UI for exploring large CSV files without ever opening a spreadsheet. Built on Textual, it streams rows so multi-gigabyte files open instantly, and supports column filtering, fuzzy search, and live previews — the fastest way to answer a quick question about a data dump from the command line.',
-    tags: ['Python', 'Textual', 'CLI'],
-    repo: 'https://github.com/DevonMT',
-    featured: false,
-    status: 'complete',
-  },
-  {
-    slug: 'snippetstash',
-    title: 'snippetstash',
-    description:
-      'A self-hosted snippet manager with full-text search and tagging. A small TypeScript backend over SQLite, designed to be the fastest way to find that one command you wrote six months ago.',
-    longDescription:
-      'A self-hosted code-snippet manager built to end the search through scrollback and scattered notes. A lean TypeScript backend over SQLite provides full-text search and tag-based filtering, with a minimal web UI for capturing and recalling snippets. Designed around one goal: surface the exact command or block you wrote months ago in under a second.',
-    tags: ['TypeScript', 'SQLite', 'Web'],
-    repo: 'https://github.com/DevonMT',
-    featured: false,
-    status: 'archived',
-  },
 ];
 
 export const featuredProjects = projects.filter((p) => p.featured);
