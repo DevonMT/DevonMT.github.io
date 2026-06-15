@@ -8,7 +8,12 @@ const SITE = 'https://devontroedel.com';
 // https://astro.build/config
 export default defineConfig({
   site: SITE,
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // /games is a private, password-gated tool — keep it out of the sitemap.
+      filter: (page) => !page.includes('/games'),
+    }),
+  ],
   // Build to ./dist — this is what gets deployed to GitHub Pages.
   build: {
     format: 'directory',
