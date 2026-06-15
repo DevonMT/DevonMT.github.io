@@ -70,13 +70,6 @@ const personSchema = {
 
     <!-- Structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
-
-    <!--
-      Plausible Analytics — privacy-friendly, GDPR-compliant, cookieless.
-      Requires signing up at plausible.io and adding the "devontroedel.com"
-      site there; this tag only sends the pageview events.
-    -->
-    <script defer data-domain="devontroedel.com" src="https://plausible.io/js/script.js"></script>
   </head>
   <body>
     <slot />
