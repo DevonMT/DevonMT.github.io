@@ -130,7 +130,104 @@ code, kbd, samp, pre {
 }
 
 .section {
-  padding-block: var(--space-2xl);
+  padding-block: var(--space-xl);
+}
+
+/* ---- Section headers ---- */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+.section-link {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.section-link:hover {
+  color: var(--color-accent);
+}
+
+/* ---- Card grid (projects) ---- */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+.project-card,
+.blog-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  transition: border-color var(--transition), transform var(--transition),
+    box-shadow var(--transition);
+}
+.project-card:hover,
+.blog-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.project-card h3,
+.blog-card h3 {
+  margin-bottom: var(--space-xs);
+}
+.blog-card h3 a {
+  color: var(--color-text);
+}
+.blog-card h3 a:hover {
+  color: var(--color-accent);
+}
+
+.card-desc {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.card-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+.card-links {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+/* ---- Blog cards ---- */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.blog-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+  margin-bottom: var(--space-xs);
+}
+.read-more {
+  display: inline-block;
+  margin-top: var(--space-sm);
+  font-size: 0.85rem;
+}
+
+@media (min-width: 720px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

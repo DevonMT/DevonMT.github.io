@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { projects } from '../data/projects';
+
+const featured = projects.filter((p) => p.featured);
+const rest = projects.filter((p) => !p.featured);
+---
+
+<BaseLayout
+  title="Projects — Devon Troedel"
+  description="Projects by Devon Troedel — from a privacy-first Plaid finance dashboard to Node.js web apps and work-automation tooling."
+>
+  <Header />
+  <main>
+    <section class="page-head">
+      <p class="eyebrow mono">// projects</p>
+      <h1>Projects</h1>
+      <p class="intro">
+        Practical software I have shipped — personal tools, web apps, and the
+        automation that quietly keeps real work systems moving.
+      </p>
+    </section>
+
+    <section class="section" aria-labelledby="featured-heading">
+      <div class="section-head">
+        <h2 id="featured-heading">Featured</h2>
+      </div>
+      <div class="card-grid">
+        {featured.map((project) => <ProjectCard project={project} />)}
+      </div>
+    </section>
+
+    {
+      rest.length > 0 && (
+        <section class="section" aria-labelledby="more-heading">
+          <div class="section-head">
+            <h2 id="more-heading">More projects</h2>
+          </div>
+          <div class="card-grid">
+            {rest.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: var(--space-2xl) var(--space-lg);
+  }
+  .eyebrow {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-xs);
+  }
+  .intro {
+    font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+    color: var(--color-text-muted);
+    max-width: 52ch;
+    line-height: 1.6;
+    margin-top: var(--space-sm);
+  }
+</style>
