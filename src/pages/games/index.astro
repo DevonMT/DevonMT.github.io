@@ -300,6 +300,11 @@ import Footer from '../../components/Footer.astro';
     border-radius: var(--radius-sm);
     padding: 0.1rem 0.45rem;
   }
+  .game-byline {
+    font-size: 0.8rem;
+    color: var(--color-text-faint);
+    font-family: var(--font-mono);
+  }
   .game-desc {
     font-size: 0.9rem;
     color: var(--color-text-muted);
@@ -708,6 +713,11 @@ import Footer from '../../components/Footer.astro';
 
     const releaseDate = game.releaseDate ? escapeHtml(game.releaseDate) : 'TBA';
 
+    const byline = [game.developer, game.publisher]
+      .filter(Boolean)
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .join(' · ');
+
     card.innerHTML = `
       <h3>${escapeHtml(game.name || 'Untitled')}</h3>
       <div class="game-meta">
@@ -715,6 +725,7 @@ import Footer from '../../components/Footer.astro';
         ${game.category ? `<span class="tag">${escapeHtml(game.category)}</span>` : ''}
         ${mc}
       </div>
+      ${byline ? `<p class="game-byline">${escapeHtml(byline)}</p>` : ''}
       ${platforms.length ? `<div class="platforms">${platformHtml}</div>` : ''}
       ${game.description ? `<p class="game-desc">${escapeHtml(game.description)}</p>` : ''}
       <div class="card-actions">
