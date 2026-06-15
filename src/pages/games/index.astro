@@ -50,7 +50,7 @@ import Footer from '../../components/Footer.astro';
       <!-- Filter bar -->
       <div class="filters">
         <div class="filter-group" data-group="category">
-          <span class="filter-label mono">Category</span>
+          <span class="filter-label mono">Genre / Type</span>
           <div class="chips" id="category-chips"></div>
         </div>
         <div class="filter-group" data-group="platform">
@@ -434,8 +434,27 @@ import Footer from '../../components/Footer.astro';
     page: 1,
   };
 
-  const CATEGORIES = ['All', 'AAA', 'Indie', 'Early Access', 'Multiplayer', 'Single Player'];
-  const PLATFORMS = ['All', 'Steam', 'PC', 'Console'];
+  const CATEGORY_OPTIONS = [
+    { value: 'All',           label: 'All' },
+    { value: 'AAA',           label: 'AAA' },
+    { value: 'indie',         label: 'Indie' },
+    { value: 'action',        label: 'Action' },
+    { value: 'rpg',           label: 'RPG' },
+    { value: 'strategy',      label: 'Strategy' },
+    { value: 'sports',        label: 'Sports' },
+    { value: 'simulation',    label: 'Simulation' },
+    { value: 'early_access',  label: 'Early Access' },
+    { value: 'multiplayer',   label: 'Multiplayer' },
+    { value: 'single_player', label: 'Single Player' },
+  ];
+  const PLATFORM_OPTIONS = [
+    { value: 'All',           label: 'All' },
+    { value: 'pc',            label: 'PC' },
+    { value: 'playstation5',  label: 'PS5' },
+    { value: 'playstation4',  label: 'PS4' },
+    { value: 'xbox-series-x', label: 'Xbox' },
+    { value: 'nintendo-switch', label: 'Switch' },
+  ];
 
   // ---- Helpers ----
   function getKey(): string | null {
@@ -584,17 +603,23 @@ import Footer from '../../components/Footer.astro';
   });
 
   // ---- Filters UI ----
-  function buildChips(container: HTMLElement, values: string[], groupKey: 'category' | 'platform') {
+  function buildChips(
+    container: HTMLElement,
+    options: { value: string; label: string }[],
+    groupKey: 'category' | 'platform',
+  ) {
     container.innerHTML = '';
-    values.forEach((val) => {
+    options.forEach(({ value, label }) => {
       const chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'chip' + (state[groupKey] === val ? ' active' : '');
-      chip.textContent = val;
+      chip.className = 'chip' + (state[groupKey] === value ? ' active' : '');
+      chip.textContent = label;
       chip.addEventListener('click', () => {
-        state[groupKey] = val;
+        state[groupKey] = value;
         container.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
         chip.classList.add('active');
+        state.page = 1;
+        loadReleases(false);
       });
       container.appendChild(chip);
     });
@@ -751,8 +776,8 @@ import Footer from '../../components/Footer.astro';
 
   // ---- Init ----
   function initDashboard() {
-    buildChips(categoryChips, CATEGORIES, 'category');
-    buildChips(platformChips, PLATFORMS, 'platform');
+    buildChips(categoryChips, CATEGORY_OPTIONS, 'category');
+    buildChips(platformChips, PLATFORM_OPTIONS, 'platform');
     setDefaultDates();
     loadSyncStatus();
     loadReleases(false);
