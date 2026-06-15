@@ -49,9 +49,13 @@ import Footer from '../../components/Footer.astro';
 
       <!-- Filter bar -->
       <div class="filters">
-        <div class="filter-group" data-group="category">
-          <span class="filter-label mono">Genre / Type</span>
-          <div class="chips" id="category-chips"></div>
+        <div class="filter-group" data-group="type">
+          <span class="filter-label mono">Type</span>
+          <div class="chips" id="type-chips"></div>
+        </div>
+        <div class="filter-group" data-group="genre">
+          <span class="filter-label mono">Genre</span>
+          <div class="chips" id="genre-chips"></div>
         </div>
         <div class="filter-group" data-group="platform">
           <span class="filter-label mono">Platform</span>
@@ -215,9 +219,10 @@ import Footer from '../../components/Footer.astro';
     border-color: var(--color-accent);
   }
   .chip.active {
-    color: var(--color-accent);
-    background: var(--color-accent-soft);
+    color: #0d1117;
+    background: var(--color-accent);
     border-color: var(--color-accent);
+    font-weight: 600;
   }
   .dates {
     gap: var(--space-md);
@@ -319,10 +324,25 @@ import Footer from '../../components/Footer.astro';
     align-items: center;
     gap: var(--space-sm);
     margin-top: auto;
+    flex-wrap: wrap;
   }
   .rate-btn {
     font-size: 0.8rem;
     padding: 0.45rem 0.9rem;
+  }
+  .steam-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.8rem;
+    transition: color var(--transition), border-color var(--transition);
+  }
+  .steam-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
   }
 
   /* ---- Recommendation result ---- */
@@ -422,7 +442,8 @@ import Footer from '../../components/Footer.astro';
   const syncNowBtn = document.getElementById('sync-now') as HTMLButtonElement;
   const lockBtn = document.getElementById('lock-btn') as HTMLButtonElement;
 
-  const categoryChips = document.getElementById('category-chips')!;
+  const typeChips = document.getElementById('type-chips')!;
+  const genreChips = document.getElementById('genre-chips')!;
   const platformChips = document.getElementById('platform-chips')!;
   const sinceInput = document.getElementById('since') as HTMLInputElement;
   const untilInput = document.getElementById('until') as HTMLInputElement;
@@ -434,30 +455,34 @@ import Footer from '../../components/Footer.astro';
 
   // ---- State ----
   const state = {
-    category: 'All',
+    type: 'All',
+    genre: 'All',
     platform: 'All',
     page: 1,
   };
 
-  const CATEGORY_OPTIONS = [
+  const TYPE_OPTIONS = [
     { value: 'All',           label: 'All' },
     { value: 'AAA',           label: 'AAA' },
     { value: 'indie',         label: 'Indie' },
-    { value: 'action',        label: 'Action' },
-    { value: 'rpg',           label: 'RPG' },
-    { value: 'strategy',      label: 'Strategy' },
-    { value: 'sports',        label: 'Sports' },
-    { value: 'simulation',    label: 'Simulation' },
     { value: 'early_access',  label: 'Early Access' },
     { value: 'multiplayer',   label: 'Multiplayer' },
     { value: 'single_player', label: 'Single Player' },
   ];
+  const GENRE_OPTIONS = [
+    { value: 'All',        label: 'All' },
+    { value: 'action',     label: 'Action' },
+    { value: 'rpg',        label: 'RPG' },
+    { value: 'strategy',   label: 'Strategy' },
+    { value: 'sports',     label: 'Sports' },
+    { value: 'simulation', label: 'Simulation' },
+  ];
   const PLATFORM_OPTIONS = [
-    { value: 'All',           label: 'All' },
-    { value: 'pc',            label: 'PC' },
-    { value: 'playstation5',  label: 'PS5' },
-    { value: 'playstation4',  label: 'PS4' },
-    { value: 'xbox-series-x', label: 'Xbox' },
+    { value: 'All',             label: 'All' },
+    { value: 'pc',              label: 'PC' },
+    { value: 'playstation5',    label: 'PS5' },
+    { value: 'playstation4',    label: 'PS4' },
+    { value: 'xbox-series-x',   label: 'Xbox' },
     { value: 'nintendo-switch', label: 'Switch' },
   ];
 
@@ -611,7 +636,7 @@ import Footer from '../../components/Footer.astro';
   function buildChips(
     container: HTMLElement,
     options: { value: string; label: string }[],
-    groupKey: 'category' | 'platform',
+    groupKey: 'type' | 'genre' | 'platform',
   ) {
     container.innerHTML = '';
     options.forEach(({ value, label }) => {
@@ -653,7 +678,8 @@ import Footer from '../../components/Footer.astro';
   // ---- Releases ----
   function buildQuery(): string {
     const params = new URLSearchParams();
-    if (state.category !== 'All') params.set('categories', state.category);
+    const cats = [state.type, state.genre].filter((v) => v !== 'All').join(',');
+    if (cats) params.set('categories', cats);
     if (state.platform !== 'All') params.set('platforms', state.platform);
     if (sinceInput.value) params.set('since', sinceInput.value);
     if (untilInput.value) params.set('until', untilInput.value);
@@ -730,6 +756,9 @@ import Footer from '../../components/Footer.astro';
       ${game.description ? `<p class="game-desc">${escapeHtml(game.description)}</p>` : ''}
       <div class="card-actions">
         <button class="btn rate-btn" type="button">Rate this</button>
+        ${game.steamAppId
+          ? `<a class="steam-link" href="https://store.steampowered.com/app/${game.steamAppId}/" target="_blank" rel="noopener">Steam ↗</a>`
+          : ''}
       </div>
       <div class="reco" hidden></div>
     `;
@@ -787,7 +816,8 @@ import Footer from '../../components/Footer.astro';
 
   // ---- Init ----
   function initDashboard() {
-    buildChips(categoryChips, CATEGORY_OPTIONS, 'category');
+    buildChips(typeChips, TYPE_OPTIONS, 'type');
+    buildChips(genreChips, GENRE_OPTIONS, 'genre');
     buildChips(platformChips, PLATFORM_OPTIONS, 'platform');
     setDefaultDates();
     loadSyncStatus();
