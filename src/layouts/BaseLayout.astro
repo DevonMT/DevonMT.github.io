@@ -6,12 +6,15 @@ export interface Props {
   description?: string;
   /** Path-relative image for Open Graph / Twitter cards (defaults handled below). */
   image?: string;
+  /** og:type — "website" for pages, "article" for blog posts. */
+  ogType?: string;
 }
 
 const {
-  title = 'Devon Troedel — Software Developer',
-  description = 'Devon Troedel — software developer building practical tools with Python, Streamlit, and modern web tech.',
+  title = 'Devon Troedel — Data Engineer & BI Analyst',
+  description = 'Devon Troedel is a data engineer and BI analyst in Gravette, AR, building pipelines, dashboards, and automation with SQL, Python, and Power BI at the Walton Arts Center.',
   image = '/favicon.svg',
+  ogType = 'website',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -23,8 +26,8 @@ const personSchema = {
   '@type': 'Person',
   name: 'Devon Troedel',
   url: Astro.site?.toString(),
-  jobTitle: 'Software Developer',
-  knowsAbout: ['Python', 'Streamlit', 'SQLite', 'Plaid', 'Web Development'],
+  jobTitle: 'Data Engineer & BI Analyst',
+  knowsAbout: ['SQL', 'Python', 'Power BI', 'Data Engineering', 'ETL', 'Streamlit', 'SQLite'],
 };
 ---
 
@@ -44,7 +47,7 @@ const personSchema = {
     <meta name="theme-color" content="#0a0e27" />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
@@ -67,6 +70,13 @@ const personSchema = {
 
     <!-- Structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+    <!--
+      Plausible Analytics — privacy-friendly, GDPR-compliant, cookieless.
+      Requires signing up at plausible.io and adding the "devontroedel.com"
+      site there; this tag only sends the pageview events.
+    -->
+    <script defer data-domain="devontroedel.com" src="https://plausible.io/js/script.js"></script>
   </head>
   <body>
     <slot />
