@@ -85,6 +85,31 @@ import Footer from '../../components/Footer.astro';
   <Footer />
 </BaseLayout>
 
+<style is:global>
+  /* Chips are created dynamically in JS so must use global scope */
+  .chip {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #94a3b8);
+    background: transparent;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 999px;
+    padding: 0.3rem 0.85rem;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+  }
+  .chip:hover {
+    color: #fff;
+    border-color: #0d9488;
+  }
+  .chip.active {
+    color: #fff;
+    background: #0d9488;
+    border-color: #0d9488;
+    font-weight: 600;
+  }
+</style>
+
 <style>
   /* ---- Access gate ---- */
   .gate {
@@ -203,31 +228,7 @@ import Footer from '../../components/Footer.astro';
     flex-wrap: wrap;
     gap: var(--space-xs);
   }
-  .chip {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    padding: 0.3rem 0.85rem;
-    cursor: pointer;
-    transition: all var(--transition);
-  }
-  .chip:hover {
-    color: var(--color-text);
-    border-color: var(--color-accent);
-  }
-  .chip.active {
-    color: #fff;
-    background: #0d9488;
-    border-color: #0d9488;
-    font-weight: 600;
-  }
-  .chip:not(.active):hover {
-    color: #fff;
-    border-color: #0d9488;
-  }
+  /* chip styles live in the is:global block above */
   .dates {
     gap: var(--space-md);
   }
@@ -300,6 +301,13 @@ import Footer from '../../components/Footer.astro';
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-text-faint);
+  }
+  .game-categories {
+    font-size: 0.75rem;
+    color: #0d9488;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
   .game-byline {
     font-size: 0.8rem;
@@ -738,13 +746,18 @@ import Footer from '../../components/Footer.astro';
       .filter((v, i, a) => a.indexOf(v) === i)
       .join(' · ');
 
+    const allCategories: string[] = Array.isArray(game.categories) && game.categories.length
+      ? game.categories
+      : game.category ? [game.category] : [];
+    const categoriesText = allCategories.map(escapeHtml).join(' · ');
+
     card.innerHTML = `
       <h3>${escapeHtml(game.name || 'Untitled')}</h3>
       <div class="game-meta">
         <span>${releaseDate}</span>
-        ${game.category ? `<span class="tag">${escapeHtml(game.category)}</span>` : ''}
         ${mc}
       </div>
+      ${categoriesText ? `<p class="game-categories">${categoriesText}</p>` : ''}
       ${byline ? `<p class="game-byline">${escapeHtml(byline)}</p>` : ''}
       ${platformText ? `<p class="game-platforms">${platformText}</p>` : ''}
       ${game.description ? `<p class="game-desc">${escapeHtml(game.description)}</p>` : ''}
