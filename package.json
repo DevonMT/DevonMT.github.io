@@ -1,0 +1,19 @@
+{
+  "name": "devontroedel-website",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.15.0",
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/sitemap": "^3.1.6",
+    "typescript": "^5.5.4"
+  }
+}

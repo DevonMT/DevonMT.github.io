@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const email = 'devon.troedel@gmail.com';
+const github = 'https://github.com/devontroedel';
+
+const stack = ['Python', 'Streamlit', 'SQLite', 'Plaid', 'TypeScript'];
+---
+
+<BaseLayout>
+  <main>
+    <section class="hero">
+      <p class="eyebrow mono">// devontroedel.com</p>
+
+      <h1>
+        Devon Troedel
+      </h1>
+
+      <p class="tagline">
+        Tools builder. I ship practical software with
+        <span class="accent">Python</span>,
+        <span class="accent">Streamlit</span>, and a little bit of everything else.
+      </p>
+
+      <ul class="stack" aria-label="Tech stack">
+        {stack.map((tech) => <li class="tag">{tech}</li>)}
+      </ul>
+
+      <div class="actions">
+        <a class="btn btn-primary" href={`mailto:${email}`}>
+          Get in touch
+        </a>
+        <a class="btn" href={github} target="_blank" rel="noopener noreferrer">
+          GitHub ↗
+        </a>
+      </div>
+
+      <p class="soon mono">
+        Portfolio &amp; blog coming soon — currently under construction.
+      </p>
+    </section>
+
+    <footer class="footer">
+      <p class="mono">
+        &copy; {new Date().getFullYear()} Devon Troedel · Built with
+        <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>,
+        deployed on GitHub Pages.
+      </p>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .hero {
+    min-height: 78vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding-block: var(--space-2xl);
+  }
+
+  .eyebrow {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-xs);
+  }
+
+  h1 {
+    background: linear-gradient(120deg, var(--color-text) 30%, var(--color-accent) 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .tagline {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    color: var(--color-text-muted);
+    max-width: 38ch;
+    line-height: 1.5;
+  }
+
+  .accent {
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+
+  .stack {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block: var(--space-xs);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+  }
+
+  .soon {
+    color: var(--color-text-faint);
+    font-size: 0.85rem;
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .footer {
+    padding-block: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+  }
+  .footer p {
+    color: var(--color-text-faint);
+    font-size: 0.8rem;
+  }
+</style>

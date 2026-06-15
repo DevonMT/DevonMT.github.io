@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devontroedel.com/sitemap-index.xml

@@ -1,0 +1,74 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  /** Path-relative image for Open Graph / Twitter cards (defaults handled below). */
+  image?: string;
+}
+
+const {
+  title = 'Devon Troedel — Software Developer',
+  description = 'Devon Troedel — software developer building practical tools with Python, Streamlit, and modern web tech.',
+  image = '/favicon.svg',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+
+// schema.org Person markup for SEO / rich results.
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Devon Troedel',
+  url: Astro.site?.toString(),
+  jobTitle: 'Software Developer',
+  knowsAbout: ['Python', 'Streamlit', 'SQLite', 'Plaid', 'Web Development'],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0a0e27" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Devon Troedel" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Fonts: Inter (body) + JetBrains Mono (accents/code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    />
+
+    <!-- Structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
