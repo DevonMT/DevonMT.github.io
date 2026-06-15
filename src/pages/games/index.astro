@@ -642,14 +642,14 @@ import Footer from '../../components/Footer.astro';
     applyBtn.disabled = true;
     try {
       const data = await api(`/releases?${buildQuery()}`);
-      const games = data.games || [];
+      const games = data.releases || [];
       if (!append && games.length === 0) {
         gridStatus.textContent = 'No releases match these filters.';
       } else {
         gridStatus.hidden = true;
       }
       games.forEach((g: any) => grid.appendChild(renderCard(g)));
-      loadMoreBtn.hidden = !data.nextPage;
+      loadMoreBtn.hidden = !data.hasNext;
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         gridStatus.classList.add('error');
