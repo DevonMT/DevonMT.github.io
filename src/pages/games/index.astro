@@ -560,7 +560,7 @@ import Footer from '../../components/Footer.astro';
   async function loadSyncStatus() {
     try {
       const data = await api('/steam/sync-status');
-      syncStatusEl.textContent = `Steam library last synced ${relativeTime(data.lastSync)}`;
+      syncStatusEl.textContent = `Steam library last synced ${relativeTime(data.lastSteamSync)}`;
       syncStatusEl.classList.toggle('stale', !!data.stale);
     } catch {
       syncStatusEl.textContent = 'Sync status unavailable';
