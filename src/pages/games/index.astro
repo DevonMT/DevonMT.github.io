@@ -546,7 +546,8 @@ import Footer from '../../components/Footer.astro';
       throw new Error('Unauthorized');
     }
     if (!res.ok) {
-      throw new Error(`Request failed (${res.status})`);
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.error || body?.warning || `Request failed (${res.status})`);
     }
     return res.json();
   }
