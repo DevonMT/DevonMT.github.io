@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={`${post.data.title} — Devon Troedel`} description={post.data.excerpt}>
+  <Header />
+  <main>
+    <article class="post">
+      <a class="back-link mono" href="/blog">← Back to blog</a>
+
+      <header class="post-head">
+        <p class="blog-meta mono">
+          <time datetime={post.data.date.toISOString()}>
+            {dateFmt.format(post.data.date)}
+          </time>
+        </p>
+        <h1>{post.data.title}</h1>
+        <ul class="card-tags">
+          {post.data.tags.map((tag) => <li class="tag">{tag}</li>)}
+        </ul>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <footer class="post-foot">
+        <a class="back-link mono" href="/blog">← Back to blog</a>
+      </footer>
+    </article>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .post {
+    padding-block: var(--space-lg) var(--space-md);
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .back-link:hover {
+    color: var(--color-accent);
+  }
+
+  .post-head {
+    margin-block: var(--space-md) var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .post-head h1 {
+    margin-block: var(--space-xs);
+    font-size: clamp(1.9rem, 5vw, 2.75rem);
+  }
+  .post-head .card-tags {
+    margin-top: var(--space-sm);
+  }
+
+  .post-foot {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* ---- Prose / Markdown body ---- */
+  .prose {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-text);
+  }
+  .prose :global(p) {
+    color: var(--color-text-muted);
+    margin-block: var(--space-md);
+  }
+  .prose :global(h2) {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+    font-size: 1.5rem;
+  }
+  .prose :global(h3) {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-xs);
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    color: var(--color-text-muted);
+    margin-block: var(--space-md);
+    padding-left: 1.4rem;
+  }
+  .prose :global(li) {
+    margin-block: 0.35rem;
+  }
+  .prose :global(strong) {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  .prose :global(em) {
+    color: var(--color-text);
+  }
+  .prose :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose :global(a:hover) {
+    color: var(--color-accent-hover);
+  }
+  .prose :global(hr) {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin-block: var(--space-lg);
+  }
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--color-accent);
+    padding-left: var(--space-md);
+    margin-block: var(--space-md);
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+  .prose :global(code) {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.875em;
+  }
+  .prose :global(pre) {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    overflow-x: auto;
+    margin-block: var(--space-md);
+  }
+  .prose :global(pre code) {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+</style>

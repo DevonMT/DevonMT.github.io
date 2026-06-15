@@ -4,11 +4,21 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { featuredProjects } from '../data/projects';
+import { getCollection } from 'astro:content';
 
 const email = 'devon.troedel@gmail.com';
 
 const stack = ['SQL', 'Python', 'Power BI', 'Data Engineering', 'ETL', 'Streamlit'];
 
+const recentPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
 ---
 
 <BaseLayout>
@@ -45,6 +55,36 @@ const stack = ['SQL', 'Python', 'Power BI', 'Data Engineering', 'ETL', 'Streamli
         {featuredProjects.map((project) => <ProjectCard project={project} />)}
       </div>
     </section>
+
+    {
+      recentPosts.length > 0 && (
+        <section class="section" aria-labelledby="posts-heading">
+          <div class="section-head">
+            <h2 id="posts-heading">Recent Posts</h2>
+            <a class="section-link mono" href="/blog">All posts →</a>
+          </div>
+
+          <ul class="post-list">
+            {recentPosts.map((post) => (
+              <li class="blog-card">
+                <p class="blog-meta mono">
+                  <time datetime={post.data.date.toISOString()}>
+                    {dateFmt.format(post.data.date)}
+                  </time>
+                </p>
+                <h3>
+                  <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+                </h3>
+                <p class="card-desc">{post.data.excerpt}</p>
+                <a class="read-more mono" href={`/blog/${post.slug}`}>
+                  Read more →
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
 
   </main>
   <Footer />
