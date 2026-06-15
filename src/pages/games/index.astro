@@ -219,10 +219,14 @@ import Footer from '../../components/Footer.astro';
     border-color: var(--color-accent);
   }
   .chip.active {
-    color: #0d1117;
-    background: var(--color-accent);
-    border-color: var(--color-accent);
+    color: #fff;
+    background: #0d9488;
+    border-color: #0d9488;
     font-weight: 600;
+  }
+  .chip:not(.active):hover {
+    color: #fff;
+    border-color: #0d9488;
   }
   .dates {
     gap: var(--space-md);
