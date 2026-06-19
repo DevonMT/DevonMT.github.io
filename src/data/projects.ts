@@ -19,9 +19,9 @@ export const projects: Project[] = [
     longDescription:
       'A privacy-first personal finance tracker. It connects to bank and card accounts through the Plaid API, syncs transactions into a local SQLite database, and renders an interactive Streamlit dashboard for spending breakdowns, category trends, and cash-flow over time. There are no third-party servers in the loop — every byte of financial data stays on your own machine.',
     tags: ['Python', 'Streamlit', 'Plaid', 'SQLite'],
-    repo: 'https://github.com/DevonMT',
+    repo: 'https://github.com/DevonMT/finance-dashboard',
     featured: true,
-    status: 'active',
+    status: 'complete',
   },
   {
     slug: 'devonmt',

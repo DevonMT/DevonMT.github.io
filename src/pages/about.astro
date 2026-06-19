@@ -9,17 +9,23 @@ const githubLab = 'https://github.com/ArcheKnight';
 const linkedin = 'https://www.linkedin.com/in/dtroedel';
 
 const skills = [
-  'SQL', 'Python', 'Power BI', 'Crystal Reports',
+  'SQL', 'Python', 'Power BI', 'Snowflake', 'AI', 'Crystal Reports',
   'Microsoft Report Builder', 'Excel VBA', 'ETL',
   'Data Visualization', 'Streamlit', 'SQLite',
   'Process Automation', 'Flask', 'JavaScript', 'HTML/CSS',
 ];
 
+const education = {
+  degree: 'B.S. Mathematics',
+  school: 'Arkansas Tech University',
+  period: '2009 — 2014',
+};
+
 const experience = [
   {
     title: 'Jr. Data Engineer',
-    company: 'Walton Arts Center',
-    period: 'March 2025 — Present',
+    company: 'Walton Arts Center & Walmart AMP',
+    period: 'February 2026 — Present',
   },
   {
     title: 'Software Engineer — Reports',
@@ -28,7 +34,7 @@ const experience = [
   },
   {
     title: 'Consultant',
-    company: 'ADP',
+    company: 'WorkForce Software',
     period: 'May 2019 — January 2022',
   },
   {
@@ -58,10 +64,11 @@ const experience = [
         <p>
           My career path goes: <span class="accent">Walmart</span> (where I discovered that
           VBA macros and a scrappy internal website could save a team hours every week) →
-          <span class="accent">ADP</span> as a consultant helping enterprise clients squeeze
-          more out of their workforce software → building production reports with SQL,
-          Crystal Reports, and Power BI as a Software Engineer. These days I'm a Jr. Data
-          Engineer at the <span class="accent">Walton Arts Center</span>, which turns out to
+          <span class="accent">WorkForce Software</span> as a consultant helping enterprise
+          clients squeeze more out of their workforce software → building production reports
+          with SQL, Crystal Reports, and Power BI as a Software Engineer at
+          <span class="accent">ADP</span>. These days I'm a Jr. Data Engineer at the
+          <span class="accent">Walton Arts Center &amp; Walmart AMP</span>, which turns out to
           be a genuinely fun place to apply the data engineering toolkit.
         </p>
         <p>
@@ -86,6 +93,19 @@ const experience = [
               <span class="exp-period mono">{job.period}</span>
             </li>
           ))}
+        </ul>
+      </section>
+
+      <section class="edu-section">
+        <h2>Education</h2>
+        <ul class="exp-list">
+          <li class="exp-item">
+            <div class="exp-main">
+              <span class="exp-title">{education.degree}</span>
+              <span class="exp-company accent">{education.school}</span>
+            </div>
+            <span class="exp-period mono">{education.period}</span>
+          </li>
         </ul>
       </section>
 
@@ -146,6 +166,7 @@ const experience = [
   }
 
   .exp-section h2,
+  .edu-section h2,
   .skills-section h2 {
     font-size: 1.1rem;
     color: var(--color-text-muted);
