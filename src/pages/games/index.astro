@@ -37,7 +37,7 @@ import Footer from '../../components/Footer.astro';
     <section id="dashboard" class="dashboard" hidden>
       <div class="page-head">
         <p class="eyebrow mono">// games</p>
-        <h1>Game releases</h1>
+        <h1>Game recommendations</h1>
       </div>
 
       <!-- Sync status bar -->
@@ -79,47 +79,16 @@ import Footer from '../../components/Footer.astro';
         </div>
       </div>
 
-      <!-- Filter bar -->
-      <div class="filters">
-        <div class="filter-group" data-group="type">
-          <span class="filter-label mono">Type</span>
-          <div class="chips" id="type-chips"></div>
-        </div>
-        <div class="filter-group" data-group="genre">
-          <span class="filter-label mono">Genre</span>
-          <div class="chips" id="genre-chips"></div>
-        </div>
-        <div class="filter-group" data-group="platform">
-          <span class="filter-label mono">Platform</span>
-          <div class="chips" id="platform-chips"></div>
-        </div>
-        <div class="filter-group dates">
-          <label class="date-field">
-            <span class="filter-label mono">Since</span>
-            <input type="date" id="since" class="date-input" />
-          </label>
-          <label class="date-field">
-            <span class="filter-label mono">Until</span>
-            <input type="date" id="until" class="date-input" />
-          </label>
-          <button id="apply-filters" class="btn btn-primary apply-btn" type="button">Apply</button>
-        </div>
-      </div>
+      <!-- Tab navigation -->
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="own" type="button">// own</button>
+        <button class="tab-btn" data-tab="discover" type="button">// discover</button>
+        <button class="tab-btn" data-tab="lookup" type="button">// lookup</button>
+      </nav>
 
-      <!-- Results -->
-      <p id="grid-status" class="grid-status mono" hidden></p>
-      <div id="releases-grid" class="releases-grid"></div>
-      <div class="grid-foot">
-        <button id="load-more" class="btn" type="button" hidden>Load more</button>
-      </div>
-
-      <!-- Backlog picks -->
-      <div class="backlog-section">
-        <div class="backlog-head">
-          <p class="eyebrow mono">// backlog</p>
-          <h2>What should I play?</h2>
-          <p class="backlog-intro">Picks from games you already own but haven't touched.</p>
-        </div>
+      <!-- Own tab: backlog picks -->
+      <div class="tab-content" data-tab="own">
+        <p class="tab-desc">Top picks from games you already own but haven't really played.</p>
         <div class="backlog-controls">
           <span class="filter-label mono">Games with less than</span>
           <select id="backlog-threshold" class="threshold-select">
@@ -131,7 +100,73 @@ import Footer from '../../components/Footer.astro';
           <button id="backlog-btn" class="btn btn-primary" type="button">Find picks</button>
         </div>
         <p id="backlog-status" class="grid-status mono" hidden></p>
-        <div id="backlog-grid" class="backlog-grid"></div>
+        <div id="backlog-grid" class="result-grid"></div>
+      </div>
+
+      <!-- Discover tab: Claude-powered discovery + optional release browser -->
+      <div class="tab-content" data-tab="discover" hidden>
+        <p class="tab-desc">Games you don't own yet, matched to your taste profile.</p>
+        <div class="discover-filters">
+          <div class="filter-group">
+            <span class="filter-label mono">Platform</span>
+            <div class="chips" id="discover-platform-chips"></div>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label mono">Genre</span>
+            <div class="chips" id="discover-genre-chips"></div>
+          </div>
+        </div>
+        <div class="discover-actions">
+          <button id="discover-btn" class="btn btn-primary" type="button">Find recommendations</button>
+          <button id="browse-toggle" class="btn" type="button">Browse upcoming releases ▾</button>
+        </div>
+        <p id="discover-status" class="grid-status mono" hidden></p>
+        <div id="discover-grid" class="result-grid"></div>
+
+        <!-- Upcoming releases browser (hidden by default) -->
+        <div id="browse-section" hidden>
+          <div class="browse-head">
+            <p class="eyebrow mono">// upcoming releases</p>
+          </div>
+          <div class="browse-filters">
+            <div class="filter-group">
+              <span class="filter-label mono">Type</span>
+              <div class="chips" id="type-chips"></div>
+            </div>
+            <div class="filter-group dates">
+              <label class="date-field">
+                <span class="filter-label mono">Since</span>
+                <input type="date" id="since" class="date-input" />
+              </label>
+              <label class="date-field">
+                <span class="filter-label mono">Until</span>
+                <input type="date" id="until" class="date-input" />
+              </label>
+              <button id="apply-filters" class="btn btn-primary apply-btn" type="button">Apply</button>
+            </div>
+          </div>
+          <p id="grid-status" class="grid-status mono" hidden></p>
+          <div id="releases-grid" class="releases-grid"></div>
+          <div class="grid-foot">
+            <button id="load-more" class="btn" type="button" hidden>Load more</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lookup tab: score a specific game or description -->
+      <div class="tab-content" data-tab="lookup" hidden>
+        <p class="tab-desc">Score a specific game, or describe what you're looking for.</p>
+        <div class="lookup-form">
+          <input
+            id="lookup-input"
+            type="text"
+            class="lookup-input"
+            placeholder="e.g. Metaphor: ReFantazio  ·  games like Chained Echoes with deep build systems"
+          />
+          <button id="lookup-btn" class="btn btn-primary" type="button">Search</button>
+        </div>
+        <p id="lookup-status" class="grid-status mono" hidden></p>
+        <div id="lookup-grid" class="result-grid"></div>
       </div>
     </section>
   </main>
@@ -139,7 +174,7 @@ import Footer from '../../components/Footer.astro';
 </BaseLayout>
 
 <style is:global>
-  /* Chips are created dynamically in JS so must use global scope */
+  /* Dynamically created elements need global scope */
   .chip {
     font-family: var(--font-mono, monospace);
     font-size: 0.8rem;
@@ -151,16 +186,62 @@ import Footer from '../../components/Footer.astro';
     cursor: pointer;
     transition: color 0.15s, background 0.15s, border-color 0.15s;
   }
-  .chip:hover {
-    color: #fff;
-    border-color: #0d9488;
-  }
+  .chip:hover { color: #fff; border-color: #0d9488; }
   .chip.active {
     color: #fff;
     background: #0d9488;
     border-color: #0d9488;
     font-weight: 600;
   }
+
+  /* Backlog + discover + lookup cards (all created in JS) */
+  .backlog-card,
+  .discover-card {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    transition: border-color var(--transition);
+  }
+  .backlog-card:hover,
+  .discover-card:hover { border-color: var(--color-accent); }
+
+  .backlog-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+  .backlog-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .backlog-name:hover { color: var(--color-accent); }
+  .backlog-hours {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
+  }
+
+  .discover-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text);
+    display: block;
+  }
+  .discover-platforms {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
+    display: block;
+    margin-top: 0.2rem;
+  }
+
   .backlog-exclude {
     margin-left: auto;
     font-family: var(--font-mono, monospace);
@@ -174,10 +255,8 @@ import Footer from '../../components/Footer.astro';
     transition: color 0.15s, border-color 0.15s;
     white-space: nowrap;
   }
-  .backlog-exclude:hover {
-    color: #f87171;
-    border-color: #f87171;
-  }
+  .backlog-exclude:hover { color: #f87171; border-color: #f87171; }
+
   .inline-link {
     background: none;
     border: none;
@@ -189,9 +268,7 @@ import Footer from '../../components/Footer.astro';
     text-decoration: underline;
   }
   .inline-link:hover { color: #fff; }
-  .backlog-exclusion-note {
-    margin-bottom: 0;
-  }
+  .backlog-exclusion-note { margin-bottom: 0; }
 </style>
 
 <style>
@@ -245,9 +322,7 @@ import Footer from '../../components/Footer.astro';
   }
 
   /* ---- Page head ---- */
-  .page-head {
-    padding-block: var(--space-xl) var(--space-md);
-  }
+  .page-head { padding-block: var(--space-xl) var(--space-md); }
   .eyebrow {
     color: var(--color-accent);
     font-size: 0.9rem;
@@ -271,18 +346,10 @@ import Footer from '../../components/Footer.astro';
     font-size: 0.85rem;
     color: var(--color-text-muted);
   }
-  .sync-status.stale {
-    color: #f59e0b;
-  }
+  .sync-status.stale { color: #f59e0b; }
   .sync-btn,
-  .lock-btn {
-    font-size: 0.8rem;
-    padding: 0.45rem 0.9rem;
-  }
-  .lock-btn {
-    border-color: var(--color-border);
-    color: var(--color-text-muted);
-  }
+  .lock-btn { font-size: 0.8rem; padding: 0.45rem 0.9rem; }
+  .lock-btn { border-color: var(--color-border); color: var(--color-text-muted); }
 
   /* ---- Taste profile ---- */
   .taste-section {
@@ -304,10 +371,7 @@ import Footer from '../../components/Footer.astro';
     text-align: left;
   }
   .taste-toggle:hover { background: var(--color-surface); }
-  .taste-summary {
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-  }
+  .taste-summary { font-size: 0.85rem; color: var(--color-text-muted); }
   .taste-panel {
     padding: var(--space-md);
     border-top: 1px solid var(--color-border);
@@ -358,17 +422,38 @@ import Footer from '../../components/Footer.astro';
     font-weight: 600;
   }
 
-  /* ---- Filters ---- */
-  .filters {
+  /* ---- Tab navigation ---- */
+  .tab-nav {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
     margin-top: var(--space-md);
-    padding: var(--space-md);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
   }
+  .tab-btn {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.65rem 1.2rem;
+    cursor: pointer;
+    margin-bottom: -1px;
+    letter-spacing: 0.02em;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--color-text); }
+  .tab-btn.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+    font-weight: 600;
+  }
+  .tab-desc {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    margin-top: var(--space-md);
+  }
+
+  /* ---- Shared filter + chip styles ---- */
   .filter-group {
     display: flex;
     align-items: center;
@@ -386,39 +471,125 @@ import Footer from '../../components/Footer.astro';
     flex-wrap: wrap;
     gap: var(--space-xs);
   }
-  /* chip styles live in the is:global block above */
-  .dates {
-    gap: var(--space-md);
-  }
+  .dates { gap: var(--space-md); }
   .date-field {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
   }
-  .date-input {
-    flex: 0 1 auto;
+  .date-input { flex: 0 1 auto; }
+  .apply-btn { align-self: flex-end; font-size: 0.85rem; padding: 0.55rem 1.1rem; }
+
+  /* ---- Own tab ---- */
+  .backlog-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-top: var(--space-md);
   }
-  .apply-btn {
-    align-self: flex-end;
+  .threshold-select {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-family: var(--font-mono);
     font-size: 0.85rem;
-    padding: 0.55rem 1.1rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
   }
 
-  /* ---- Grid ---- */
+  /* ---- Discover tab ---- */
+  .discover-filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+  .discover-actions {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-top: var(--space-md);
+  }
+  .browse-head {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+  }
+  .browse-filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  /* ---- Lookup tab ---- */
+  .lookup-form {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    flex-wrap: wrap;
+  }
+  .lookup-input {
+    flex: 1 1 16rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 0.65rem 0.9rem;
+  }
+  .lookup-input:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  /* ---- Shared result grid (own / discover / lookup) ---- */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+  }
+  @media (min-width: 720px) {
+    .result-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ---- Grid status ---- */
   .grid-status {
     margin-top: var(--space-md);
     font-size: 0.85rem;
     color: var(--color-text-muted);
   }
-  .grid-status.error {
-    color: #f87171;
-  }
+  .grid-status.error { color: #f87171; }
+
+  /* ---- Release browse grid ---- */
   .releases-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-md);
     margin-top: var(--space-md);
   }
+  @media (min-width: 720px) {
+    .releases-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .grid-foot {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-lg);
+  }
+
+  /* ---- Game card (release browser) ---- */
   .game-card {
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-border);
@@ -429,13 +600,8 @@ import Footer from '../../components/Footer.astro';
     gap: var(--space-sm);
     transition: border-color var(--transition), transform var(--transition);
   }
-  .game-card:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
-  }
-  .game-card h3 {
-    font-size: 1.1rem;
-  }
+  .game-card:hover { border-color: var(--color-accent); transform: translateY(-2px); }
+  .game-card h3 { font-size: 1.1rem; }
   .game-meta {
     display: flex;
     align-items: center;
@@ -453,25 +619,11 @@ import Footer from '../../components/Footer.astro';
     padding: 0.1rem 0.5rem;
   }
   .metacritic.high { background: #22c55e; }
-  .metacritic.mid { background: #f59e0b; }
-  .metacritic.low { background: #ef4444; }
-  .game-platforms {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-faint);
-  }
-  .game-categories {
-    font-size: 0.75rem;
-    color: #0d9488;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .game-byline {
-    font-size: 0.8rem;
-    color: var(--color-text-faint);
-    font-family: var(--font-mono);
-  }
+  .metacritic.mid  { background: #f59e0b; }
+  .metacritic.low  { background: #ef4444; }
+  .game-platforms  { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-faint); }
+  .game-categories { font-size: 0.75rem; color: #0d9488; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
+  .game-byline     { font-size: 0.8rem; color: var(--color-text-faint); font-family: var(--font-mono); }
   .game-desc {
     font-size: 0.9rem;
     color: var(--color-text-muted);
@@ -488,10 +640,7 @@ import Footer from '../../components/Footer.astro';
     margin-top: auto;
     flex-wrap: wrap;
   }
-  .rate-btn {
-    font-size: 0.8rem;
-    padding: 0.45rem 0.9rem;
-  }
+  .rate-btn   { font-size: 0.8rem; padding: 0.45rem 0.9rem; }
   .steam-link {
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -502,12 +651,9 @@ import Footer from '../../components/Footer.astro';
     padding: 0.45rem 0.8rem;
     transition: color var(--transition), border-color var(--transition);
   }
-  .steam-link:hover {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
-  }
+  .steam-link:hover { color: var(--color-accent); border-color: var(--color-accent); }
 
-  /* ---- Recommendation result ---- */
+  /* ---- Recommendation result (inside release cards) ---- */
   .reco {
     border-top: 1px solid var(--color-border);
     padding-top: var(--space-sm);
@@ -544,29 +690,16 @@ import Footer from '../../components/Footer.astro';
     border-radius: 999px;
     transition: width var(--transition);
   }
-  .conf-high  { color: var(--color-accent); }
-  .conf-high-bg  { background: var(--color-accent); }
-  .conf-mid   { color: #f59e0b; }
-  .conf-mid-bg   { background: #f59e0b; }
-  .conf-low   { color: var(--color-text-muted); }
-  .conf-low-bg   { background: var(--color-text-muted); }
-  .reco-text {
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-    line-height: 1.55;
-  }
-  .reco-error {
-    font-size: 0.85rem;
-    color: #f87171;
-  }
+  .conf-high    { color: var(--color-accent); }
+  .conf-high-bg { background: var(--color-accent); }
+  .conf-mid     { color: #f59e0b; }
+  .conf-mid-bg  { background: #f59e0b; }
+  .conf-low     { color: var(--color-text-muted); }
+  .conf-low-bg  { background: var(--color-text-muted); }
+  .reco-text  { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.55; }
+  .reco-error { font-size: 0.85rem; color: #f87171; }
 
-  .grid-foot {
-    display: flex;
-    justify-content: center;
-    margin-top: var(--space-lg);
-  }
-
-  /* spinner for loading states */
+  /* ---- Spinner ---- */
   .spinner {
     display: inline-block;
     width: 0.85em;
@@ -579,86 +712,6 @@ import Footer from '../../components/Footer.astro';
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   button[disabled] { opacity: 0.6; cursor: progress; }
-
-  @media (min-width: 720px) {
-    .releases-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  /* ---- Backlog section ---- */
-  .backlog-section {
-    margin-top: var(--space-2xl);
-    padding-top: var(--space-xl);
-    border-top: 1px solid var(--color-border);
-  }
-  .backlog-intro {
-    color: var(--color-text-muted);
-    font-size: 0.95rem;
-    margin-top: var(--space-xs);
-  }
-  .backlog-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    margin-top: var(--space-md);
-  }
-  .threshold-select {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-  }
-  .backlog-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-  }
-  .backlog-card {
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: var(--space-md);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    transition: border-color var(--transition);
-  }
-  .backlog-card:hover {
-    border-color: var(--color-accent);
-  }
-  .backlog-title-row {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-  }
-  .backlog-name {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--color-text);
-    text-decoration: none;
-  }
-  .backlog-name:hover {
-    color: var(--color-accent);
-  }
-  .backlog-hours {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-faint);
-  }
-
-  @media (min-width: 720px) {
-    .backlog-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
 </style>
 
 <script>
@@ -667,24 +720,22 @@ import Footer from '../../components/Footer.astro';
   const KEY_NAME = 'games_api_key';
 
   // ---- DOM refs ----
-  const gateEl = document.getElementById('gate')!;
-  const dashEl = document.getElementById('dashboard')!;
-  const gateForm = document.getElementById('gate-form') as HTMLFormElement;
-  const gateKey = document.getElementById('gate-key') as HTMLInputElement;
-  const gateSubmit = document.getElementById('gate-submit') as HTMLButtonElement;
-  const gateError = document.getElementById('gate-error')!;
-
+  const gateEl      = document.getElementById('gate')!;
+  const dashEl      = document.getElementById('dashboard')!;
+  const gateForm    = document.getElementById('gate-form') as HTMLFormElement;
+  const gateKey     = document.getElementById('gate-key') as HTMLInputElement;
+  const gateSubmit  = document.getElementById('gate-submit') as HTMLButtonElement;
+  const gateError   = document.getElementById('gate-error')!;
   const syncStatusEl = document.getElementById('sync-status')!;
-  const syncNowBtn = document.getElementById('sync-now') as HTMLButtonElement;
-  const lockBtn = document.getElementById('lock-btn') as HTMLButtonElement;
+  const syncNowBtn  = document.getElementById('sync-now') as HTMLButtonElement;
+  const lockBtn     = document.getElementById('lock-btn') as HTMLButtonElement;
 
   // ---- Taste profile ----
-  const tasteToggle = document.getElementById('taste-toggle') as HTMLButtonElement;
-  const tastePanel = document.getElementById('taste-panel')!;
-  const tasteSummaryEl = document.getElementById('taste-summary')!;
-  const tasteFavorites = document.getElementById('taste-favorites') as HTMLTextAreaElement;
-  const tasteNotes = document.getElementById('taste-notes') as HTMLTextAreaElement;
-
+  const tasteToggle     = document.getElementById('taste-toggle') as HTMLButtonElement;
+  const tastePanel      = document.getElementById('taste-panel')!;
+  const tasteSummaryEl  = document.getElementById('taste-summary')!;
+  const tasteFavorites  = document.getElementById('taste-favorites') as HTMLTextAreaElement;
+  const tasteNotes      = document.getElementById('taste-notes') as HTMLTextAreaElement;
   const PREFS_KEY = 'games_taste_prefs';
 
   function getPrefs(): { favoritesNote: string; values: string[]; notes: string } {
@@ -732,58 +783,10 @@ import Footer from '../../components/Footer.astro';
   tasteNotes.addEventListener('input', savePrefs);
   document.querySelectorAll<HTMLInputElement>('.taste-chip input').forEach((el) => el.addEventListener('change', savePrefs));
 
-  const typeChips = document.getElementById('type-chips')!;
-  const genreChips = document.getElementById('genre-chips')!;
-  const platformChips = document.getElementById('platform-chips')!;
-  const sinceInput = document.getElementById('since') as HTMLInputElement;
-  const untilInput = document.getElementById('until') as HTMLInputElement;
-  const applyBtn = document.getElementById('apply-filters') as HTMLButtonElement;
-
-  const gridStatus = document.getElementById('grid-status')!;
-  const grid = document.getElementById('releases-grid')!;
-  const loadMoreBtn = document.getElementById('load-more') as HTMLButtonElement;
-
-  // ---- State ----
-  const state = {
-    type: 'All',
-    genre: 'All',
-    platform: 'All',
-    page: 1,
-  };
-
-  const TYPE_OPTIONS = [
-    { value: 'All',           label: 'All' },
-    { value: 'AAA',           label: 'AAA' },
-    { value: 'indie',         label: 'Indie' },
-    { value: 'early_access',  label: 'Early Access' },
-    { value: 'multiplayer',   label: 'Multiplayer' },
-    { value: 'single_player', label: 'Single Player' },
-  ];
-  const GENRE_OPTIONS = [
-    { value: 'All',        label: 'All' },
-    { value: 'action',     label: 'Action' },
-    { value: 'rpg',        label: 'RPG' },
-    { value: 'strategy',   label: 'Strategy' },
-    { value: 'sports',     label: 'Sports' },
-    { value: 'simulation', label: 'Simulation' },
-  ];
-  const PLATFORM_OPTIONS = [
-    { value: 'All',             label: 'All' },
-    { value: 'pc',              label: 'PC' },
-    { value: 'playstation5',    label: 'PS5' },
-    { value: 'playstation4',    label: 'PS4' },
-    { value: 'xbox-series-x',   label: 'Xbox' },
-    { value: 'nintendo-switch', label: 'Switch' },
-  ];
-
   // ---- Helpers ----
-  function getKey(): string | null {
-    return sessionStorage.getItem(KEY_NAME);
-  }
+  function getKey(): string | null { return sessionStorage.getItem(KEY_NAME); }
 
-  function fmtDate(d: Date): string {
-    return d.toISOString().slice(0, 10);
-  }
+  function fmtDate(d: Date): string { return d.toISOString().slice(0, 10); }
 
   function relativeTime(iso: string | null | undefined): string {
     if (!iso) return 'never';
@@ -791,13 +794,9 @@ import Footer from '../../components/Footer.astro';
     if (Number.isNaN(then)) return 'unknown';
     const secs = Math.round((Date.now() - then) / 1000);
     const units: [number, string][] = [
-      [60, 'second'],
-      [60, 'minute'],
-      [24, 'hour'],
-      [Infinity, 'day'],
+      [60, 'second'], [60, 'minute'], [24, 'hour'], [Infinity, 'day'],
     ];
-    let v = secs;
-    let unit = 'second';
+    let v = secs; let unit = 'second';
     for (let i = 0; i < units.length; i++) {
       unit = units[i][1];
       if (v < units[i][0]) break;
@@ -813,7 +812,6 @@ import Footer from '../../components/Footer.astro';
     return div.innerHTML;
   }
 
-  // Centralized fetch that injects the auth header and handles 401.
   async function api(path: string, init: RequestInit = {}): Promise<any> {
     const key = getKey();
     if (!key) throw new Error('No access key');
@@ -826,7 +824,6 @@ import Footer from '../../components/Footer.astro';
       },
     });
     if (res.status === 401) {
-      // Bad/expired key — drop it and bounce back to the gate.
       sessionStorage.removeItem(KEY_NAME);
       showGate('Access key rejected. Please try again.');
       throw new Error('Unauthorized');
@@ -842,20 +839,13 @@ import Footer from '../../components/Footer.astro';
   function showGate(message?: string) {
     dashEl.hidden = true;
     gateEl.hidden = false;
-    if (message) {
-      gateError.textContent = message;
-      gateError.hidden = false;
-    } else {
-      gateError.hidden = true;
-    }
+    if (message) { gateError.textContent = message; gateError.hidden = false; }
+    else { gateError.hidden = true; }
     gateKey.value = '';
     gateKey.focus();
   }
 
-  function showDashboard() {
-    gateEl.hidden = true;
-    dashEl.hidden = false;
-  }
+  function showDashboard() { gateEl.hidden = true; dashEl.hidden = false; }
 
   gateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -865,10 +855,7 @@ import Footer from '../../components/Footer.astro';
     gateSubmit.disabled = true;
     gateSubmit.innerHTML = '<span class="spinner"></span> Checking…';
     try {
-      // Validate the key against the backend before storing it.
-      const res = await fetch(`${API_BASE}/health`, {
-        headers: { 'x-api-secret': key },
-      });
+      const res = await fetch(`${API_BASE}/health`, { headers: { 'x-api-secret': key } });
       if (res.status === 401) {
         gateError.textContent = 'Access key rejected. Please try again.';
         gateError.hidden = false;
@@ -882,7 +869,7 @@ import Footer from '../../components/Footer.astro';
       sessionStorage.setItem(KEY_NAME, key);
       showDashboard();
       initDashboard();
-    } catch (err) {
+    } catch {
       gateError.textContent = 'Could not reach the backend. Is it running?';
       gateError.hidden = false;
     } finally {
@@ -891,10 +878,7 @@ import Footer from '../../components/Footer.astro';
     }
   });
 
-  lockBtn.addEventListener('click', () => {
-    sessionStorage.removeItem(KEY_NAME);
-    showGate();
-  });
+  lockBtn.addEventListener('click', () => { sessionStorage.removeItem(KEY_NAME); showGate(); });
 
   // ---- Sync status ----
   async function loadSyncStatus() {
@@ -923,197 +907,86 @@ import Footer from '../../components/Footer.astro';
     }
   });
 
-  // ---- Filters UI ----
+  // ---- Tabs ----
+  function switchTab(name: string) {
+    document.querySelectorAll<HTMLElement>('.tab-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.tab === name);
+    });
+    document.querySelectorAll<HTMLElement>('.tab-content').forEach((panel) => {
+      panel.hidden = panel.dataset.tab !== name;
+    });
+    sessionStorage.setItem('games_active_tab', name);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab!));
+  });
+
+  // ---- Filter options ----
+  const PLATFORM_OPTIONS = [
+    { value: 'All',             label: 'All' },
+    { value: 'pc',              label: 'PC' },
+    { value: 'playstation5',    label: 'PS5' },
+    { value: 'playstation4',    label: 'PS4' },
+    { value: 'xbox-series-x',   label: 'Xbox' },
+    { value: 'nintendo-switch', label: 'Switch' },
+  ];
+  const GENRE_OPTIONS = [
+    { value: 'All',        label: 'All' },
+    { value: 'action',     label: 'Action' },
+    { value: 'rpg',        label: 'RPG' },
+    { value: 'strategy',   label: 'Strategy' },
+    { value: 'sports',     label: 'Sports' },
+    { value: 'simulation', label: 'Simulation' },
+  ];
+  const TYPE_OPTIONS = [
+    { value: 'All',           label: 'All' },
+    { value: 'AAA',           label: 'AAA' },
+    { value: 'indie',         label: 'Indie' },
+    { value: 'early_access',  label: 'Early Access' },
+    { value: 'multiplayer',   label: 'Multiplayer' },
+    { value: 'single_player', label: 'Single Player' },
+  ];
+
+  // ---- State ----
+  const discoverState = { platform: 'All', genre: 'All' };
+  const browseState   = { type: 'All', page: 1 };
+
   function buildChips(
     container: HTMLElement,
     options: { value: string; label: string }[],
-    groupKey: 'type' | 'genre' | 'platform',
+    stateObj: Record<string, string>,
+    key: string,
+    onChange?: () => void,
   ) {
     container.innerHTML = '';
     options.forEach(({ value, label }) => {
       const chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'chip' + (state[groupKey] === value ? ' active' : '');
+      chip.className = 'chip' + (stateObj[key] === value ? ' active' : '');
       chip.textContent = label;
       chip.addEventListener('click', () => {
-        state[groupKey] = value;
+        stateObj[key] = value;
         container.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
         chip.classList.add('active');
-        state.page = 1;
-        loadReleases(false);
+        onChange?.();
       });
       container.appendChild(chip);
     });
   }
 
-  function setDefaultDates() {
-    const now = new Date();
-    const since = new Date(now);
-    since.setDate(since.getDate() - 90);
-    const until = new Date(now);
-    until.setDate(until.getDate() + 90);
-    sinceInput.value = fmtDate(since);
-    untilInput.value = fmtDate(until);
-  }
-
-  applyBtn.addEventListener('click', () => {
-    state.page = 1;
-    loadReleases(false);
-  });
-
-  loadMoreBtn.addEventListener('click', () => {
-    state.page += 1;
-    loadReleases(true);
-  });
-
-  // ---- Releases ----
-  function buildQuery(): string {
-    const params = new URLSearchParams();
-    const cats = [state.type, state.genre].filter((v) => v !== 'All').join(',');
-    if (cats) params.set('categories', cats);
-    if (state.platform !== 'All') params.set('platforms', state.platform);
-    if (sinceInput.value) params.set('since', sinceInput.value);
-    if (untilInput.value) params.set('until', untilInput.value);
-    params.set('page', String(state.page));
-    return params.toString();
-  }
-
-  async function loadReleases(append: boolean) {
-    gridStatus.classList.remove('error');
-    gridStatus.hidden = false;
-    gridStatus.innerHTML = '<span class="spinner"></span> Loading releases…';
-    if (!append) {
-      grid.innerHTML = '';
-      loadMoreBtn.hidden = true;
-    }
-    applyBtn.disabled = true;
-    try {
-      const data = await api(`/releases?${buildQuery()}`);
-      const games = data.releases || [];
-      if (!append && games.length === 0) {
-        gridStatus.textContent = 'No releases match these filters.';
-      } else {
-        gridStatus.hidden = true;
-      }
-      games.forEach((g: any) => grid.appendChild(renderCard(g)));
-      loadMoreBtn.hidden = !data.hasNext;
-    } catch (err: any) {
-      if (err?.message !== 'Unauthorized') {
-        gridStatus.classList.add('error');
-        gridStatus.hidden = false;
-        gridStatus.textContent = `Could not load releases: ${err?.message || 'unknown error'}`;
-      }
-    } finally {
-      applyBtn.disabled = false;
-    }
-  }
-
-  function metacriticClass(score: number): string {
-    if (score >= 75) return 'high';
-    if (score >= 50) return 'mid';
-    return 'low';
-  }
-
-  function renderCard(game: any): HTMLElement {
-    const card = document.createElement('article');
-    card.className = 'game-card';
-
-    const platforms: string[] = Array.isArray(game.platforms) ? game.platforms : [];
-    const platformText = platforms.slice(0, 6).map(escapeHtml).join(' · ');
-
-    const mc =
-      typeof game.metacriticScore === 'number' && game.metacriticScore > 0
-        ? `<span class="metacritic ${metacriticClass(game.metacriticScore)}">${game.metacriticScore}</span>`
-        : '';
-
-    const releaseDate = game.releaseDate ? escapeHtml(game.releaseDate) : 'TBA';
-
-    const byline = [game.developer, game.publisher]
-      .filter(Boolean)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .join(' · ');
-
-    const allCategories: string[] = Array.isArray(game.categories) && game.categories.length
-      ? game.categories
-      : game.category ? [game.category] : [];
-    const categoriesText = allCategories.map(escapeHtml).join(' · ');
-
-    card.innerHTML = `
-      <h3>${escapeHtml(game.name || 'Untitled')}</h3>
-      <div class="game-meta">
-        <span>${releaseDate}</span>
-        ${mc}
-      </div>
-      ${categoriesText ? `<p class="game-categories">${categoriesText}</p>` : ''}
-      ${byline ? `<p class="game-byline">${escapeHtml(byline)}</p>` : ''}
-      ${platformText ? `<p class="game-platforms">${platformText}</p>` : ''}
-      ${game.description ? `<p class="game-desc">${escapeHtml(game.description)}</p>` : ''}
-      <div class="card-actions">
-        <button class="btn rate-btn" type="button">Rate this</button>
-        ${game.steamAppId
-          ? `<a class="steam-link" href="https://store.steampowered.com/app/${game.steamAppId}/" target="_blank" rel="noopener">Steam ↗</a>`
-          : ''}
-      </div>
-      <div class="reco" hidden></div>
-    `;
-
-    const rateBtn = card.querySelector('.rate-btn') as HTMLButtonElement;
-    const recoEl = card.querySelector('.reco') as HTMLElement;
-    rateBtn.addEventListener('click', () => rate(game, rateBtn, recoEl));
-
-    return card;
-  }
-
+  // ---- Confidence helpers ----
   function confClass(score: number): { text: string; bg: string } {
     if (score >= 75) return { text: 'conf-high', bg: 'conf-high-bg' };
-    if (score >= 50) return { text: 'conf-mid', bg: 'conf-mid-bg' };
+    if (score >= 50) return { text: 'conf-mid',  bg: 'conf-mid-bg' };
     return { text: 'conf-low', bg: 'conf-low-bg' };
   }
 
-  async function rate(game: any, btn: HTMLButtonElement, recoEl: HTMLElement) {
-    const id = game.rawgId ?? game.id;
-    if (id == null) return;
-    btn.disabled = true;
-    const original = btn.textContent;
-    btn.innerHTML = '<span class="spinner"></span> Rating…';
-    recoEl.hidden = false;
-    recoEl.innerHTML = '<p class="reco-text"><span class="spinner"></span> Asking for a recommendation…</p>';
-    try {
-      const data = await api('/recommendations', {
-        method: 'POST',
-        body: JSON.stringify({ gameIds: [id], preferences: getPrefs() }),
-      });
-      const reco = (data.recommendations || [])[0];
-      if (!reco) {
-        recoEl.innerHTML = '<p class="reco-error">No recommendation returned.</p>';
-        return;
-      }
-      const score = Math.max(0, Math.min(100, Math.round(reco.confidenceScore)));
-      const cls = confClass(score);
-      recoEl.innerHTML = `
-        <div class="reco-head">
-          <span class="reco-label">Confidence</span>
-          <span class="reco-score ${cls.text}">${score}</span>
-        </div>
-        <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
-        <p class="reco-text">${escapeHtml(reco.reasoning || '')}</p>
-      `;
-    } catch (err: any) {
-      if (err?.message !== 'Unauthorized') {
-        recoEl.innerHTML = `<p class="reco-error">Couldn't rate this: ${escapeHtml(err?.message || 'unknown error')}</p>`;
-      }
-    } finally {
-      btn.disabled = false;
-      btn.textContent = original;
-    }
-  }
-
-  // ---- Backlog ----
-  const backlogBtn = document.getElementById('backlog-btn') as HTMLButtonElement;
-  const backlogStatus = document.getElementById('backlog-status')!;
-  const backlogGrid = document.getElementById('backlog-grid')!;
+  // ---- Own tab: backlog ----
+  const backlogBtn       = document.getElementById('backlog-btn') as HTMLButtonElement;
+  const backlogStatus    = document.getElementById('backlog-status')!;
+  const backlogGrid      = document.getElementById('backlog-grid')!;
   const backlogThreshold = document.getElementById('backlog-threshold') as HTMLSelectElement;
-
   const EXCLUDED_KEY = 'games_backlog_excluded';
 
   function getExcluded(): Set<number> {
@@ -1130,10 +1003,7 @@ import Footer from '../../components/Footer.astro';
   function updateExclusionNote() {
     const ex = getExcluded();
     let note = document.getElementById('backlog-exclusion-note');
-    if (ex.size === 0) {
-      note?.remove();
-      return;
-    }
+    if (ex.size === 0) { note?.remove(); return; }
     if (!note) {
       note = document.createElement('p');
       note.id = 'backlog-exclusion-note';
@@ -1213,22 +1083,286 @@ import Footer from '../../components/Footer.astro';
 
   backlogBtn.addEventListener('click', loadBacklogPicks);
 
+  // ---- Discover tab ----
+  const discoverBtn    = document.getElementById('discover-btn') as HTMLButtonElement;
+  const discoverStatus = document.getElementById('discover-status')!;
+  const discoverGrid   = document.getElementById('discover-grid')!;
+  const browseToggle   = document.getElementById('browse-toggle') as HTMLButtonElement;
+  const browseSection  = document.getElementById('browse-section')!;
+
+  function renderResultCard(item: { name: string; platforms: string[]; description: string; confidenceScore: number; reasoning: string }): HTMLElement {
+    const card = document.createElement('article');
+    card.className = 'discover-card';
+    const score = Math.max(0, Math.min(100, Math.round(item.confidenceScore ?? 0)));
+    const cls = confClass(score);
+    const platformsText = (item.platforms ?? []).join(' · ');
+    card.innerHTML = `
+      <div>
+        <span class="discover-name">${escapeHtml(item.name || 'Unknown')}</span>
+        ${platformsText ? `<span class="discover-platforms">${escapeHtml(platformsText)}</span>` : ''}
+      </div>
+      ${item.description ? `<p class="reco-text">${escapeHtml(item.description)}</p>` : ''}
+      <div class="reco-head">
+        <span class="reco-label">Match</span>
+        <span class="reco-score ${cls.text}">${score}</span>
+      </div>
+      <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
+      <p class="reco-text">${escapeHtml(item.reasoning || '')}</p>
+    `;
+    return card;
+  }
+
+  async function loadDiscover() {
+    discoverStatus.classList.remove('error');
+    discoverStatus.hidden = false;
+    discoverStatus.innerHTML = '<span class="spinner"></span> Finding recommendations…';
+    discoverGrid.innerHTML = '';
+    discoverBtn.disabled = true;
+    try {
+      const data = await api('/recommendations/discover', {
+        method: 'POST',
+        body: JSON.stringify({
+          platforms: discoverState.platform === 'All' ? [] : [discoverState.platform],
+          genres:    discoverState.genre    === 'All' ? [] : [discoverState.genre],
+          limit: 8,
+          preferences: getPrefs(),
+        }),
+      });
+      const picks: any[] = data.picks ?? [];
+      if (picks.length === 0) {
+        discoverStatus.textContent = 'No recommendations found. Try adjusting your taste profile.';
+        return;
+      }
+      discoverStatus.hidden = true;
+      picks.forEach((p) => discoverGrid.appendChild(renderResultCard(p)));
+    } catch (err: any) {
+      if (err?.message !== 'Unauthorized') {
+        discoverStatus.classList.add('error');
+        discoverStatus.hidden = false;
+        discoverStatus.textContent = `Couldn't get recommendations: ${err?.message || 'unknown error'}`;
+      }
+    } finally {
+      discoverBtn.disabled = false;
+    }
+  }
+
+  discoverBtn.addEventListener('click', loadDiscover);
+
+  browseToggle.addEventListener('click', () => {
+    const opening = browseSection.hidden;
+    browseSection.hidden = !opening;
+    browseToggle.textContent = opening ? 'Browse upcoming releases ▲' : 'Browse upcoming releases ▾';
+    if (opening && releasesGrid.childElementCount === 0) {
+      browseState.page = 1;
+      loadReleases(false);
+    }
+  });
+
+  // ---- Browse / releases ----
+  const sinceInput  = document.getElementById('since') as HTMLInputElement;
+  const untilInput  = document.getElementById('until') as HTMLInputElement;
+  const applyBtn    = document.getElementById('apply-filters') as HTMLButtonElement;
+  const gridStatus  = document.getElementById('grid-status')!;
+  const releasesGrid = document.getElementById('releases-grid')!;
+  const loadMoreBtn = document.getElementById('load-more') as HTMLButtonElement;
+
+  function setDefaultDates() {
+    const now = new Date();
+    const since = new Date(now); since.setDate(since.getDate() - 90);
+    const until = new Date(now); until.setDate(until.getDate() + 90);
+    sinceInput.value = fmtDate(since);
+    untilInput.value = fmtDate(until);
+  }
+
+  function buildReleaseQuery(): string {
+    const params = new URLSearchParams();
+    const cats = [browseState.type, discoverState.genre].filter((v) => v !== 'All').join(',');
+    if (cats) params.set('categories', cats);
+    if (discoverState.platform !== 'All') params.set('platforms', discoverState.platform);
+    if (sinceInput.value)  params.set('since', sinceInput.value);
+    if (untilInput.value)  params.set('until', untilInput.value);
+    params.set('page', String(browseState.page));
+    return params.toString();
+  }
+
+  async function loadReleases(append: boolean) {
+    gridStatus.classList.remove('error');
+    gridStatus.hidden = false;
+    gridStatus.innerHTML = '<span class="spinner"></span> Loading releases…';
+    if (!append) { releasesGrid.innerHTML = ''; loadMoreBtn.hidden = true; }
+    applyBtn.disabled = true;
+    try {
+      const data = await api(`/releases?${buildReleaseQuery()}`);
+      const games = data.releases || [];
+      if (!append && games.length === 0) {
+        gridStatus.textContent = 'No releases match these filters.';
+      } else {
+        gridStatus.hidden = true;
+      }
+      games.forEach((g: any) => releasesGrid.appendChild(renderCard(g)));
+      loadMoreBtn.hidden = !data.hasNext;
+    } catch (err: any) {
+      if (err?.message !== 'Unauthorized') {
+        gridStatus.classList.add('error');
+        gridStatus.hidden = false;
+        gridStatus.textContent = `Could not load releases: ${err?.message || 'unknown error'}`;
+      }
+    } finally {
+      applyBtn.disabled = false;
+    }
+  }
+
+  applyBtn.addEventListener('click', () => { browseState.page = 1; loadReleases(false); });
+  loadMoreBtn.addEventListener('click', () => { browseState.page += 1; loadReleases(true); });
+
+  function metacriticClass(score: number): string {
+    if (score >= 75) return 'high';
+    if (score >= 50) return 'mid';
+    return 'low';
+  }
+
+  function renderCard(game: any): HTMLElement {
+    const card = document.createElement('article');
+    card.className = 'game-card';
+    const platforms: string[] = Array.isArray(game.platforms) ? game.platforms : [];
+    const platformText = platforms.slice(0, 6).map(escapeHtml).join(' · ');
+    const mc = typeof game.metacriticScore === 'number' && game.metacriticScore > 0
+      ? `<span class="metacritic ${metacriticClass(game.metacriticScore)}">${game.metacriticScore}</span>`
+      : '';
+    const releaseDate = game.releaseDate ? escapeHtml(game.releaseDate) : 'TBA';
+    const byline = [game.developer, game.publisher]
+      .filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(' · ');
+    const allCategories: string[] = Array.isArray(game.categories) && game.categories.length
+      ? game.categories : game.category ? [game.category] : [];
+    const categoriesText = allCategories.map(escapeHtml).join(' · ');
+    card.innerHTML = `
+      <h3>${escapeHtml(game.name || 'Untitled')}</h3>
+      <div class="game-meta">
+        <span>${releaseDate}</span>
+        ${mc}
+      </div>
+      ${categoriesText ? `<p class="game-categories">${categoriesText}</p>` : ''}
+      ${byline ? `<p class="game-byline">${escapeHtml(byline)}</p>` : ''}
+      ${platformText ? `<p class="game-platforms">${platformText}</p>` : ''}
+      ${game.description ? `<p class="game-desc">${escapeHtml(game.description)}</p>` : ''}
+      <div class="card-actions">
+        <button class="btn rate-btn" type="button">Rate this</button>
+        ${game.steamAppId
+          ? `<a class="steam-link" href="https://store.steampowered.com/app/${game.steamAppId}/" target="_blank" rel="noopener">Steam ↗</a>`
+          : ''}
+      </div>
+      <div class="reco" hidden></div>
+    `;
+    const rateBtn = card.querySelector('.rate-btn') as HTMLButtonElement;
+    const recoEl  = card.querySelector('.reco') as HTMLElement;
+    rateBtn.addEventListener('click', () => rate(game, rateBtn, recoEl));
+    return card;
+  }
+
+  async function rate(game: any, btn: HTMLButtonElement, recoEl: HTMLElement) {
+    const id = game.rawgId ?? game.id;
+    if (id == null) return;
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span> Rating…';
+    recoEl.hidden = false;
+    recoEl.innerHTML = '<p class="reco-text"><span class="spinner"></span> Asking for a recommendation…</p>';
+    try {
+      const data = await api('/recommendations', {
+        method: 'POST',
+        body: JSON.stringify({ gameIds: [id], preferences: getPrefs() }),
+      });
+      const reco = (data.recommendations || [])[0];
+      if (!reco) { recoEl.innerHTML = '<p class="reco-error">No recommendation returned.</p>'; return; }
+      const score = Math.max(0, Math.min(100, Math.round(reco.confidenceScore)));
+      const cls = confClass(score);
+      recoEl.innerHTML = `
+        <div class="reco-head">
+          <span class="reco-label">Confidence</span>
+          <span class="reco-score ${cls.text}">${score}</span>
+        </div>
+        <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
+        <p class="reco-text">${escapeHtml(reco.reasoning || '')}</p>
+      `;
+    } catch (err: any) {
+      if (err?.message !== 'Unauthorized') {
+        recoEl.innerHTML = `<p class="reco-error">Couldn't rate this: ${escapeHtml(err?.message || 'unknown error')}</p>`;
+      }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+
+  // ---- Lookup tab ----
+  const lookupInput  = document.getElementById('lookup-input') as HTMLInputElement;
+  const lookupBtn    = document.getElementById('lookup-btn') as HTMLButtonElement;
+  const lookupStatus = document.getElementById('lookup-status')!;
+  const lookupGrid   = document.getElementById('lookup-grid')!;
+
+  async function runLookup() {
+    const query = lookupInput.value.trim();
+    if (!query) { lookupInput.focus(); return; }
+    lookupStatus.classList.remove('error');
+    lookupStatus.hidden = false;
+    lookupStatus.innerHTML = '<span class="spinner"></span> Looking that up…';
+    lookupGrid.innerHTML = '';
+    lookupBtn.disabled = true;
+    try {
+      const data = await api('/recommendations/lookup', {
+        method: 'POST',
+        body: JSON.stringify({ query, preferences: getPrefs() }),
+      });
+      const results: any[] = data.results ?? [];
+      if (results.length === 0) {
+        lookupStatus.textContent = 'No results found.';
+        return;
+      }
+      lookupStatus.hidden = true;
+      results.forEach((r) => lookupGrid.appendChild(renderResultCard(r)));
+    } catch (err: any) {
+      if (err?.message !== 'Unauthorized') {
+        lookupStatus.classList.add('error');
+        lookupStatus.hidden = false;
+        lookupStatus.textContent = `Couldn't look that up: ${err?.message || 'unknown error'}`;
+      }
+    } finally {
+      lookupBtn.disabled = false;
+    }
+  }
+
+  lookupBtn.addEventListener('click', runLookup);
+  lookupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runLookup(); });
+
   // ---- Init ----
   function initDashboard() {
     loadPrefsIntoForm();
-    buildChips(typeChips, TYPE_OPTIONS, 'type');
-    buildChips(genreChips, GENRE_OPTIONS, 'genre');
-    buildChips(platformChips, PLATFORM_OPTIONS, 'platform');
+    buildChips(
+      document.getElementById('discover-platform-chips')!,
+      PLATFORM_OPTIONS,
+      discoverState,
+      'platform',
+    );
+    buildChips(
+      document.getElementById('discover-genre-chips')!,
+      GENRE_OPTIONS,
+      discoverState,
+      'genre',
+    );
+    buildChips(
+      document.getElementById('type-chips')!,
+      TYPE_OPTIONS,
+      browseState,
+      'type',
+    );
     setDefaultDates();
     loadSyncStatus();
-    loadReleases(false);
+    updateExclusionNote();
+    const savedTab = sessionStorage.getItem('games_active_tab') ?? 'own';
+    switchTab(savedTab);
   }
 
   // ---- Boot ----
-  if (getKey()) {
-    showDashboard();
-    initDashboard();
-  } else {
-    showGate();
-  }
+  if (getKey()) { showDashboard(); initDashboard(); }
+  else { showGate(); }
 </script>
