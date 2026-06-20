@@ -80,6 +80,27 @@ import Footer from '../../components/Footer.astro';
       <div class="grid-foot">
         <button id="load-more" class="btn" type="button" hidden>Load more</button>
       </div>
+
+      <!-- Backlog picks -->
+      <div class="backlog-section">
+        <div class="backlog-head">
+          <p class="eyebrow mono">// backlog</p>
+          <h2>What should I play?</h2>
+          <p class="backlog-intro">Picks from games you already own but haven't touched.</p>
+        </div>
+        <div class="backlog-controls">
+          <span class="filter-label mono">Games with less than</span>
+          <select id="backlog-threshold" class="threshold-select">
+            <option value="2">2h played</option>
+            <option value="5" selected>5h played</option>
+            <option value="10">10h played</option>
+            <option value="20">20h played</option>
+          </select>
+          <button id="backlog-btn" class="btn btn-primary" type="button">Find picks</button>
+        </div>
+        <p id="backlog-status" class="grid-status mono" hidden></p>
+        <div id="backlog-grid" class="backlog-grid"></div>
+      </div>
     </section>
   </main>
   <Footer />
@@ -424,6 +445,80 @@ import Footer from '../../components/Footer.astro';
 
   @media (min-width: 720px) {
     .releases-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ---- Backlog section ---- */
+  .backlog-section {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--color-border);
+  }
+  .backlog-intro {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    margin-top: var(--space-xs);
+  }
+  .backlog-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-top: var(--space-md);
+  }
+  .threshold-select {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+  }
+  .backlog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+  }
+  .backlog-card {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    transition: border-color var(--transition);
+  }
+  .backlog-card:hover {
+    border-color: var(--color-accent);
+  }
+  .backlog-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+  .backlog-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .backlog-name:hover {
+    color: var(--color-accent);
+  }
+  .backlog-hours {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-faint);
+  }
+
+  @media (min-width: 720px) {
+    .backlog-grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
@@ -821,6 +916,64 @@ import Footer from '../../components/Footer.astro';
       btn.textContent = original;
     }
   }
+
+  // ---- Backlog ----
+  const backlogBtn = document.getElementById('backlog-btn') as HTMLButtonElement;
+  const backlogStatus = document.getElementById('backlog-status')!;
+  const backlogGrid = document.getElementById('backlog-grid')!;
+  const backlogThreshold = document.getElementById('backlog-threshold') as HTMLSelectElement;
+
+  function renderBacklogCard(pick: any): HTMLElement {
+    const card = document.createElement('article');
+    card.className = 'backlog-card';
+    const score = Math.max(0, Math.min(100, Math.round(pick.confidenceScore ?? 0)));
+    const cls = confClass(score);
+    const hours = pick.hoursPlayed ?? 0;
+    card.innerHTML = `
+      <div class="backlog-title-row">
+        <a class="backlog-name" href="https://store.steampowered.com/app/${pick.appId}/" target="_blank" rel="noopener">${escapeHtml(pick.name || 'Unknown')} ↗</a>
+        <span class="backlog-hours">${hours}h played</span>
+      </div>
+      <div class="reco-head">
+        <span class="reco-label">Confidence</span>
+        <span class="reco-score ${cls.text}">${score}</span>
+      </div>
+      <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
+      <p class="reco-text">${escapeHtml(pick.reasoning || '')}</p>
+    `;
+    return card;
+  }
+
+  async function loadBacklogPicks() {
+    const threshold = backlogThreshold.value;
+    backlogStatus.hidden = false;
+    backlogStatus.classList.remove('error');
+    backlogStatus.innerHTML = '<span class="spinner"></span> Finding picks from your backlog…';
+    backlogGrid.innerHTML = '';
+    backlogBtn.disabled = true;
+    try {
+      const data = await api(`/steam/backlog-picks?threshold=${threshold}&limit=5`);
+      const picks: any[] = data.picks ?? [];
+      if (picks.length === 0) {
+        backlogStatus.textContent = data.warning ?? 'No picks found.';
+        return;
+      }
+      const count = data.candidateCount ?? picks.length;
+      backlogStatus.textContent = `Top picks from ${count} games with < ${threshold}h played`;
+      backlogStatus.hidden = false;
+      picks.forEach((p) => backlogGrid.appendChild(renderBacklogCard(p)));
+    } catch (err: any) {
+      if (err?.message !== 'Unauthorized') {
+        backlogStatus.classList.add('error');
+        backlogStatus.hidden = false;
+        backlogStatus.textContent = `Couldn't load picks: ${err?.message || 'unknown error'}`;
+      }
+    } finally {
+      backlogBtn.disabled = false;
+    }
+  }
+
+  backlogBtn.addEventListener('click', loadBacklogPicks);
 
   // ---- Init ----
   function initDashboard() {
