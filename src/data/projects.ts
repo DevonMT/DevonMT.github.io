@@ -17,7 +17,7 @@ export const projects: Project[] = [
     description:
       'A personal finance tracker that pulls bank and card transactions through Plaid, stores them locally in SQLite, and visualizes spending in a Streamlit dashboard.',
     longDescription:
-      'A privacy-first personal finance tracker. It connects to bank and card accounts through the Plaid API, syncs transactions into a local SQLite database, and renders an interactive Streamlit dashboard for spending breakdowns, category trends, and cash-flow over time. There are no third-party servers in the loop — every byte of financial data stays on your own machine.',
+      'A privacy-first personal finance tracker. It connects to bank and card accounts through the Plaid API, syncs transactions into a local SQLite database, and renders an interactive Streamlit dashboard for spending breakdowns, category trends, and cash-flow over time. There are no third-party servers in the loop — every byte of financial data stays on the local machine.',
     tags: ['Python', 'Streamlit', 'Plaid', 'SQLite'],
     repo: 'https://github.com/DevonMT/finance-dashboard',
     featured: true,
@@ -27,13 +27,13 @@ export const projects: Project[] = [
     slug: 'games-dashboard',
     title: 'Game Releases Dashboard',
     description:
-      'A full-stack dashboard for tracking upcoming and recent game releases, with Claude-powered recommendations ranked against your Steam library.',
+      'A full-stack dashboard for tracking upcoming and recent game releases, with Claude-powered recommendations ranked against a connected Steam library.',
     longDescription:
-      'Pulls game release data from the RAWG API, cross-references it with your owned titles via the Steam Web API, and uses Claude Haiku to score and rank upcoming games based on your play history and taste profile. Filter by type (AAA, indie, early access) and genre. The backend is a Hono server running on Railway; the frontend is a static Astro page. Game data is cached in SQLite and refreshed on each deploy.',
+      'Pulls game release data from the RAWG API, cross-references it with owned titles via the Steam Web API, and uses Claude Haiku to score and rank upcoming games based on play history and taste profile. Filter by type (AAA, indie, early access) and genre. The backend is a Hono server running on Railway; the frontend is a static Astro page. Game data is cached in SQLite and refreshed on each deploy.',
     tags: ['TypeScript', 'Hono', 'Astro', 'Railway', 'Claude AI', 'SQLite'],
     repo: 'https://github.com/DevonMT/games-backend',
     featured: true,
-    status: 'active',
+    status: 'complete',
   },
   {
     slug: 'devonmt',
