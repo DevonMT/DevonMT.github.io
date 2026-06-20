@@ -36,6 +36,18 @@ export const projects: Project[] = [
     status: 'complete',
   },
   {
+    slug: 'media-tracker',
+    title: 'Media Recommendation Tracker',
+    description:
+      'A Streamlit dashboard for tracking watched films and shows, managing streaming platforms, and generating AI-powered viewing recommendations based on watch history.',
+    longDescription:
+      'Tracks a watch history across movies and shows, then uses Claude Haiku to generate ranked recommendations filtered to active streaming platforms and a configurable rental budget. Recommendations include confidence scores, cast info pulled from TMDB, vibe tags, and optional content sensitivity flags. Built with Streamlit, SQLite, and the Anthropic API.',
+    tags: ['Python', 'Streamlit', 'Claude AI', 'SQLite', 'TMDB'],
+    repo: 'https://github.com/DevonMT/media-tracker',
+    featured: true,
+    status: 'complete',
+  },
+  {
     slug: 'devonmt',
     title: 'devonmt',
     description:
