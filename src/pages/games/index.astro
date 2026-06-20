@@ -47,6 +47,37 @@ import Footer from '../../components/Footer.astro';
         <button id="lock-btn" class="btn lock-btn" type="button" title="Forget access key">Lock</button>
       </div>
 
+      <!-- Taste profile quiz -->
+      <div class="taste-section">
+        <button id="taste-toggle" class="taste-toggle" type="button" aria-expanded="false">
+          <span class="eyebrow mono" style="margin:0">// taste profile</span>
+          <span id="taste-summary" class="taste-summary">Not configured — tell Claude what you like ▾</span>
+        </button>
+        <div id="taste-panel" class="taste-panel" hidden>
+          <div class="taste-field">
+            <label class="filter-label mono" for="taste-favorites">Favorite games not on Steam (or where your hours don't reflect how much you love them)</label>
+            <textarea id="taste-favorites" class="taste-textarea" rows="2" placeholder="e.g. Tales of Arise, FFXIV, Kingdom Hearts, FFX, Chained Echoes, Dark Souls, WoW…"></textarea>
+          </div>
+          <div class="taste-field">
+            <span class="filter-label mono">What matters most to you in a game</span>
+            <div class="taste-values">
+              <label class="taste-chip"><input type="checkbox" value="story" hidden> Story &amp; Narrative</label>
+              <label class="taste-chip"><input type="checkbox" value="build-depth" hidden> Build Depth &amp; Systems</label>
+              <label class="taste-chip"><input type="checkbox" value="combat" hidden> Combat Feel</label>
+              <label class="taste-chip"><input type="checkbox" value="exploration" hidden> World Exploration</label>
+              <label class="taste-chip"><input type="checkbox" value="lore" hidden> Lore &amp; World-building</label>
+              <label class="taste-chip"><input type="checkbox" value="social" hidden> MMO / Social</label>
+              <label class="taste-chip"><input type="checkbox" value="emotional" hidden> Emotional Impact</label>
+              <label class="taste-chip"><input type="checkbox" value="mechanics" hidden> Unique Mechanics</label>
+            </div>
+          </div>
+          <div class="taste-field">
+            <label class="filter-label mono" for="taste-notes">Anything else Claude should know</label>
+            <textarea id="taste-notes" class="taste-textarea" rows="2" placeholder="e.g. FFXII for the Gambit system and job builds, not the story. I value deep MMO worlds but not necessarily the grind."></textarea>
+          </div>
+        </div>
+      </div>
+
       <!-- Filter bar -->
       <div class="filters">
         <div class="filter-group" data-group="type">
@@ -250,6 +281,80 @@ import Footer from '../../components/Footer.astro';
   .lock-btn {
     border-color: var(--color-border);
     color: var(--color-text-muted);
+  }
+
+  /* ---- Taste profile ---- */
+  .taste-section {
+    margin-top: var(--space-md);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .taste-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+  .taste-toggle:hover { background: var(--color-surface); }
+  .taste-summary {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .taste-panel {
+    padding: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .taste-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .taste-textarea {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .taste-textarea:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+  .taste-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .taste-chip {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.3rem 0.85rem;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .taste-chip:has(input:checked) {
+    color: #fff;
+    background: #0d9488;
+    border-color: #0d9488;
+    font-weight: 600;
   }
 
   /* ---- Filters ---- */
@@ -571,6 +676,60 @@ import Footer from '../../components/Footer.astro';
   const syncStatusEl = document.getElementById('sync-status')!;
   const syncNowBtn = document.getElementById('sync-now') as HTMLButtonElement;
   const lockBtn = document.getElementById('lock-btn') as HTMLButtonElement;
+
+  // ---- Taste profile ----
+  const tasteToggle = document.getElementById('taste-toggle') as HTMLButtonElement;
+  const tastePanel = document.getElementById('taste-panel')!;
+  const tasteSummaryEl = document.getElementById('taste-summary')!;
+  const tasteFavorites = document.getElementById('taste-favorites') as HTMLTextAreaElement;
+  const tasteNotes = document.getElementById('taste-notes') as HTMLTextAreaElement;
+
+  const PREFS_KEY = 'games_taste_prefs';
+
+  function getPrefs(): { favoritesNote: string; values: string[]; notes: string } {
+    try {
+      const raw = localStorage.getItem(PREFS_KEY);
+      return raw ? JSON.parse(raw) : { favoritesNote: '', values: [], notes: '' };
+    } catch { return { favoritesNote: '', values: [], notes: '' }; }
+  }
+
+  function savePrefs() {
+    const values = [...document.querySelectorAll<HTMLInputElement>('.taste-chip input:checked')].map((el) => el.value);
+    const prefs = { favoritesNote: tasteFavorites.value.trim(), values, notes: tasteNotes.value.trim() };
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    renderTasteSummary(prefs);
+  }
+
+  function renderTasteSummary(prefs: { favoritesNote: string; values: string[]; notes: string }) {
+    const parts: string[] = [];
+    if (prefs.favoritesNote) {
+      const first3 = prefs.favoritesNote.split(',').slice(0, 3).map((s) => s.trim()).filter(Boolean).join(', ');
+      if (first3) parts.push(first3);
+    }
+    if (prefs.values.length) parts.push(`${prefs.values.length} value${prefs.values.length === 1 ? '' : 's'} set`);
+    tasteSummaryEl.textContent = parts.length
+      ? parts.join(' · ') + ' ▾'
+      : 'Not configured — tell Claude what you like ▾';
+  }
+
+  function loadPrefsIntoForm() {
+    const prefs = getPrefs();
+    tasteFavorites.value = prefs.favoritesNote || '';
+    tasteNotes.value = prefs.notes || '';
+    document.querySelectorAll<HTMLInputElement>('.taste-chip input').forEach((el) => {
+      el.checked = prefs.values.includes(el.value);
+    });
+    renderTasteSummary(prefs);
+  }
+
+  tasteToggle.addEventListener('click', () => {
+    const open = !tastePanel.hidden;
+    tastePanel.hidden = open;
+    tasteToggle.setAttribute('aria-expanded', String(!open));
+  });
+  tasteFavorites.addEventListener('input', savePrefs);
+  tasteNotes.addEventListener('input', savePrefs);
+  document.querySelectorAll<HTMLInputElement>('.taste-chip input').forEach((el) => el.addEventListener('change', savePrefs));
 
   const typeChips = document.getElementById('type-chips')!;
   const genreChips = document.getElementById('genre-chips')!;
@@ -921,7 +1080,7 @@ import Footer from '../../components/Footer.astro';
     try {
       const data = await api('/recommendations', {
         method: 'POST',
-        body: JSON.stringify({ gameIds: [id] }),
+        body: JSON.stringify({ gameIds: [id], preferences: getPrefs() }),
       });
       const reco = (data.recommendations || [])[0];
       if (!reco) {
@@ -1026,7 +1185,10 @@ import Footer from '../../components/Footer.astro';
     backlogGrid.innerHTML = '';
     backlogBtn.disabled = true;
     try {
-      const data = await api(`/steam/backlog-picks?threshold=${threshold}&limit=5${excludeParam}`);
+      const data = await api(`/steam/backlog-picks?threshold=${threshold}&limit=5${excludeParam}`, {
+        method: 'POST',
+        body: JSON.stringify({ preferences: getPrefs() }),
+      });
       const picks: any[] = data.picks ?? [];
       if (picks.length === 0) {
         backlogStatus.textContent = data.warning ?? 'No picks found.';
@@ -1052,6 +1214,7 @@ import Footer from '../../components/Footer.astro';
 
   // ---- Init ----
   function initDashboard() {
+    loadPrefsIntoForm();
     buildChips(typeChips, TYPE_OPTIONS, 'type');
     buildChips(genreChips, GENRE_OPTIONS, 'genre');
     buildChips(platformChips, PLATFORM_OPTIONS, 'platform');
