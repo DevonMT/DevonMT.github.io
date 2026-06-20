@@ -32,7 +32,6 @@ export const projects: Project[] = [
       'Pulls game release data from the RAWG API, cross-references it with your owned titles via the Steam Web API, and uses Claude Haiku to score and rank upcoming games based on your play history and taste profile. Filter by type (AAA, indie, early access) and genre. The backend is a Hono server running on Railway; the frontend is a static Astro page. Game data is cached in SQLite and refreshed on each deploy.',
     tags: ['TypeScript', 'Hono', 'Astro', 'Railway', 'Claude AI', 'SQLite'],
     repo: 'https://github.com/DevonMT/games-backend',
-    demo: 'https://devontroedel.com/games',
     featured: true,
     status: 'active',
   },
