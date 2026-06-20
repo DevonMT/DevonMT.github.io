@@ -129,6 +129,37 @@ import Footer from '../../components/Footer.astro';
     border-color: #0d9488;
     font-weight: 600;
   }
+  .backlog-exclude {
+    margin-left: auto;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    color: #64748b;
+    background: transparent;
+    border: 1px solid #334155;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .backlog-exclude:hover {
+    color: #f87171;
+    border-color: #f87171;
+  }
+  .inline-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #0d9488;
+    font-family: var(--font-mono, monospace);
+    font-size: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .inline-link:hover { color: #fff; }
+  .backlog-exclusion-note {
+    margin-bottom: 0;
+  }
 </style>
 
 <style>
@@ -923,6 +954,39 @@ import Footer from '../../components/Footer.astro';
   const backlogGrid = document.getElementById('backlog-grid')!;
   const backlogThreshold = document.getElementById('backlog-threshold') as HTMLSelectElement;
 
+  const EXCLUDED_KEY = 'games_backlog_excluded';
+
+  function getExcluded(): Set<number> {
+    try {
+      const raw = localStorage.getItem(EXCLUDED_KEY);
+      return new Set(raw ? JSON.parse(raw) : []);
+    } catch { return new Set(); }
+  }
+
+  function saveExcluded(ex: Set<number>) {
+    localStorage.setItem(EXCLUDED_KEY, JSON.stringify([...ex]));
+  }
+
+  function updateExclusionNote() {
+    const ex = getExcluded();
+    let note = document.getElementById('backlog-exclusion-note');
+    if (ex.size === 0) {
+      note?.remove();
+      return;
+    }
+    if (!note) {
+      note = document.createElement('p');
+      note.id = 'backlog-exclusion-note';
+      note.className = 'grid-status mono backlog-exclusion-note';
+      backlogGrid.parentElement!.insertBefore(note, backlogGrid);
+    }
+    note.innerHTML = `${ex.size} game${ex.size === 1 ? '' : 's'} excluded · <button class="inline-link" id="backlog-reset">Reset</button>`;
+    document.getElementById('backlog-reset')?.addEventListener('click', () => {
+      localStorage.removeItem(EXCLUDED_KEY);
+      note!.remove();
+    });
+  }
+
   function renderBacklogCard(pick: any): HTMLElement {
     const card = document.createElement('article');
     card.className = 'backlog-card';
@@ -933,6 +997,7 @@ import Footer from '../../components/Footer.astro';
       <div class="backlog-title-row">
         <a class="backlog-name" href="https://store.steampowered.com/app/${pick.appId}/" target="_blank" rel="noopener">${escapeHtml(pick.name || 'Unknown')} ↗</a>
         <span class="backlog-hours">${hours}h played</span>
+        <button class="backlog-exclude" type="button" title="Exclude from future picks">✕ Exclude</button>
       </div>
       <div class="reco-head">
         <span class="reco-label">Confidence</span>
@@ -941,18 +1006,27 @@ import Footer from '../../components/Footer.astro';
       <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
       <p class="reco-text">${escapeHtml(pick.reasoning || '')}</p>
     `;
+    card.querySelector('.backlog-exclude')!.addEventListener('click', () => {
+      const ex = getExcluded();
+      ex.add(pick.appId);
+      saveExcluded(ex);
+      card.remove();
+      updateExclusionNote();
+    });
     return card;
   }
 
   async function loadBacklogPicks() {
     const threshold = backlogThreshold.value;
+    const excluded = [...getExcluded()];
+    const excludeParam = excluded.length ? `&exclude=${excluded.join(',')}` : '';
     backlogStatus.hidden = false;
     backlogStatus.classList.remove('error');
     backlogStatus.innerHTML = '<span class="spinner"></span> Finding picks from your backlog…';
     backlogGrid.innerHTML = '';
     backlogBtn.disabled = true;
     try {
-      const data = await api(`/steam/backlog-picks?threshold=${threshold}&limit=5`);
+      const data = await api(`/steam/backlog-picks?threshold=${threshold}&limit=5${excludeParam}`);
       const picks: any[] = data.picks ?? [];
       if (picks.length === 0) {
         backlogStatus.textContent = data.warning ?? 'No picks found.';
@@ -962,6 +1036,7 @@ import Footer from '../../components/Footer.astro';
       backlogStatus.textContent = `Top picks from ${count} games with < ${threshold}h played`;
       backlogStatus.hidden = false;
       picks.forEach((p) => backlogGrid.appendChild(renderBacklogCard(p)));
+      updateExclusionNote();
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         backlogStatus.classList.add('error');
