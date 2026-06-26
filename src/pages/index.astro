@@ -1,147 +1,1256 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import ProjectCard from '../components/ProjectCard.astro';
 import { featuredProjects } from '../data/projects';
 import { getCollection } from 'astro:content';
 
-const email = 'devon.troedel@gmail.com';
-
-const stack = ['SQL', 'Python', 'Power BI', 'Snowflake', 'Data Engineering', 'ETL', 'Streamlit'];
-
-const recentPosts = (await getCollection('blog', ({ data }) => !data.draft))
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 
-const dateFmt = new Intl.DateTimeFormat('en-US', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
+function fmtDate(d: Date): string {
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function postChipTag(tags: string[]): string {
+  return tags.find((t) => !['data', 'personal', 'analytics'].includes(t)) ?? tags[0];
+}
 ---
 
 <BaseLayout
   title="Devon Troedel — Data Engineer & BI Analyst"
-  description="Devon Troedel is a data engineer and BI analyst building pipelines, dashboards, and automation with SQL, Python, and Power BI at the Walton Arts Center in Gravette, AR."
+  description="Devon Troedel is a data engineer and BI analyst building pipelines, dashboards, and automation with SQL, Python, and Snowflake at the Walton Arts Center in Gravette, AR."
 >
-  <Header />
-  <main>
-    <section class="hero">
-      <p class="eyebrow mono">// devondoes.dev</p>
+  <div id="site">
+    <div id="bg-grid" aria-hidden="true"></div>
 
-      <h1>Devon Troedel</h1>
-
-      <p class="tagline">
-        Data engineer. BI nerd. I wrangle data into things people actually use —
-        pipelines, dashboards, automations, and the occasional weekend project
-        that got a little out of hand.
-      </p>
-
-      <ul class="stack" aria-label="Tech stack">
-        {stack.map((tech) => <li class="tag">{tech}</li>)}
-      </ul>
-
-      <div class="actions">
-        <a class="btn btn-primary" href="/projects">View Projects</a>
-        <a class="btn" href={`mailto:${email}`}>Get in touch</a>
+    <!-- NAV -->
+    <header class="site-nav">
+      <div class="nav-inner">
+        <a href="#top" class="logo">
+          <span class="logo-dot" aria-hidden="true"></span>
+          <span>devondoes<span class="logo-accent">.dev</span></span>
+        </a>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a href="#about" class="nav-link">About</a>
+          <a href="#projects" class="nav-link">Projects</a>
+          <a href="#blog" class="nav-link">Writing</a>
+          <a href="#now" class="nav-link">Now</a>
+          <a href="#contact" class="nav-cta">Say Hi</a>
+        </nav>
       </div>
-    </section>
+    </header>
 
-    <section class="section" aria-labelledby="featured-heading">
-      <div class="section-head">
-        <h2 id="featured-heading">Featured Projects</h2>
-        <a class="section-link mono" href="/projects">All projects →</a>
-      </div>
+    <div id="top" class="page-content">
 
-      <div class="card-grid">
-        {featuredProjects.map((project) => <ProjectCard project={project} />)}
-      </div>
-    </section>
-
-    {
-      recentPosts.length > 0 && (
-        <section class="section" aria-labelledby="posts-heading">
-          <div class="section-head">
-            <h2 id="posts-heading">Recent Posts</h2>
-            <a class="section-link mono" href="/blog">All posts →</a>
+      <!-- HERO -->
+      <section class="hero" aria-label="Introduction">
+        <div class="hero-left">
+          <div class="hero-eyebrow">// data engineer · gravette, ar</div>
+          <h1>Devon<br />Troedel</h1>
+          <div class="typing-line" aria-live="polite">
+            <span class="prompt">$ </span><span id="role">builds Snowflake warehouses</span><span
+              id="rolecursor"
+              class="cursor"
+              aria-hidden="true"></span>
           </div>
+          <p class="hero-p">
+            I'm a BI Nerd who turns messy data into things people actually use. Five years in
+            analytics, BI, and report development — currently architecting a Snowflake warehouse
+            from the ground up. Also: the occasional weekend project that gets <em>a little</em> out
+            of hand.
+          </p>
+          <div class="hero-btns">
+            <a href="#projects" class="btn-primary">See the work <span class="mono-arrow">↓</span></a>
+            <a href="https://github.com/DevonMT" target="_blank" rel="noopener" class="btn-secondary"
+              >GitHub</a
+            >
+          </div>
+        </div>
 
-          <ul class="post-list">
-            {recentPosts.map((post) => (
-              <li class="blog-card">
-                <p class="blog-meta mono">
-                  <time datetime={post.data.date.toISOString()}>
-                    {dateFmt.format(post.data.date)}
-                  </time>
-                </p>
-                <h3>
-                  <a href={`/blog/${post.slug}`}>{post.data.title}</a>
-                </h3>
-                <p class="card-desc">{post.data.excerpt}</p>
-                <a class="read-more mono" href={`/blog/${post.slug}`}>
-                  Read more →
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
+        <!-- Runnable query card -->
+        <div class="query-card-wrap" aria-hidden="true">
+          <div class="query-glow"></div>
+          <div class="query-card">
+            <div class="query-titlebar">
+              <span class="dot-orange"></span>
+              <span class="dot-dim"></span>
+              <span class="dot-dim"></span>
+              <span class="query-label">devon.sql — snowflake</span>
+            </div>
+            <div class="query-body">
+              <div><span class="kw">SELECT</span> <span class="col">role</span>, <span class="col">vibe</span></div>
+              <div><span class="kw">FROM</span> <span class="tbl">devon</span></div>
+              <div><span class="kw">WHERE</span> <span class="col">caffeinated</span> = <span class="val">true</span>;</div>
+            </div>
+            <div class="query-run">
+              <button id="run-btn">▶ run query</button>
+              <span id="run-time">executed in 0.04s</span>
+            </div>
+            <div class="query-result">
+              <div class="result-grid">
+                <div class="rh">role</div>
+                <div class="rh">vibe</div>
+                <div class="rd">Data Engineer</div>
+                <div class="rd" id="vibe-cell">BI Nerd</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  </main>
-  <Footer />
+      <!-- STATS -->
+      <section class="stats" aria-label="Career highlights">
+        <div class="stat-card">
+          <div class="stat-num accent"><span data-countup="5">5</span>+</div>
+          <div class="stat-label">years wrangling data, BI &amp; reports</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num amber"><span data-countup="1">1</span></div>
+          <div class="stat-label">Snowflake warehouse, built from scratch</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num light">B.S.</div>
+          <div class="stat-label">Mathematics — Arkansas Tech</div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="section" aria-labelledby="about-heading">
+        <div class="eyebrow-amber">01 / ABOUT</div>
+        <div class="about-grid">
+          <h2 id="about-heading" class="about-h2">
+            Most of my job is making data behave. The rest is convincing it that it wants to.
+          </h2>
+          <div class="about-right">
+            <p>
+              I'm a Jr. Data Engineer at the Walton Arts Center &amp; Walmart AMP, where I'm
+              building a Snowflake data warehouse from the ground up. Before that: five-plus years
+              deep in SQL, Crystal Reports, Power BI, Python, and ETL — the unglamorous plumbing
+              that makes a dashboard trustworthy.
+            </p>
+            <p>
+              I like process, automation, and reports that answer the question before someone asks
+              it. And on weekends I build things that start small and develop opinions. This site is
+              one of them.
+            </p>
+            <div class="skill-chips">
+              {['SQL', 'Snowflake', 'Python / ETL', 'Power BI', 'Crystal Reports'].map((s) => (
+                <span class="chip">{s}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section id="projects" class="section" aria-labelledby="projects-heading">
+        <div class="eyebrow-amber">02 / PROJECTS</div>
+        <h2 id="projects-heading" class="section-h2">Weekend projects that got a little out of hand</h2>
+        <div class="projects-grid">
+          {
+            featuredProjects.map((p) => {
+              const amber = p.tagColor === 'amber';
+              const chipStyle = amber
+                ? 'color:#f0a868;background:rgba(240,168,104,0.12)'
+                : 'color:var(--ac-soft);background:color-mix(in srgb,var(--ac) 10%,transparent)';
+              const strokeColor = amber ? '#f0a868' : 'var(--ac)';
+              return (
+                <article data-pj class="pj-card">
+                  <div class="pj-top">
+                    <span class="pj-tag" style={chipStyle}>{p.tag}</span>
+                    {p.runtimeNote && <span class="pj-rt">{p.runtimeNote}</span>}
+                  </div>
+                  <svg viewBox="0 0 140 40" class="pj-spark" aria-hidden="true">
+                    <polyline
+                      data-spark
+                      points={p.sparkline}
+                      fill="none"
+                      stroke={strokeColor}
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="stroke-dasharray:220;stroke-dashoffset:0"
+                    />
+                  </svg>
+                  <h3 class="pj-title">{p.title}</h3>
+                  <p class="pj-blurb">{p.cardBlurb}</p>
+                  <div class="pj-stack">
+                    {p.tags.map((t, i) => (
+                      <>
+                        <span class="stack-item">{t}</span>
+                        {i < p.tags.length - 1 && <span class="sep" aria-hidden="true">·</span>}
+                      </>
+                    ))}
+                  </div>
+                </article>
+              );
+            })
+          }
+        </div>
+      </section>
+
+      <!-- WRITING -->
+      <section id="blog" class="section" aria-labelledby="blog-heading">
+        <div class="writing-head">
+          <div>
+            <div class="eyebrow-amber">03 / WRITING</div>
+            <h2 id="blog-heading" class="section-h2">Notes from the data trenches</h2>
+          </div>
+          <a href="/blog" class="all-posts">all posts →</a>
+        </div>
+        <div class="post-list" role="list">
+          {
+            posts.map((post) => (
+              <a href={`/blog/${post.slug}`} class="post-row" role="listitem">
+                <span class="post-date">{fmtDate(post.data.date)}</span>
+                <span class="bt">{post.data.title}</span>
+                <span class="post-tag">{postChipTag(post.data.tags)}</span>
+              </a>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- NOW -->
+      <section id="now" class="section" aria-labelledby="now-heading">
+        <div class="eyebrow-amber">04 / NOW</div>
+        <div class="now-panel">
+          <div class="now-rail" aria-hidden="true">
+            <span class="now-dot"></span>
+            <span class="now-live">LIVE</span>
+          </div>
+          <div>
+            <h2 id="now-heading" class="now-h2">Currently querying</h2>
+            <p class="now-p">
+              Architecting a Snowflake data warehouse for the Walton Arts Center &amp; Walmart AMP
+              — modeling sources, building pipelines, and making sure the numbers everyone trusts
+              are actually the right numbers. Open to talking data engineering, BI, and the
+              occasional weekend rabbit hole.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" class="section" aria-labelledby="contact-heading">
+        <div class="eyebrow-amber">05 / SAY HI</div>
+        <h2 id="contact-heading" class="contact-h2">Let's turn some data into decisions.</h2>
+        <div class="contact-grid">
+          <a href="https://github.com/DevonMT" target="_blank" rel="noopener" class="contact-card">
+            <div class="contact-label">/work</div>
+            <div class="contact-title">GitHub · DevonMT</div>
+          </a>
+          <a
+            href="https://github.com/ArcheKnight"
+            target="_blank"
+            rel="noopener"
+            class="contact-card contact-card-amber"
+          >
+            <div class="contact-label">/the-lab</div>
+            <div class="contact-title">GitHub · ArcheKnight</div>
+          </a>
+          <a
+            href="https://linkedin.com/in/dtroedel"
+            target="_blank"
+            rel="noopener"
+            class="contact-card"
+          >
+            <div class="contact-label">/resume-ish</div>
+            <div class="contact-title">LinkedIn · dtroedel</div>
+          </a>
+          <a href="/blog" class="contact-card contact-card-blog">
+            <div class="contact-label contact-label-blog">/blog</div>
+            <div class="contact-title">Read the writing →</div>
+          </a>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="site-footer">
+        <div class="footer-copy">© 2026 Devon Troedel · built with Astro, deployed on GitHub Pages</div>
+        <div class="footer-right">
+          <span id="clock-wrap"><span id="clock">--:--:-- CT</span><span class="pipe" aria-hidden="true">|</span></span>
+          <span id="egg-hint" title="open the console, you'll feel at home" role="button" tabindex="0"
+            >SELECT * FROM secrets;</span
+          >
+        </div>
+      </footer>
+
+    </div><!-- .page-content -->
+  </div><!-- #site -->
 </BaseLayout>
 
 <style>
-  .hero {
-    min-height: 62vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: var(--space-md);
-    padding-block: var(--space-2xl) var(--space-xl);
+  /* ── Design tokens ──────────────────────────────────────────────── */
+  #site {
+    --ac: #2dd4bf;
+    --ac-lite: #5fe6d4;
+    --ac-soft: #7ee0d0;
+    position: relative;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+      #0a0e1a;
+    overflow-x: hidden;
   }
 
-  .eyebrow {
-    color: var(--color-accent);
-    font-size: 0.9rem;
-    letter-spacing: 0.04em;
-    margin-bottom: var(--space-xs);
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* ── Nav ─────────────────────────────────────────────────────────── */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(10, 14, 26, 0.72);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: #e9edf7;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ac) 70%, transparent);
+    animation: pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .logo-accent {
+    color: var(--ac);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-link {
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #9aa6c2;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .nav-link:hover {
+    color: #e9edf7;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-cta {
+    margin-left: 6px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0a0e1a;
+    background: var(--ac);
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .nav-cta:hover {
+    background: var(--ac-lite);
+  }
+
+  /* ── Page content wrapper ────────────────────────────────────────── */
+  .page-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ── Hero ───────────────────────────────────────────────────────── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 52px;
+    align-items: center;
+    padding: 84px 0 76px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ac);
+    letter-spacing: 0.02em;
+    margin-bottom: 22px;
   }
 
   h1 {
-    background: linear-gradient(120deg, var(--color-text) 30%, var(--color-accent) 120%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 68px;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    margin: 0 0 18px;
+    color: #f4f7fd;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
   }
 
-  .tagline {
-    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-    color: var(--color-text-muted);
-    max-width: 42ch;
-    line-height: 1.5;
+  .typing-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: #cdd5e8;
+    height: 26px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
   }
 
-  .accent {
-    color: var(--color-accent);
+  .prompt {
+    color: #616d8c;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 9px;
+    height: 19px;
+    margin-left: 2px;
+    background: var(--ac);
+    animation: blink 1s step-end infinite;
+    flex-shrink: 0;
+  }
+
+  .hero-p {
+    font-size: 17px;
+    line-height: 1.62;
+    color: #9aa6c2;
+    max-width: 460px;
+    margin: 0 0 30px;
+  }
+
+  .hero-p em {
+    color: #cdd5e8;
+    font-style: italic;
+  }
+
+  .hero-btns {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    background: var(--ac);
+    color: #0a0e1a;
+    font-weight: 600;
+    font-size: 14.5px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--ac-lite);
+    transform: translateY(-2px);
+  }
+
+  .mono-arrow {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #cdd5e8;
     font-weight: 500;
+    font-size: 14.5px;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
   }
 
-  .stack {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-    margin-block: var(--space-xs);
+  .btn-secondary:hover {
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+    color: #fff;
   }
 
-  .actions {
+  /* ── Query card ─────────────────────────────────────────────────── */
+  .query-card-wrap {
+    position: relative;
+  }
+
+  .query-glow {
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    background: linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--ac) 45%, transparent),
+      rgba(240, 168, 104, 0.25),
+      transparent 70%
+    );
+    opacity: 0.7;
+    filter: blur(0.5px);
+  }
+
+  .query-card {
+    position: relative;
+    border-radius: 15px;
+    background: #0d1322;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.8);
+  }
+
+  .query-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .dot-orange {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #f0a868;
+  }
+
+  .dot-dim {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .query-label {
+    margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+  }
+
+  .query-body {
+    padding: 20px 20px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.85;
+  }
+
+  .kw { color: #f0a868; }
+  .col { color: #cdd5e8; }
+  .tbl { color: var(--ac); }
+  .val { color: var(--ac-soft); }
+
+  .query-run {
+    padding: 6px 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--ac) 35%, transparent);
+    background: color-mix(in srgb, var(--ac) 10%, transparent);
+    color: var(--ac-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  #run-btn:hover {
+    background: color-mix(in srgb, var(--ac) 20%, transparent);
+  }
+
+  #run-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #616d8c;
+  }
+
+  .query-result {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .rh {
+    padding: 9px 20px;
+    color: #616d8c;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .rh:first-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .rd {
+    padding: 11px 20px;
+    color: #e9edf7;
+  }
+
+  .rd:first-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  #vibe-cell {
+    color: var(--ac);
+  }
+
+  /* ── Stats ──────────────────────────────────────────────────────── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 8px 0 80px;
+  }
+
+  .stat-card {
+    padding: 24px;
+    border-radius: 14px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .stat-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .stat-num.accent { color: var(--ac); }
+  .stat-num.amber  { color: #f0a868; }
+  .stat-num.light  { color: #e9edf7; }
+
+  .stat-label {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #9aa6c2;
+  }
+
+  /* ── Sections shared ────────────────────────────────────────────── */
+  .section {
+    padding: 36px 0 80px;
+    scroll-margin-top: 80px;
+  }
+
+  .eyebrow-amber {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+    margin-bottom: 18px;
+  }
+
+  .section-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 34px;
+    letter-spacing: -0.025em;
+    margin: 0 0 30px;
+    color: #f4f7fd;
+  }
+
+  /* ── About ──────────────────────────────────────────────────────── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .about-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 34px;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    margin: 0;
+    color: #f4f7fd;
+  }
+
+  .about-right p {
+    font-size: 16px;
+    line-height: 1.66;
+    color: #9aa6c2;
+    margin: 0 0 16px;
+  }
+
+  .skill-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-sm);
-    margin-top: var(--space-xs);
+    gap: 8px;
+    margin-top: 22px;
+  }
+
+  .chip {
+    padding: 6px 12px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #cdd5e8;
+  }
+
+  /* ── Projects ───────────────────────────────────────────────────── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .pj-card {
+    position: relative;
+    border-radius: 15px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 22px;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .pj-card:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--ac) 35%, transparent);
+    box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+  }
+
+  .pj-card:hover .pj-rt {
+    opacity: 1;
+  }
+
+  .pj-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .pj-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+  }
+
+  .pj-rt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .pj-spark {
+    width: 100%;
+    height: 46px;
+    margin-bottom: 18px;
+    display: block;
+  }
+
+  .pj-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    margin: 0 0 8px;
+    color: #f4f7fd;
+  }
+
+  .pj-blurb {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #9aa6c2;
+    margin: 0 0 16px;
+  }
+
+  .pj-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .stack-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+  }
+
+  .sep {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #2a3450;
+  }
+
+  /* ── Writing ────────────────────────────────────────────────────── */
+  .writing-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 20px;
+  }
+
+  .writing-head .section-h2 {
+    margin-bottom: 0;
+  }
+
+  .all-posts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ac-soft);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .all-posts:hover {
+    color: var(--ac-lite);
+  }
+
+  .post-list {
+    display: block;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .post-row {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: 24px;
+    align-items: center;
+    padding: 20px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    text-decoration: none;
+    transition: background 0.2s, padding-left 0.2s;
+  }
+
+  .post-row:hover {
+    background: rgba(255, 255, 255, 0.025);
+    padding-left: 16px;
+  }
+
+  .post-row:hover .bt {
+    color: var(--ac);
+  }
+
+  .post-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #616d8c;
+  }
+
+  .bt {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #f4f7fd;
+    transition: color 0.2s;
+  }
+
+  .post-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #f0a868;
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: rgba(240, 168, 104, 0.12);
+    white-space: nowrap;
+  }
+
+  /* ── Now ────────────────────────────────────────────────────────── */
+  .now-panel {
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0e1424, #0c1120);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 38px 40px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 34px;
+    align-items: center;
+  }
+
+  .now-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .now-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--ac) 80%, transparent);
+    animation: pulse 2.4s ease-in-out infinite;
+    display: block;
+  }
+
+  .now-live {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+    writing-mode: vertical-rl;
+    letter-spacing: 0.1em;
+  }
+
+  .now-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    color: #f4f7fd;
+  }
+
+  .now-p {
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: #9aa6c2;
+    margin: 0;
+    max-width: 620px;
+  }
+
+  /* ── Contact ────────────────────────────────────────────────────── */
+  .contact-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 44px;
+    letter-spacing: -0.03em;
+    margin: 0 0 28px;
+    color: #f4f7fd;
+    max-width: 680px;
+    line-height: 1.05;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .contact-card {
+    display: block;
+    padding: 20px;
+    border-radius: 13px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--ac) 45%, transparent);
+  }
+
+  .contact-card-amber:hover {
+    border-color: rgba(240, 168, 104, 0.45);
+  }
+
+  .contact-card-blog {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ac) 10%, transparent),
+      rgba(240, 168, 104, 0.08)
+    );
+    border-color: color-mix(in srgb, var(--ac) 25%, transparent);
+  }
+
+  .contact-card-blog:hover {
+    border-color: color-mix(in srgb, var(--ac) 60%, transparent) !important;
+  }
+
+  .contact-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+    margin-bottom: 6px;
+  }
+
+  .contact-label-blog {
+    color: var(--ac-soft);
+  }
+
+  .contact-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #e9edf7;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────────── */
+  .site-footer {
+    padding: 40px 0 56px;
+    margin-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+  }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+  }
+
+  #clock-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .pipe {
+    color: #2a3450;
+  }
+
+  #egg-hint {
+    cursor: help;
+  }
+
+  /* ── Keyframes ──────────────────────────────────────────────────── */
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.82); }
+  }
+
+  @keyframes drawline {
+    from { stroke-dashoffset: 220; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes flashcell {
+    0% { background: rgba(240, 168, 104, 0.35); }
+    100% { background: transparent; }
+  }
+
+  /* ── Reduced motion ─────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .logo-dot, .now-dot, .cursor { animation: none; }
+    .pj-card, .btn-primary, .btn-secondary, .contact-card, .nav-link, .post-row { transition: none; }
   }
 </style>
+
+<script>
+  const roles = [
+    'builds Snowflake warehouses',
+    'ships dashboards people trust',
+    'automates the boring parts',
+    'breaks weekend projects (lovingly)',
+    'turns data into decisions',
+  ];
+
+  const vibes = [
+    'BI Nerd',
+    'caffeine → SQL',
+    'dashboard whisperer',
+    'professionally curious',
+    'recovering spreadsheet user',
+    'data plumber',
+  ];
+
+  // Typing role rotator
+  const roleEl = document.getElementById('role');
+  let ri = 0, ci = 0, deleting = false;
+
+  function type() {
+    if (!roleEl) return;
+    const word = roles[ri];
+    if (!deleting) {
+      ci++;
+      roleEl.textContent = word.slice(0, ci);
+      if (ci === word.length) {
+        deleting = true;
+        setTimeout(type, 1900);
+      } else {
+        setTimeout(type, 55 + Math.random() * 45);
+      }
+    } else {
+      ci--;
+      roleEl.textContent = word.slice(0, ci);
+      if (ci === 0) {
+        deleting = false;
+        ri = (ri + 1) % roles.length;
+        setTimeout(type, 380);
+      } else {
+        setTimeout(type, 28);
+      }
+    }
+  }
+  setTimeout(type, 2200);
+
+  // Count-up stats
+  function runCountup(el: Element) {
+    const target = parseInt(el.getAttribute('data-countup') || '0', 10);
+    const dur = 900;
+    const start = performance.now();
+    function step(now: number) {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = String(Math.round(eased * target));
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = String(target);
+    }
+    requestAnimationFrame(step);
+  }
+
+  const countupEls = document.querySelectorAll('[data-countup]');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            runCountup(en.target);
+            io.unobserve(en.target);
+          }
+        });
+      },
+      { threshold: 0.6 },
+    );
+    countupEls.forEach((el) => io.observe(el));
+  } else {
+    countupEls.forEach(runCountup);
+  }
+
+  // Project card hover: redraw sparkline
+  document.querySelectorAll('[data-pj]').forEach((card) => {
+    const path = card.querySelector('[data-spark]') as SVGElement | null;
+    card.addEventListener('mouseenter', () => {
+      if (path) {
+        path.style.animation = 'none';
+        void (path as HTMLElement).offsetWidth;
+        path.style.animation = 'drawline .85s ease forwards';
+      }
+    });
+  });
+
+  // Runnable query: cycle vibe cell
+  let vi = 0;
+  const btn = document.getElementById('run-btn');
+  const cell = document.getElementById('vibe-cell');
+  const rtime = document.getElementById('run-time');
+
+  if (btn && cell) {
+    btn.addEventListener('click', () => {
+      vi = (vi + 1) % vibes.length;
+      cell.textContent = vibes[vi];
+      cell.style.animation = 'none';
+      void cell.offsetWidth;
+      cell.style.animation = 'flashcell .6s ease';
+      if (rtime) {
+        rtime.textContent = 'executed in 0.0' + (2 + Math.floor(Math.random() * 7)) + 's';
+      }
+    });
+  }
+
+  // Live clock (Central Time)
+  const clock = document.getElementById('clock');
+  if (clock) {
+    function tick() {
+      try {
+        const t = new Date().toLocaleTimeString('en-US', {
+          hour12: false,
+          timeZone: 'America/Chicago',
+        });
+        clock.textContent = t + ' CT';
+      } catch {
+        clock.textContent = new Date().toLocaleTimeString();
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // Console easter egg
+  function printEgg() {
+    console.log('%c-- query result --', 'color:#f0a868;font-family:monospace;font-size:13px;');
+    console.log('%c| name     | Devon Troedel              |', 'color:#2dd4bf;font-family:monospace;');
+    console.log('%c| role     | Data Engineer              |', 'color:#2dd4bf;font-family:monospace;');
+    console.log('%c| status   | probably querying           |', 'color:#2dd4bf;font-family:monospace;');
+    console.log('%c| say hi   | linkedin.com/in/dtroedel   |', 'color:#7ee0d0;font-family:monospace;');
+    console.log('%c| games    | invite-only — ask me for a key |', 'color:#616d8c;font-family:monospace;');
+    console.log('%c1 row in set (0.00 sec). nice, a fellow console-opener.', 'color:#616d8c;font-family:monospace;');
+  }
+  printEgg();
+
+  const eggHint = document.getElementById('egg-hint');
+  if (eggHint) {
+    eggHint.addEventListener('click', printEgg);
+    eggHint.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter') printEgg();
+    });
+  }
+</script>
