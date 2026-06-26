@@ -5,98 +5,230 @@ export interface Props {
   project: Project;
 }
 
-const { project } = Astro.props;
-const body = project.longDescription ?? project.description;
+const { project: p } = Astro.props;
+const body = p.longDescription ?? p.description;
 
-const statusLabel: Record<Project['status'], string> = {
-  active: 'active',
-  complete: 'complete',
-  archived: 'archived',
+const amber = p.tagColor === 'amber';
+const chipStyle = amber
+  ? 'color:#f0a868;background:rgba(240,168,104,0.12)'
+  : 'color:var(--ac-soft,#7ee0d0);background:color-mix(in srgb,var(--ac,#2dd4bf) 10%,transparent)';
+const strokeColor = amber ? '#f0a868' : 'var(--ac,#2dd4bf)';
+
+const statusColors: Record<Project['status'], { dot: string; label: string }> = {
+  active:   { dot: '#2dd4bf', label: '#2dd4bf' },
+  complete: { dot: '#9aa6c2', label: '#9aa6c2' },
+  archived: { dot: '#616d8c', label: '#616d8c' },
 };
+const sc = statusColors[p.status];
 ---
 
-<article class="project-card">
-  <div class="card-head">
-    <h3>{project.title}</h3>
-    <span class:list={['status', project.status]} aria-label={`Status: ${statusLabel[project.status]}`}>
-      <span class="status-dot" aria-hidden="true"></span>
-      {statusLabel[project.status]}
-    </span>
+<article class="pj-card" data-pj-card>
+  <div class="pj-top">
+    <span class="pj-tag" style={chipStyle}>{p.tag}</span>
+    <div class="pj-status">
+      {p.status === 'active' && <span class="status-pulse" aria-hidden="true"></span>}
+      <span class="status-dot" style={`background:${sc.dot}`} aria-hidden="true"></span>
+      <span class="status-label" style={`color:${sc.label}`}>{p.status}</span>
+    </div>
   </div>
 
-  <p class="card-desc">{body}</p>
+  <svg viewBox="0 0 140 40" class="pj-spark" aria-hidden="true">
+    <polyline
+      data-spark
+      points={p.sparkline}
+      fill="none"
+      stroke={strokeColor}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      style="stroke-dasharray:220;stroke-dashoffset:0"
+    />
+  </svg>
 
-  <ul class="card-tags" aria-label="Tech used">
-    {project.tags.map((tag) => <li class="tag">{tag}</li>)}
-  </ul>
+  <h3 class="pj-title">{p.title}</h3>
+  <p class="pj-body">{body}</p>
 
-  {
-    (project.repo || project.demo) && (
-      <div class="card-links">
-        {project.repo && (
-          <a href={project.repo} target="_blank" rel="noopener noreferrer">
-            Code ↗
-          </a>
-        )}
-        {project.demo && (
-          <a href={project.demo} target="_blank" rel="noopener noreferrer">
-            Demo ↗
-          </a>
-        )}
-      </div>
-    )
-  }
+  <div class="pj-stack">
+    {p.tags.map((t, i) => (
+      <>
+        <span class="stack-item">{t}</span>
+        {i < p.tags.length - 1 && <span class="stack-sep" aria-hidden="true">·</span>}
+      </>
+    ))}
+  </div>
+
+  {(p.repo || p.demo) && (
+    <div class="pj-links">
+      {p.repo && (
+        <a href={p.repo} target="_blank" rel="noopener noreferrer" class="pj-link">Code ↗</a>
+      )}
+      {p.demo && (
+        <a href={p.demo} target="_blank" rel="noopener noreferrer" class="pj-link">Demo ↗</a>
+      )}
+    </div>
+  )}
 </article>
 
 <style>
-  .card-head {
+  .pj-card {
+    position: relative;
+    border-radius: 15px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 22px;
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-xs);
-  }
-  .card-head h3 {
-    margin-bottom: 0;
+    flex-direction: column;
+    gap: 0;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
 
-  .status {
-    display: inline-flex;
+  .pj-card:hover {
+    transform: translateY(-5px);
+    border-color: color-mix(in srgb, var(--ac, #2dd4bf) 35%, transparent);
+    box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+  }
+
+  .pj-top {
+    display: flex;
     align-items: center;
-    gap: 0.4rem;
-    flex-shrink: 0;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-    text-transform: lowercase;
-    color: var(--color-text-faint);
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .pj-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+  }
+
+  .pj-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+
+  .status-pulse {
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(45, 212, 191, 0.35);
+    animation: card-pulse 2s ease-in-out infinite;
   }
 
   .status-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 999px;
-    background: var(--color-text-faint);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
   }
 
-  /* active = teal dot + glow, complete = muted, archived = faint */
-  .status.active {
-    color: var(--color-accent);
-  }
-  .status.active .status-dot {
-    background: var(--color-accent);
-    box-shadow: 0 0 0 3px var(--color-accent-soft);
+  .status-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
   }
 
-  .status.complete {
-    color: var(--color-text-muted);
-  }
-  .status.complete .status-dot {
-    background: var(--color-text-muted);
+  .pj-spark {
+    width: 100%;
+    height: 46px;
+    margin-bottom: 18px;
+    display: block;
   }
 
-  .status.archived {
-    color: var(--color-text-faint);
-    opacity: 0.8;
+  .pj-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    margin: 0 0 10px;
+    color: #f4f7fd;
+    line-height: 1.2;
+  }
+
+  .pj-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #9aa6c2;
+    margin: 0 0 18px;
+    flex: 1;
+  }
+
+  .pj-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .stack-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+  }
+
+  .stack-sep {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #2a3450;
+  }
+
+  .pj-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+
+  .pj-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: #9aa6c2;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .pj-link:hover {
+    color: var(--ac, #2dd4bf);
+    border-color: color-mix(in srgb, var(--ac, #2dd4bf) 40%, transparent);
+  }
+
+  @keyframes card-pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 0; transform: scale(1.8); }
+  }
+
+  @keyframes drawline {
+    from { stroke-dashoffset: 220; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pj-card { transition: none; }
+    .status-pulse { animation: none; }
   }
 </style>
+
+<script>
+  document.querySelectorAll('[data-pj-card]').forEach((card) => {
+    const path = card.querySelector('[data-spark]') as SVGElement | null;
+    card.addEventListener('mouseenter', () => {
+      if (path) {
+        path.style.animation = 'none';
+        void (path as unknown as Element).getBoundingClientRect();
+        path.style.animation = 'drawline .85s ease forwards';
+      }
+    });
+  });
+</script>

@@ -1,46 +1,38 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-
-const email = 'devon.troedel@gmail.com';
-const githubPro = 'https://github.com/DevonMT';
-const githubLab = 'https://github.com/ArcheKnight';
-const linkedin = 'https://www.linkedin.com/in/dtroedel';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 const skills = [
-  'SQL', 'Python', 'Power BI', 'Snowflake', 'AI', 'Crystal Reports',
-  'Microsoft Report Builder', 'Excel VBA', 'ETL',
-  'Data Visualization', 'Streamlit', 'SQLite',
-  'Process Automation', 'Flask', 'JavaScript', 'HTML/CSS',
+  'SQL', 'Python', 'Snowflake', 'Power BI', 'Crystal Reports',
+  'Microsoft Report Builder', 'Excel VBA', 'ETL', 'Data Visualization',
+  'Streamlit', 'SQLite', 'Process Automation', 'Flask', 'JavaScript', 'HTML / CSS',
 ];
-
-const education = {
-  degree: 'B.S. Mathematics',
-  school: 'Arkansas Tech University',
-  period: '2009 — 2014',
-};
 
 const experience = [
   {
     title: 'Jr. Data Engineer',
     company: 'Walton Arts Center & Walmart AMP',
     period: 'February 2026 — Present',
+    current: true,
   },
   {
     title: 'Software Engineer — Reports',
     company: 'ADP',
     period: 'January 2022 — March 2025',
+    current: false,
   },
   {
     title: 'Consultant',
     company: 'WorkForce Software',
     period: 'May 2019 — January 2022',
+    current: false,
   },
   {
     title: 'Resolution Specialist II',
     company: 'Walmart',
     period: 'July 2017 — May 2019',
+    current: false,
   },
 ];
 ---
@@ -49,182 +41,357 @@ const experience = [
   title="About — Devon Troedel"
   description="Devon Troedel is a data engineer and BI analyst with 5+ years of experience in SQL, Python, Power BI, and report development. Based in Gravette, AR."
 >
-  <Header />
-  <main>
-    <section class="about">
-      <p class="eyebrow mono">// about</p>
-      <h1>About</h1>
+  <div id="site">
+    <div id="bg-grid" aria-hidden="true"></div>
+    <SiteNav />
+    <div class="page-content">
 
-      <div class="prose">
-        <p>
-          Hey, I'm Devon. I'm a data engineer and BI analyst living in Gravette, Arkansas,
-          and I spend most of my time convincing data to behave — pipelines, dashboards,
-          automation scripts, the occasional report that somebody actually wants to open.
-        </p>
-        <p>
-          My career path goes: <span class="accent">Walmart</span> (where I discovered that
-          VBA macros and a scrappy internal website could save a team hours every week) →
-          <span class="accent">WorkForce Software</span> as a consultant helping enterprise
-          clients squeeze more out of their workforce software → building production reports
-          with SQL, Crystal Reports, and Power BI as a Software Engineer at
-          <span class="accent">ADP</span>. These days I'm a Jr. Data Engineer at the
-          <span class="accent">Walton Arts Center &amp; Walmart AMP</span>, which turns out to
-          be a genuinely fun place to apply the data engineering toolkit.
-        </p>
-        <p>
-          Outside of work I build things for myself: a finance dashboard that pulls my bank
-          data through Plaid and refuses to send it anywhere, CLI tools for interrogating
-          CSV files, anything that scratches an itch. I have a B.S. in Mathematics from
-          Arkansas Tech, two GitHub profiles (one polished, one a little chaotic), and a
-          domain called <span class="accent">devondoes.dev</span> that really commits to a
-          bit.
-        </p>
+      <!-- Intro -->
+      <div class="page-head">
+        <div class="eyebrow-amber">01 / ABOUT</div>
       </div>
 
-      <section class="exp-section">
-        <h2>Experience</h2>
-        <ul class="exp-list">
+      <div class="about-grid">
+        <h1 class="about-h1">
+          Most of my job is making data behave. The rest is convincing it that it wants to.
+        </h1>
+        <div class="about-right">
+          <p>
+            I'm a Jr. Data Engineer at the Walton Arts Center &amp; Walmart AMP in Gravette, AR,
+            where I'm building a Snowflake data warehouse from the ground up. Before that: five-plus
+            years of SQL, Crystal Reports, Power BI, Python, and ETL — the unglamorous plumbing
+            that makes a dashboard trustworthy.
+          </p>
+          <p>
+            My path goes: <span class="ac">Walmart</span> (where VBA macros and a scrappy internal
+            website saved the team hours every week) → <span class="ac">WorkForce Software</span> as
+            a consultant helping enterprise clients squeeze more out of their workforce platform →
+            building production reports with SQL, Crystal Reports, and Power BI at
+            <span class="ac">ADP</span>.
+          </p>
+          <p>
+            Outside work I build things for myself: a finance dashboard that pulls bank data through
+            Plaid and refuses to send it anywhere, a Claude-powered games recommender, and whatever
+            other weekend project has currently gotten a little out of hand. I have a B.S. in
+            Mathematics from Arkansas Tech and two GitHub profiles — one polished, one a little chaotic.
+          </p>
+          <div class="skill-chips" aria-label="Skills and tools">
+            {skills.map((s) => <span class="chip">{s}</span>)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience -->
+      <section class="section" aria-labelledby="exp-heading">
+        <div class="section-eyebrow">// experience</div>
+        <h2 id="exp-heading" class="section-h2">Where I've been</h2>
+        <div class="exp-list" role="list">
           {experience.map((job) => (
-            <li class="exp-item">
-              <div class="exp-main">
-                <span class="exp-title">{job.title}</span>
-                <span class="exp-company accent">{job.company}</span>
+            <div class="exp-row" role="listitem">
+              <div class="exp-left">
+                <span class="exp-dot" style={job.current ? 'background:#2dd4bf;box-shadow:0 0 8px rgba(45,212,191,0.7)' : 'background:#616d8c'} aria-hidden="true"></span>
+                <div class="exp-info">
+                  <span class="exp-title">{job.title}</span>
+                  <span class="exp-company">{job.company}</span>
+                </div>
               </div>
-              <span class="exp-period mono">{job.period}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section class="edu-section">
-        <h2>Education</h2>
-        <ul class="exp-list">
-          <li class="exp-item">
-            <div class="exp-main">
-              <span class="exp-title">{education.degree}</span>
-              <span class="exp-company accent">{education.school}</span>
+              <span class="exp-period">{job.period}</span>
             </div>
-            <span class="exp-period mono">{education.period}</span>
-          </li>
-        </ul>
+          ))}
+          <div class="exp-row" role="listitem">
+            <div class="exp-left">
+              <span class="exp-dot" style="background:#616d8c" aria-hidden="true"></span>
+              <div class="exp-info">
+                <span class="exp-title">B.S. Mathematics</span>
+                <span class="exp-company">Arkansas Tech University</span>
+              </div>
+            </div>
+            <span class="exp-period">2009 — 2014</span>
+          </div>
+        </div>
       </section>
 
-      <section class="skills-section">
-        <h2>Skills &amp; Tools</h2>
-        <ul class="stack" aria-label="Skills and tools">
-          {skills.map((skill) => <li class="tag">{skill}</li>)}
-        </ul>
+      <!-- Links -->
+      <section class="section links-section" aria-label="Links">
+        <div class="section-eyebrow">// elsewhere</div>
+        <div class="action-links">
+          <a href="https://linkedin.com/in/dtroedel" target="_blank" rel="noopener noreferrer" class="action-btn action-btn-primary">
+            LinkedIn ↗
+          </a>
+          <a href="https://github.com/DevonMT" target="_blank" rel="noopener noreferrer" class="action-btn">
+            GitHub · DevonMT ↗
+          </a>
+          <a href="https://github.com/ArcheKnight" target="_blank" rel="noopener noreferrer" class="action-btn action-btn-amber">
+            GitHub · ArcheKnight ↗
+          </a>
+          <a href="mailto:devon.troedel@gmail.com" class="action-btn">
+            Email
+          </a>
+        </div>
       </section>
 
-      <div class="actions">
-        <a class="btn btn-primary" href={linkedin} target="_blank" rel="noopener noreferrer">
-          LinkedIn ↗
-        </a>
-        <a class="btn" href={githubPro} target="_blank" rel="noopener noreferrer">
-          GitHub ↗
-        </a>
-        <a class="btn" href={githubLab} target="_blank" rel="noopener noreferrer">
-          GitHub (lab) ↗
-        </a>
-        <a class="btn" href={`mailto:${email}`}>Get in touch</a>
-      </div>
-    </section>
-  </main>
-  <Footer />
+      <SiteFooter />
+    </div>
+  </div>
 </BaseLayout>
 
 <style>
-  .about {
-    padding-block: var(--space-xl);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-lg);
+  #site {
+    --ac: #2dd4bf;
+    --ac-lite: #5fe6d4;
+    --ac-soft: #7ee0d0;
+    position: relative;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+      #0a0e1a;
+    overflow-x: hidden;
   }
 
-  .eyebrow {
-    color: var(--color-accent);
-    font-size: 0.9rem;
-    letter-spacing: 0.04em;
-    margin-bottom: calc(var(--space-xs) * -1);
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 64px 64px;
   }
 
-  .prose {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-    max-width: 62ch;
+  .page-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 28px;
   }
-  .prose p {
-    color: var(--color-text-muted);
-    font-size: 1.05rem;
-    line-height: 1.8;
+
+  .page-head {
+    padding-top: 60px;
+    margin-bottom: 32px;
   }
-  .accent {
-    color: var(--color-accent);
+
+  .eyebrow-amber {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+  }
+
+  /* About 2-col */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 52px;
+    align-items: start;
+    padding-bottom: 72px;
+  }
+
+  .about-h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 34px;
+    line-height: 1.22;
+    letter-spacing: -0.025em;
+    margin: 0;
+    color: #f4f7fd;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    position: sticky;
+    top: 90px;
+  }
+
+  .about-right p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #9aa6c2;
+    margin: 0 0 18px;
+  }
+
+  .about-right p:last-of-type {
+    margin-bottom: 24px;
+  }
+
+  .ac {
+    color: var(--ac);
     font-weight: 500;
   }
 
-  .exp-section h2,
-  .edu-section h2,
-  .skills-section h2 {
-    font-size: 1.1rem;
-    color: var(--color-text-muted);
-    font-weight: 600;
-    margin-bottom: var(--space-sm);
+  .skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
   }
 
+  .chip {
+    padding: 6px 12px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #cdd5e8;
+  }
+
+  /* Sections */
+  .section {
+    padding: 0 0 72px;
+    scroll-margin-top: 80px;
+  }
+
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .section-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    margin: 0 0 22px;
+    color: #f4f7fd;
+  }
+
+  /* Experience list */
   .exp-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
     overflow: hidden;
   }
-  .exp-item {
+
+  .exp-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-md);
+    gap: 20px;
     flex-wrap: wrap;
-    padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-    background: var(--color-bg-elevated);
+    padding: 16px 22px;
+    background: #0e1424;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.2s;
   }
-  .exp-item:last-child {
+
+  .exp-row:last-child {
     border-bottom: none;
   }
-  .exp-main {
+
+  .exp-row:hover {
+    background: #111827;
+  }
+
+  .exp-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .exp-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .exp-info {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 2px;
   }
+
   .exp-title {
+    font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--color-text);
+    font-size: 15px;
+    color: #f4f7fd;
   }
+
   .exp-company {
-    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ac);
   }
+
   .exp-period {
-    font-size: 0.8rem;
-    color: var(--color-text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #616d8c;
     white-space: nowrap;
   }
 
-  .stack {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
+  /* Links */
+  .links-section {
+    padding-bottom: 0;
   }
 
-  .actions {
+  .action-links {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-sm);
+    gap: 10px;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #0e1424;
+    color: #cdd5e8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  }
+
+  .action-btn:hover {
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .action-btn-primary {
+    background: var(--ac);
+    color: #0a0e1a;
+    border-color: transparent;
+    font-weight: 600;
+  }
+
+  .action-btn-primary:hover {
+    background: var(--ac-lite);
+    color: #0a0e1a;
+    border-color: transparent;
+  }
+
+  .action-btn-amber {
+    color: #f0a868;
+    border-color: rgba(240, 168, 104, 0.25);
+  }
+
+  .action-btn-amber:hover {
+    border-color: rgba(240, 168, 104, 0.6);
+    color: #f0a868;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+    .about-h1 {
+      position: static;
+      font-size: 26px;
+    }
   }
 </style>
