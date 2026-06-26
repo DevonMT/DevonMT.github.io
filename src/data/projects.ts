@@ -1,13 +1,19 @@
 export interface Project {
-  slug: string; // url-safe id
+  slug: string;
   title: string;
-  description: string; // 2-3 sentences
-  longDescription?: string; // longer write-up for the card
+  description: string;
+  longDescription?: string;
   tags: string[];
   repo?: string;
   demo?: string;
   featured: boolean;
   status: 'active' | 'complete' | 'archived';
+  // Homepage card display
+  tag: string;
+  tagColor: 'accent' | 'amber';
+  sparkline: string;
+  runtimeNote?: string;
+  cardBlurb: string;
 }
 
 export const projects: Project[] = [
@@ -22,6 +28,12 @@ export const projects: Project[] = [
     repo: 'https://github.com/DevonMT/finance-dashboard',
     featured: true,
     status: 'complete',
+    tag: 'Python',
+    tagColor: 'accent',
+    sparkline: '0,34 20,30 40,32 60,22 80,24 100,12 120,16 140,5',
+    runtimeNote: '▲ ran in 0.03s',
+    cardBlurb:
+      "Personal finance, minus the spreadsheet shame. Pulls transactions, categorizes them, and tells me things I'd rather not know.",
   },
   {
     slug: 'games-dashboard',
@@ -34,6 +46,12 @@ export const projects: Project[] = [
     repo: 'https://github.com/DevonMT/games-backend',
     featured: true,
     status: 'complete',
+    tag: 'TypeScript',
+    tagColor: 'amber',
+    sparkline: '0,22 20,8 40,28 60,15 80,30 100,10 120,20 140,5',
+    runtimeNote: '▶ invite-only',
+    cardBlurb:
+      "Upcoming game releases ranked against a Steam library by Claude. Because 'what should we play next?' deserved better than vibes.",
   },
   {
     slug: 'media-tracker',
@@ -46,6 +64,12 @@ export const projects: Project[] = [
     repo: 'https://github.com/DevonMT/media-tracker',
     featured: true,
     status: 'complete',
+    tag: 'Python',
+    tagColor: 'accent',
+    sparkline: '0,30 20,26 40,28 60,18 80,20 100,14 120,16 140,8',
+    runtimeNote: '▲ ask Claude',
+    cardBlurb:
+      'Track watch history, get AI-ranked recommendations filtered to the platforms you actually subscribe to. Claude picks. You decide.',
   },
   {
     slug: 'devonmt',
@@ -58,6 +82,12 @@ export const projects: Project[] = [
     repo: 'https://github.com/ArcheKnight/devonmt',
     featured: true,
     status: 'active',
+    tag: 'Node.js',
+    tagColor: 'amber',
+    sparkline: '0,28 20,10 40,30 60,14 80,26 100,8 120,22 140,12',
+    runtimeNote: '▲ ran in 0.05s',
+    cardBlurb:
+      "Started as 'just a portfolio,' grew into a full Node MVC app with opinions about routing. Classic scope creep, lovingly maintained.",
   },
   {
     slug: 'code-examples-aos',
@@ -70,6 +100,12 @@ export const projects: Project[] = [
     repo: 'https://github.com/ArcheKnight/Code_Examples',
     featured: true,
     status: 'complete',
+    tag: 'Automation',
+    tagColor: 'accent',
+    sparkline: '0,6 20,12 40,9 60,20 80,17 100,28 120,25 140,35',
+    runtimeNote: '▼ saved 9 hrs/wk',
+    cardBlurb:
+      "Made a recurring manual workflow disappear — the good kind of disappear. JavaScript and VBA doing the boring part so nobody else has to.",
   },
 ];
 
