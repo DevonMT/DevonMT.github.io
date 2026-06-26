@@ -1,82 +1,205 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
+import SiteNav from '../../components/SiteNav.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 
-const dateFmt = new Intl.DateTimeFormat('en-US', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
+function fmtDate(d: Date): string {
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function chipTag(tags: string[]): string {
+  return tags.find((t) => !['data', 'personal', 'analytics'].includes(t)) ?? tags[0];
+}
 ---
 
 <BaseLayout
-  title="Blog — Devon Troedel"
-  description="Notes on data engineering, BI, analytics, and the occasional weekend project."
+  title="Writing — Devon Troedel"
+  description="Notes on data engineering, BI, analytics, and the occasional weekend project that got a little out of hand."
 >
-  <Header />
-  <main>
-    <section class="page-head">
-      <p class="eyebrow mono">// blog</p>
-      <h1>Blog</h1>
-      <p class="intro">
-        Notes on data engineering, BI, analytics, and the occasional weekend
-        project that got a little out of hand.
-      </p>
-    </section>
+  <div id="site">
+    <div id="bg-grid" aria-hidden="true"></div>
+    <SiteNav />
+    <div class="page-content">
 
-    <section class="section" aria-label="Blog posts">
-      <ul class="post-list">
-        {
-          posts.map((post) => (
-            <li class="blog-card">
-              <p class="blog-meta mono">
-                <time datetime={post.data.date.toISOString()}>
-                  {dateFmt.format(post.data.date)}
-                </time>
-              </p>
-              <h3>
-                <a href={`/blog/${post.slug}`}>{post.data.title}</a>
-              </h3>
-              <p class="card-desc">{post.data.excerpt}</p>
-              <ul class="card-tags">
-                {post.data.tags.map((tag) => (
-                  <li class="tag">{tag}</li>
-                ))}
-              </ul>
-              <a class="read-more mono" href={`/blog/${post.slug}`}>
-                Read more →
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
-  </main>
-  <Footer />
+      <div class="page-head">
+        <div class="eyebrow-amber">03 / WRITING</div>
+        <h1 class="page-h1">Notes from the data trenches</h1>
+        <p class="page-intro">Data engineering, BI, analytics, and the occasional weekend project that got a little out of hand.</p>
+      </div>
+
+      {posts.length === 0 ? (
+        <p class="empty-state">No posts yet — check back soon.</p>
+      ) : (
+        <div class="post-list" role="list">
+          {posts.map((post) => (
+            <a href={`/blog/${post.slug}`} class="post-row" role="listitem">
+              <span class="post-date">{fmtDate(post.data.date)}</span>
+              <div class="post-main">
+                <span class="post-title">{post.data.title}</span>
+                {post.data.excerpt && (
+                  <span class="post-excerpt">{post.data.excerpt}</span>
+                )}
+              </div>
+              <span class="post-tag">{chipTag(post.data.tags)}</span>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <SiteFooter />
+    </div>
+  </div>
 </BaseLayout>
 
 <style>
+  #site {
+    --ac: #2dd4bf;
+    --ac-lite: #5fe6d4;
+    --ac-soft: #7ee0d0;
+    position: relative;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+      #0a0e1a;
+    overflow-x: hidden;
+  }
+
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  .page-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
   .page-head {
-    padding-block: var(--space-xl) var(--space-md);
+    padding: 60px 0 36px;
+  }
+
+  .eyebrow-amber {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+    margin-bottom: 18px;
+  }
+
+  .page-h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 44px;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: #f4f7fd;
+    margin: 0 0 14px;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+
+  .page-intro {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #9aa6c2;
+    max-width: 500px;
+    margin: 0;
+  }
+
+  .post-list {
+    display: block;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .post-row {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: 24px;
+    align-items: start;
+    padding: 24px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    text-decoration: none;
+    transition: background 0.2s, padding-left 0.2s;
+  }
+
+  .post-row:hover {
+    background: rgba(255, 255, 255, 0.025);
+    padding-left: 16px;
+  }
+
+  .post-row:hover .post-title {
+    color: var(--ac);
+  }
+
+  .post-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #616d8c;
+    padding-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .post-main {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
+    gap: 6px;
   }
-  .eyebrow {
-    color: var(--color-accent);
-    font-size: 0.9rem;
-    letter-spacing: 0.04em;
+
+  .post-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: #f4f7fd;
+    transition: color 0.2s;
+    line-height: 1.2;
   }
-  .intro {
-    font-size: clamp(1.05rem, 2vw, 1.2rem);
-    color: var(--color-text-muted);
-    max-width: 52ch;
-    line-height: 1.5;
+
+  .post-excerpt {
+    font-size: 14.5px;
+    color: #9aa6c2;
+    line-height: 1.55;
+    max-width: 560px;
+  }
+
+  .post-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #f0a868;
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: rgba(240, 168, 104, 0.12);
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 3px;
+  }
+
+  .empty-state {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #616d8c;
+    padding: 40px 0;
+  }
+
+  @media (max-width: 640px) {
+    .post-row { grid-template-columns: 1fr; gap: 10px; }
+    .post-tag { align-self: auto; }
+    .page-h1 { font-size: 32px; }
   }
 </style>
