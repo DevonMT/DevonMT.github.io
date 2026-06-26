@@ -1191,7 +1191,7 @@ function postChipTag(tags: string[]): string {
     card.addEventListener('mouseenter', () => {
       if (path) {
         path.style.animation = 'none';
-        void (path as HTMLElement).offsetWidth;
+        void (path as unknown as Element).getBoundingClientRect();
         path.style.animation = 'drawline .85s ease forwards';
       }
     });
@@ -1218,21 +1218,20 @@ function postChipTag(tags: string[]): string {
 
   // Live clock (Central Time)
   const clock = document.getElementById('clock');
-  if (clock) {
-    function tick() {
-      try {
-        const t = new Date().toLocaleTimeString('en-US', {
-          hour12: false,
-          timeZone: 'America/Chicago',
-        });
-        clock.textContent = t + ' CT';
-      } catch {
-        clock.textContent = new Date().toLocaleTimeString();
-      }
+  function tick() {
+    if (!clock) return;
+    try {
+      const t = new Date().toLocaleTimeString('en-US', {
+        hour12: false,
+        timeZone: 'America/Chicago',
+      });
+      clock.textContent = t + ' CT';
+    } catch {
+      clock.textContent = new Date().toLocaleTimeString();
     }
-    tick();
-    setInterval(tick, 1000);
   }
+  tick();
+  setInterval(tick, 1000);
 
   // Console easter egg
   function printEgg() {
