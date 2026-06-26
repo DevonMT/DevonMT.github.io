@@ -1,256 +1,299 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 ---
 
 <BaseLayout
   title="Games — Devon Troedel"
   description="Private games dashboard."
 >
-  <Header />
-  <main>
-    <!-- Access gate: shown until a key is stored in sessionStorage -->
-    <section id="gate" class="gate" hidden>
-      <div class="gate-card">
-        <p class="eyebrow mono">// private</p>
-        <h1>Games dashboard</h1>
-        <p class="gate-intro">
-          This page is password-gated. Enter the access key to continue.
-        </p>
-        <form id="gate-form" class="gate-form" autocomplete="off">
-          <input
-            id="gate-key"
-            type="password"
-            class="gate-input"
-            placeholder="Access key"
-            aria-label="Access key"
-            required
-          />
-          <button type="submit" class="btn btn-primary" id="gate-submit">Unlock</button>
-        </form>
-        <p id="gate-error" class="gate-error" role="alert" hidden></p>
-      </div>
-    </section>
+  <div id="site">
+    <div id="bg-grid" aria-hidden="true"></div>
 
-    <!-- Dashboard: populated by JS once authenticated -->
-    <section id="dashboard" class="dashboard" hidden>
-      <div class="page-head">
-        <p class="eyebrow mono">// games</p>
-        <h1>Game recommendations</h1>
+    <!-- Minimal nav -->
+    <header class="site-nav">
+      <div class="nav-inner">
+        <a href="/" class="logo">
+          <span class="logo-dot" aria-hidden="true"></span>
+          <span>devondoes<span class="logo-accent">.dev</span></span>
+        </a>
+        <div class="nav-right">
+          <span class="nav-tag">// games</span>
+        </div>
       </div>
+    </header>
 
-      <!-- Sync status bar -->
-      <div class="sync-bar">
-        <span id="sync-status" class="sync-status mono">Loading sync status…</span>
-        <button id="sync-now" class="btn sync-btn" type="button">Sync now</button>
-        <button id="lock-btn" class="btn lock-btn" type="button" title="Forget access key">Lock</button>
-      </div>
+    <div class="page-content">
 
-      <!-- Taste profile quiz -->
-      <div class="taste-section">
-        <button id="taste-toggle" class="taste-toggle" type="button" aria-expanded="false">
-          <span class="eyebrow mono" style="margin:0">// taste profile</span>
-          <span id="taste-summary" class="taste-summary">Not configured — tell Claude what you like ▾</span>
-        </button>
-        <div id="taste-panel" class="taste-panel" hidden>
-          <div class="taste-field">
-            <label class="filter-label mono" for="taste-favorites">Favorite games not on Steam (or where your hours don't reflect how much you love them)</label>
-            <textarea id="taste-favorites" class="taste-textarea" rows="2" placeholder="e.g. Tales of Arise, FFXIV, Kingdom Hearts, FFX, Chained Echoes, Dark Souls, WoW…"></textarea>
-          </div>
-          <div class="taste-field">
-            <span class="filter-label mono">What matters most to you in a game</span>
-            <div class="taste-values">
-              <label class="taste-chip"><input type="checkbox" value="story" hidden> Story &amp; Narrative</label>
-              <label class="taste-chip"><input type="checkbox" value="build-depth" hidden> Build Depth &amp; Systems</label>
-              <label class="taste-chip"><input type="checkbox" value="combat" hidden> Combat Feel</label>
-              <label class="taste-chip"><input type="checkbox" value="exploration" hidden> World Exploration</label>
-              <label class="taste-chip"><input type="checkbox" value="lore" hidden> Lore &amp; World-building</label>
-              <label class="taste-chip"><input type="checkbox" value="social" hidden> MMO / Social</label>
-              <label class="taste-chip"><input type="checkbox" value="emotional" hidden> Emotional Impact</label>
-              <label class="taste-chip"><input type="checkbox" value="mechanics" hidden> Unique Mechanics</label>
-              <label class="taste-chip"><input type="checkbox" value="fantasy" hidden> Fantasy Setting</label>
+      <!-- ── Access gate ── -->
+      <section id="gate" class="gate-wrap" hidden>
+        <div class="gate-outer">
+          <div class="gate-glow" aria-hidden="true"></div>
+          <div class="gate-card">
+            <div class="gate-titlebar">
+              <span class="dot-orange"></span>
+              <span class="dot-dim"></span>
+              <span class="dot-dim"></span>
+              <span class="gate-card-label">// access required · games</span>
+            </div>
+            <div class="gate-body">
+              <div class="gate-query" aria-hidden="true">
+                <span class="kw">SELECT</span> <span class="col">*</span>
+                <span class="kw">FROM</span> <span class="tbl">sessions</span>
+                <span class="kw">WHERE</span> <span class="col">api_key</span> = <span class="val">?</span>;
+              </div>
+              <p class="gate-intro">Enter the access key to unlock the dashboard.</p>
+              <form id="gate-form" class="gate-form" autocomplete="off">
+                <input
+                  id="gate-key"
+                  type="password"
+                  class="gate-input"
+                  placeholder="Access key"
+                  aria-label="Access key"
+                  required
+                />
+                <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
+              </form>
+              <p id="gate-error" class="gate-error" role="alert" hidden></p>
             </div>
           </div>
-          <div class="taste-field">
-            <label class="filter-label mono" for="taste-notes">Anything else Claude should know</label>
-            <textarea id="taste-notes" class="taste-textarea" rows="2" placeholder="e.g. FFXII for the Gambit system and job builds, not the story. I value deep MMO worlds but not necessarily the grind."></textarea>
+        </div>
+      </section>
+
+      <!-- ── Dashboard ── -->
+      <section id="dashboard" class="dashboard" hidden>
+
+        <div class="page-head">
+          <div class="eyebrow-amber">// games</div>
+          <h1 class="page-h1">Game recommendations</h1>
+        </div>
+
+        <!-- Sync bar -->
+        <div class="sync-bar">
+          <span class="sync-dot" aria-hidden="true"></span>
+          <span id="sync-status" class="sync-status">Loading sync status…</span>
+          <div class="sync-actions">
+            <button id="sync-now" class="btn-sm" type="button">Sync now</button>
+            <button id="lock-btn" class="btn-sm btn-dim" type="button" title="Forget access key">Lock</button>
           </div>
         </div>
-      </div>
 
-      <!-- Tab navigation -->
-      <nav class="tab-nav">
-        <button class="tab-btn active" data-tab="own" type="button">// own</button>
-        <button class="tab-btn" data-tab="discover" type="button">// discover</button>
-        <button class="tab-btn" data-tab="lookup" type="button">// lookup</button>
-      </nav>
-
-      <!-- Own tab: backlog picks -->
-      <div class="tab-content" data-tab="own">
-        <p class="tab-desc">Top picks from games you already own but haven't really played.</p>
-        <div class="backlog-controls">
-          <span class="filter-label mono">Games with less than</span>
-          <select id="backlog-threshold" class="threshold-select">
-            <option value="2">2h played</option>
-            <option value="5" selected>5h played</option>
-            <option value="10">10h played</option>
-            <option value="20">20h played</option>
-          </select>
-          <button id="backlog-btn" class="btn btn-primary" type="button">Find picks</button>
-        </div>
-        <p id="backlog-status" class="grid-status mono" hidden></p>
-        <div id="backlog-grid" class="result-grid"></div>
-      </div>
-
-      <!-- Discover tab: Claude-powered discovery + optional release browser -->
-      <div class="tab-content" data-tab="discover" hidden>
-        <p class="tab-desc">Games you don't own yet, matched to your taste profile.</p>
-        <div class="discover-filters">
-          <div class="filter-group">
-            <span class="filter-label mono">Platform</span>
-            <div class="chips" id="discover-platform-chips"></div>
-          </div>
-          <div class="filter-group">
-            <span class="filter-label mono">Genre</span>
-            <div class="chips" id="discover-genre-chips"></div>
+        <!-- Taste profile -->
+        <div class="taste-section">
+          <button id="taste-toggle" class="taste-toggle" type="button" aria-expanded="false">
+            <span class="taste-label">// taste profile</span>
+            <span id="taste-summary" class="taste-summary">Not configured — tell Claude what you like</span>
+            <span class="taste-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div id="taste-panel" class="taste-panel" hidden>
+            <div class="taste-field">
+              <label class="field-label" for="taste-favorites">Favorites not on Steam (or where hours don't reflect how much you love them)</label>
+              <textarea id="taste-favorites" class="taste-textarea" rows="2" placeholder="e.g. Tales of Arise, FFXIV, Kingdom Hearts, FFX, Chained Echoes, Dark Souls, WoW…"></textarea>
+            </div>
+            <div class="taste-field">
+              <span class="field-label">What matters most to you in a game</span>
+              <div class="taste-values">
+                <label class="taste-chip"><input type="checkbox" value="story" hidden> Story &amp; Narrative</label>
+                <label class="taste-chip"><input type="checkbox" value="build-depth" hidden> Build Depth &amp; Systems</label>
+                <label class="taste-chip"><input type="checkbox" value="combat" hidden> Combat Feel</label>
+                <label class="taste-chip"><input type="checkbox" value="exploration" hidden> World Exploration</label>
+                <label class="taste-chip"><input type="checkbox" value="lore" hidden> Lore &amp; World-building</label>
+                <label class="taste-chip"><input type="checkbox" value="social" hidden> MMO / Social</label>
+                <label class="taste-chip"><input type="checkbox" value="emotional" hidden> Emotional Impact</label>
+                <label class="taste-chip"><input type="checkbox" value="mechanics" hidden> Unique Mechanics</label>
+                <label class="taste-chip"><input type="checkbox" value="fantasy" hidden> Fantasy Setting</label>
+              </div>
+            </div>
+            <div class="taste-field">
+              <label class="field-label" for="taste-notes">Anything else Claude should know</label>
+              <textarea id="taste-notes" class="taste-textarea" rows="2" placeholder="e.g. FFXII for the Gambit system and job builds, not the story. I value deep MMO worlds but not necessarily the grind."></textarea>
+            </div>
           </div>
         </div>
-        <div class="discover-actions">
-          <button id="discover-btn" class="btn btn-primary" type="button">Find recommendations</button>
-          <button id="browse-toggle" class="btn" type="button">Browse upcoming releases ▾</button>
-        </div>
-        <p id="discover-status" class="grid-status mono" hidden></p>
-        <div id="discover-grid" class="result-grid"></div>
 
-        <!-- Upcoming releases browser (hidden by default) -->
-        <div id="browse-section" hidden>
-          <div class="browse-head">
-            <p class="eyebrow mono">// upcoming releases</p>
+        <!-- Tabs -->
+        <nav class="tab-nav">
+          <button class="tab-btn active" data-tab="own" type="button">// own</button>
+          <button class="tab-btn" data-tab="discover" type="button">// discover</button>
+          <button class="tab-btn" data-tab="lookup" type="button">// lookup</button>
+        </nav>
+
+        <!-- Own tab -->
+        <div class="tab-content" data-tab="own">
+          <p class="tab-desc">Top picks from games you already own but haven't really played.</p>
+          <div class="backlog-controls">
+            <span class="field-label">Games with less than</span>
+            <select id="backlog-threshold" class="g-select">
+              <option value="2">2h played</option>
+              <option value="5" selected>5h played</option>
+              <option value="10">10h played</option>
+              <option value="20">20h played</option>
+            </select>
+            <button id="backlog-btn" class="btn-primary" type="button">Find picks</button>
           </div>
-          <div class="browse-filters">
+          <p id="backlog-status" class="grid-status" hidden></p>
+          <div id="backlog-grid" class="result-grid"></div>
+        </div>
+
+        <!-- Discover tab -->
+        <div class="tab-content" data-tab="discover" hidden>
+          <p class="tab-desc">Games you don't own yet, matched to your taste profile.</p>
+          <div class="discover-filters">
             <div class="filter-group">
-              <span class="filter-label mono">Type</span>
-              <div class="chips" id="type-chips"></div>
+              <span class="field-label">Platform</span>
+              <div class="chips" id="discover-platform-chips"></div>
             </div>
-            <div class="filter-group dates">
-              <label class="date-field">
-                <span class="filter-label mono">Since</span>
-                <input type="date" id="since" class="date-input" />
-              </label>
-              <label class="date-field">
-                <span class="filter-label mono">Until</span>
-                <input type="date" id="until" class="date-input" />
-              </label>
-              <button id="apply-filters" class="btn btn-primary apply-btn" type="button">Apply</button>
+            <div class="filter-group">
+              <span class="field-label">Genre</span>
+              <div class="chips" id="discover-genre-chips"></div>
             </div>
           </div>
-          <p id="grid-status" class="grid-status mono" hidden></p>
-          <div id="releases-grid" class="releases-grid"></div>
-          <div class="grid-foot">
-            <button id="load-more" class="btn" type="button" hidden>Load more</button>
+          <div class="discover-actions">
+            <button id="discover-btn" class="btn-primary" type="button">Find recommendations</button>
+            <button id="browse-toggle" class="btn-secondary" type="button">Browse upcoming releases ▾</button>
           </div>
-        </div>
-      </div>
+          <p id="discover-status" class="grid-status" hidden></p>
+          <div id="discover-grid" class="result-grid"></div>
 
-      <!-- Lookup tab: score a specific game or description -->
-      <div class="tab-content" data-tab="lookup" hidden>
-        <p class="tab-desc">Score a specific game, or describe what you're looking for.</p>
-        <div class="lookup-form">
-          <input
-            id="lookup-input"
-            type="text"
-            class="lookup-input"
-            placeholder="e.g. Metaphor: ReFantazio  ·  games like Chained Echoes with deep build systems"
-          />
-          <button id="lookup-btn" class="btn btn-primary" type="button">Search</button>
+          <!-- Upcoming releases browser -->
+          <div id="browse-section" hidden>
+            <div class="browse-head">
+              <div class="eyebrow-amber">// upcoming releases</div>
+            </div>
+            <div class="browse-filters">
+              <div class="filter-group">
+                <span class="field-label">Type</span>
+                <div class="chips" id="type-chips"></div>
+              </div>
+              <div class="filter-group dates">
+                <label class="date-field">
+                  <span class="field-label">Since</span>
+                  <input type="date" id="since" class="g-input date-input" />
+                </label>
+                <label class="date-field">
+                  <span class="field-label">Until</span>
+                  <input type="date" id="until" class="g-input date-input" />
+                </label>
+                <button id="apply-filters" class="btn-primary apply-btn" type="button">Apply</button>
+              </div>
+            </div>
+            <p id="grid-status" class="grid-status" hidden></p>
+            <div id="releases-grid" class="releases-grid"></div>
+            <div class="grid-foot">
+              <button id="load-more" class="btn-secondary" type="button" hidden>Load more</button>
+            </div>
+          </div>
         </div>
-        <p id="lookup-status" class="grid-status mono" hidden></p>
-        <div id="lookup-grid" class="result-grid"></div>
-      </div>
-    </section>
-  </main>
-  <Footer />
+
+        <!-- Lookup tab -->
+        <div class="tab-content" data-tab="lookup" hidden>
+          <p class="tab-desc">Score a specific game, or describe what you're looking for.</p>
+          <div class="lookup-form">
+            <input
+              id="lookup-input"
+              type="text"
+              class="g-input lookup-input"
+              placeholder="e.g. Metaphor: ReFantazio  ·  games like Chained Echoes with deep build systems"
+            />
+            <button id="lookup-btn" class="btn-primary" type="button">Search</button>
+          </div>
+          <p id="lookup-status" class="grid-status" hidden></p>
+          <div id="lookup-grid" class="result-grid"></div>
+        </div>
+
+      </section><!-- #dashboard -->
+
+    </div><!-- .page-content -->
+  </div><!-- #site -->
 </BaseLayout>
 
+<!-- Global styles: dynamically-created elements need global scope -->
 <style is:global>
-  /* Dynamically created elements need global scope */
+  /* ── Filter chips (built by buildChips()) ── */
   .chip {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.8rem;
-    color: var(--color-text-muted, #94a3b8);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #9aa6c2;
     background: transparent;
-    border: 1px solid var(--color-border, #334155);
-    border-radius: 999px;
-    padding: 0.3rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 13px;
     cursor: pointer;
     transition: color 0.15s, background 0.15s, border-color 0.15s;
   }
-  .chip:hover { color: #fff; border-color: #0d9488; }
+  .chip:hover {
+    color: #e9edf7;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
   .chip.active {
-    color: #fff;
-    background: #0d9488;
-    border-color: #0d9488;
+    color: #2dd4bf;
+    background: color-mix(in srgb, #2dd4bf 10%, transparent);
+    border-color: color-mix(in srgb, #2dd4bf 40%, transparent);
     font-weight: 600;
   }
 
-  /* Backlog + discover + lookup cards (all created in JS) */
+  /* ── Backlog / discover / lookup cards ── */
   .backlog-card,
   .discover-card {
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: var(--space-md);
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
-    transition: border-color var(--transition);
+    gap: 12px;
+    transition: border-color 0.2s, transform 0.2s;
   }
   .backlog-card:hover,
-  .discover-card:hover { border-color: var(--color-accent); }
+  .discover-card:hover {
+    border-color: color-mix(in srgb, #2dd4bf 35%, transparent);
+    transform: translateY(-3px);
+  }
 
   .backlog-title-row {
     display: flex;
     align-items: baseline;
-    gap: var(--space-sm);
+    gap: 10px;
     flex-wrap: wrap;
   }
   .backlog-name {
-    font-size: 1.05rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
     font-weight: 600;
-    color: var(--color-text);
+    color: #f4f7fd;
     text-decoration: none;
+    transition: color 0.15s;
   }
-  .backlog-name:hover { color: var(--color-accent); }
+  .backlog-name:hover { color: #2dd4bf; }
   .backlog-hours {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
   }
 
   .discover-name {
-    font-size: 1.05rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
     font-weight: 600;
-    color: var(--color-text);
+    color: #f4f7fd;
     display: block;
   }
   .discover-platforms {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
     display: block;
-    margin-top: 0.2rem;
+    margin-top: 3px;
   }
 
   .backlog-exclude {
     margin-left: auto;
-    font-family: var(--font-mono, monospace);
-    font-size: 0.72rem;
-    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
     background: transparent;
-    border: 1px solid #334155;
-    border-radius: 999px;
-    padding: 0.2rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 3px 9px;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s;
     white-space: nowrap;
@@ -261,373 +304,65 @@ import Footer from '../../components/Footer.astro';
     background: none;
     border: none;
     padding: 0;
-    color: #0d9488;
-    font-family: var(--font-mono, monospace);
+    color: #2dd4bf;
+    font-family: 'JetBrains Mono', monospace;
     font-size: inherit;
     cursor: pointer;
     text-decoration: underline;
   }
-  .inline-link:hover { color: #fff; }
+  .inline-link:hover { color: #7ee0d0; }
   .backlog-exclusion-note { margin-bottom: 0; }
-</style>
 
-<style>
-  /* ---- Access gate ---- */
-  .gate {
-    min-height: 60vh;
-    display: grid;
-    place-items: center;
-    padding-block: var(--space-2xl);
-  }
-  .gate-card {
-    width: 100%;
-    max-width: 28rem;
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: var(--space-lg);
-    box-shadow: var(--shadow);
-  }
-  .gate-intro {
-    color: var(--color-text-muted);
-    font-size: 0.95rem;
-    margin-top: var(--space-sm);
-  }
-  .gate-form {
-    display: flex;
-    gap: var(--space-sm);
-    margin-top: var(--space-md);
-    flex-wrap: wrap;
-  }
-  .gate-input,
-  .date-input {
-    flex: 1 1 12rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    padding: 0.7rem 0.9rem;
-  }
-  .gate-input:focus,
-  .date-input:focus {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 1px;
-  }
-  .gate-error {
-    color: #f87171;
-    font-size: 0.9rem;
-    margin-top: var(--space-sm);
-  }
-
-  /* ---- Page head ---- */
-  .page-head { padding-block: var(--space-xl) var(--space-md); }
-  .eyebrow {
-    color: var(--color-accent);
-    font-size: 0.9rem;
-    letter-spacing: 0.04em;
-    margin-bottom: var(--space-xs);
-  }
-
-  /* ---- Sync bar ---- */
-  .sync-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: var(--space-sm) var(--space-md);
-  }
-  .sync-status {
-    flex: 1 1 auto;
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-  }
-  .sync-status.stale { color: #f59e0b; }
-  .sync-btn,
-  .lock-btn { font-size: 0.8rem; padding: 0.45rem 0.9rem; }
-  .lock-btn { border-color: var(--color-border); color: var(--color-text-muted); }
-
-  /* ---- Taste profile ---- */
-  .taste-section {
-    margin-top: var(--space-md);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .taste-toggle {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-sm) var(--space-md);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-  }
-  .taste-toggle:hover { background: var(--color-surface); }
-  .taste-summary { font-size: 0.85rem; color: var(--color-text-muted); }
-  .taste-panel {
-    padding: var(--space-md);
-    border-top: 1px solid var(--color-border);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-  }
-  .taste-field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-  .taste-textarea {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    padding: 0.6rem 0.8rem;
-    resize: vertical;
-    line-height: 1.5;
-  }
-  .taste-textarea:focus {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 1px;
-  }
-  .taste-values {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-  }
-  .taste-chip {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    padding: 0.3rem 0.85rem;
-    cursor: pointer;
-    transition: color 0.15s, background 0.15s, border-color 0.15s;
-    user-select: none;
-  }
-  .taste-chip:has(input:checked) {
-    color: #fff;
-    background: #0d9488;
-    border-color: #0d9488;
-    font-weight: 600;
-  }
-
-  /* ---- Tab navigation ---- */
-  .tab-nav {
-    display: flex;
-    border-bottom: 1px solid var(--color-border);
-    margin-top: var(--space-md);
-  }
-  .tab-btn {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 0.65rem 1.2rem;
-    cursor: pointer;
-    margin-bottom: -1px;
-    letter-spacing: 0.02em;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .tab-btn:hover { color: var(--color-text); }
-  .tab-btn.active {
-    color: var(--color-accent);
-    border-bottom-color: var(--color-accent);
-    font-weight: 600;
-  }
-  .tab-desc {
-    color: var(--color-text-muted);
-    font-size: 0.95rem;
-    margin-top: var(--space-md);
-  }
-
-  /* ---- Shared filter + chip styles ---- */
-  .filter-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-  }
-  .filter-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-faint);
-  }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-  }
-  .dates { gap: var(--space-md); }
-  .date-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-  .date-input { flex: 0 1 auto; }
-  .apply-btn { align-self: flex-end; font-size: 0.85rem; padding: 0.55rem 1.1rem; }
-
-  /* ---- Own tab ---- */
-  .backlog-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    margin-top: var(--space-md);
-  }
-  .threshold-select {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-  }
-
-  /* ---- Discover tab ---- */
-  .discover-filters {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-    padding: var(--space-md);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-  }
-  .discover-actions {
-    display: flex;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    margin-top: var(--space-md);
-  }
-  .browse-head {
-    margin-top: var(--space-xl);
-    padding-top: var(--space-lg);
-    border-top: 1px solid var(--color-border);
-  }
-  .browse-filters {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-    padding: var(--space-md);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-  }
-
-  /* ---- Lookup tab ---- */
-  .lookup-form {
-    display: flex;
-    gap: var(--space-sm);
-    margin-top: var(--space-md);
-    flex-wrap: wrap;
-  }
-  .lookup-input {
-    flex: 1 1 16rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    padding: 0.65rem 0.9rem;
-  }
-  .lookup-input:focus {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 1px;
-  }
-
-  /* ---- Shared result grid (own / discover / lookup) ---- */
-  .result-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-  }
-  @media (min-width: 720px) {
-    .result-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  /* ---- Grid status ---- */
-  .grid-status {
-    margin-top: var(--space-md);
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-  }
-  .grid-status.error { color: #f87171; }
-
-  /* ---- Release browse grid ---- */
-  .releases-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-  }
-  @media (min-width: 720px) {
-    .releases-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  .grid-foot {
-    display: flex;
-    justify-content: center;
-    margin-top: var(--space-lg);
-  }
-
-  /* ---- Game card (release browser) ---- */
+  /* ── Release browser game cards ── */
   .game-card {
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    padding: var(--space-md);
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
-    transition: border-color var(--transition), transform var(--transition);
+    gap: 10px;
+    transition: border-color 0.2s, transform 0.2s;
   }
-  .game-card:hover { border-color: var(--color-accent); transform: translateY(-2px); }
-  .game-card h3 { font-size: 1.1rem; }
+  .game-card:hover {
+    border-color: color-mix(in srgb, #2dd4bf 35%, transparent);
+    transform: translateY(-3px);
+  }
+  .game-card h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #f4f7fd;
+    margin: 0;
+  }
   .game-meta {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--space-xs) var(--space-sm);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+    gap: 6px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #9aa6c2;
   }
   .metacritic {
     font-weight: 700;
-    color: var(--color-bg);
-    background: var(--color-text-muted);
-    border-radius: var(--radius-sm);
-    padding: 0.1rem 0.5rem;
+    font-size: 11px;
+    color: #0a0e1a;
+    background: #9aa6c2;
+    border-radius: 5px;
+    padding: 2px 7px;
   }
   .metacritic.high { background: #22c55e; }
   .metacritic.mid  { background: #f59e0b; }
   .metacritic.low  { background: #ef4444; }
-  .game-platforms  { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-faint); }
-  .game-categories { font-size: 0.75rem; color: #0d9488; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
-  .game-byline     { font-size: 0.8rem; color: var(--color-text-faint); font-family: var(--font-mono); }
+  .game-platforms  { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #616d8c; margin: 0; }
+  .game-categories { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #2dd4bf; text-transform: uppercase; letter-spacing: 0.04em; margin: 0; }
+  .game-byline     { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #616d8c; margin: 0; }
   .game-desc {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
+    font-size: 14px;
+    color: #9aa6c2;
     line-height: 1.55;
+    margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -636,70 +371,82 @@ import Footer from '../../components/Footer.astro';
   .card-actions {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 10px;
     margin-top: auto;
     flex-wrap: wrap;
   }
-  .rate-btn   { font-size: 0.8rem; padding: 0.45rem 0.9rem; }
-  .steam-link {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    text-decoration: none;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 0.45rem 0.8rem;
-    transition: color var(--transition), border-color var(--transition);
+  .rate-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 13px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, #2dd4bf 35%, transparent);
+    background: color-mix(in srgb, #2dd4bf 8%, transparent);
+    color: #7ee0d0;
+    cursor: pointer;
+    transition: background 0.2s;
   }
-  .steam-link:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .rate-btn:hover { background: color-mix(in srgb, #2dd4bf 16%, transparent); }
+  .steam-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    padding: 6px 12px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .steam-link:hover { color: #2dd4bf; border-color: color-mix(in srgb, #2dd4bf 35%, transparent); }
 
-  /* ---- Recommendation result (inside release cards) ---- */
+  /* ── Confidence bars ── */
   .reco {
-    border-top: 1px solid var(--color-border);
-    padding-top: var(--space-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 12px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
+    gap: 8px;
   }
   .reco-head {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 10px;
   }
   .reco-label {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-text-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
   .reco-score {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
     font-weight: 700;
   }
   .reco-bar {
-    height: 6px;
+    height: 5px;
     border-radius: 999px;
-    background: var(--color-surface);
+    background: rgba(255, 255, 255, 0.06);
     overflow: hidden;
   }
   .reco-bar > span {
     display: block;
     height: 100%;
     border-radius: 999px;
-    transition: width var(--transition);
+    transition: width 0.4s ease;
   }
-  .conf-high    { color: var(--color-accent); }
-  .conf-high-bg { background: var(--color-accent); }
-  .conf-mid     { color: #f59e0b; }
-  .conf-mid-bg  { background: #f59e0b; }
-  .conf-low     { color: var(--color-text-muted); }
-  .conf-low-bg  { background: var(--color-text-muted); }
-  .reco-text  { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.55; }
-  .reco-error { font-size: 0.85rem; color: #f87171; }
+  .conf-high    { color: #2dd4bf; }
+  .conf-high-bg { background: #2dd4bf; }
+  .conf-mid     { color: #f0a868; }
+  .conf-mid-bg  { background: #f0a868; }
+  .conf-low     { color: #9aa6c2; }
+  .conf-low-bg  { background: #9aa6c2; }
+  .reco-text  { font-size: 13.5px; color: #9aa6c2; line-height: 1.55; margin: 0; }
+  .reco-error { font-size: 13.5px; color: #f87171; margin: 0; }
 
-  /* ---- Spinner ---- */
+  /* ── Spinner ── */
   .spinner {
     display: inline-block;
     width: 0.85em;
@@ -707,11 +454,655 @@ import Footer from '../../components/Footer.astro';
     border: 2px solid currentColor;
     border-right-color: transparent;
     border-radius: 50%;
-    animation: spin 0.6s linear infinite;
+    animation: g-spin 0.6s linear infinite;
     vertical-align: -0.1em;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  button[disabled] { opacity: 0.6; cursor: progress; }
+  @keyframes g-spin { to { transform: rotate(360deg); } }
+  button[disabled] { opacity: 0.55; cursor: progress; }
+</style>
+
+<style>
+  /* ── Site shell (matches homepage tokens) ── */
+  #site {
+    --ac: #2dd4bf;
+    --ac-lite: #5fe6d4;
+    --ac-soft: #7ee0d0;
+    position: relative;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+      #0a0e1a;
+    overflow-x: hidden;
+  }
+
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* ── Nav ── */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(10, 14, 26, 0.72);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: #e9edf7;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ac) 70%, transparent);
+    animation: g-pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .logo-accent { color: var(--ac); }
+
+  .nav-right { display: flex; align-items: center; }
+
+  .nav-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Page content ── */
+  .page-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 28px 80px;
+  }
+
+  /* ── Gate ── */
+  .gate-wrap {
+    min-height: calc(100vh - 56px);
+    display: grid;
+    place-items: center;
+    padding: 60px 0;
+  }
+
+  .gate-outer {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .gate-glow {
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    background: linear-gradient(
+      150deg,
+      color-mix(in srgb, var(--ac) 45%, transparent),
+      rgba(240, 168, 104, 0.25),
+      transparent 70%
+    );
+    opacity: 0.7;
+    filter: blur(0.5px);
+  }
+
+  .gate-card {
+    position: relative;
+    border-radius: 15px;
+    background: #0d1322;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.8);
+  }
+
+  .gate-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .dot-orange {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #f0a868;
+    flex-shrink: 0;
+  }
+
+  .dot-dim {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    flex-shrink: 0;
+  }
+
+  .gate-card-label {
+    margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+  }
+
+  .gate-body {
+    padding: 24px;
+  }
+
+  .gate-query {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    line-height: 1.6;
+  }
+
+  .kw  { color: #f0a868; }
+  .col { color: #cdd5e8; }
+  .tbl { color: var(--ac); }
+  .val { color: var(--ac-soft); }
+
+  .gate-intro {
+    font-size: 14.5px;
+    color: #9aa6c2;
+    margin: 0 0 18px;
+  }
+
+  .gate-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .gate-input {
+    flex: 1 1 12rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .gate-input:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--ac) 60%, transparent);
+  }
+
+  .gate-error {
+    color: #f87171;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    margin-top: 12px;
+  }
+
+  /* ── Shared buttons ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 9px;
+    border: none;
+    background: var(--ac);
+    color: #0a0e1a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { background: var(--ac-lite); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: #cdd5e8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover {
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+    color: #fff;
+  }
+
+  .btn-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 6px 13px;
+    border-radius: 7px;
+    border: 1px solid color-mix(in srgb, var(--ac) 35%, transparent);
+    background: color-mix(in srgb, var(--ac) 8%, transparent);
+    color: var(--ac-soft);
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-sm:hover { background: color-mix(in srgb, var(--ac) 16%, transparent); }
+
+  .btn-dim {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: #616d8c;
+  }
+  .btn-dim:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #9aa6c2;
+  }
+
+  /* ── Shared inputs/selects ── */
+  .g-input,
+  .g-select {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 9px 13px;
+    transition: border-color 0.2s;
+  }
+  .g-input:focus,
+  .g-select:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--ac) 60%, transparent);
+  }
+  .g-select { cursor: pointer; }
+
+  /* ── Dashboard header ── */
+  .page-head {
+    padding: 52px 0 28px;
+  }
+
+  .eyebrow-amber {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+
+  .page-h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 48px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: #f4f7fd;
+    margin: 0;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+
+  /* ── Sync bar ── */
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 18px;
+  }
+
+  .sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ac) 70%, transparent);
+    animation: g-pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  #sync-status {
+    flex: 1 1 auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #9aa6c2;
+  }
+
+  #sync-status.stale { color: #f0a868; }
+
+  .sync-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Taste profile ── */
+  .taste-section {
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+
+  .taste-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+  }
+  .taste-toggle:hover { background: rgba(255, 255, 255, 0.02); }
+
+  .taste-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  .taste-summary {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #616d8c;
+    text-align: left;
+  }
+
+  .taste-chevron {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+    flex-shrink: 0;
+  }
+
+  .taste-panel {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .taste-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #616d8c;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .taste-textarea {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    resize: vertical;
+    line-height: 1.55;
+    transition: border-color 0.2s;
+  }
+  .taste-textarea:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+  }
+
+  .taste-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .taste-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #9aa6c2;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 13px;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+
+  .taste-chip:has(input:checked) {
+    color: #2dd4bf;
+    background: color-mix(in srgb, #2dd4bf 10%, transparent);
+    border-color: color-mix(in srgb, #2dd4bf 40%, transparent);
+    font-weight: 600;
+  }
+
+  /* ── Tabs ── */
+  .tab-nav {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    margin-bottom: 4px;
+    gap: 2px;
+  }
+
+  .tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #616d8c;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 18px;
+    cursor: pointer;
+    margin-bottom: -1px;
+    letter-spacing: 0.04em;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: #9aa6c2; }
+  .tab-btn.active {
+    color: var(--ac);
+    border-bottom-color: var(--ac);
+    font-weight: 600;
+  }
+
+  .tab-desc {
+    font-size: 14.5px;
+    color: #9aa6c2;
+    margin: 18px 0 0;
+  }
+
+  /* ── Shared filter/chip rows ── */
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .dates { gap: 16px; }
+
+  .date-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .date-input { flex: 0 1 auto; }
+
+  .apply-btn { align-self: flex-end; }
+
+  /* ── Own tab controls ── */
+  .backlog-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+
+  /* ── Discover tab ── */
+  .discover-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+    padding: 18px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 13px;
+  }
+
+  .discover-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .browse-head {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .browse-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+    padding: 18px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 13px;
+  }
+
+  /* ── Lookup tab ── */
+  .lookup-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .lookup-input { flex: 1 1 16rem; }
+
+  /* ── Result grids ── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 720px) {
+    .result-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1000px) {
+    .result-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .grid-status {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #9aa6c2;
+  }
+  .grid-status.error { color: #f87171; }
+
+  .releases-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  @media (min-width: 720px) {
+    .releases-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px) {
+    .releases-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .grid-foot {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes g-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.82); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-dot, .sync-dot { animation: none; }
+  }
 </style>
 
 <script>
@@ -760,8 +1151,8 @@ import Footer from '../../components/Footer.astro';
     }
     if (prefs.values.length) parts.push(`${prefs.values.length} value${prefs.values.length === 1 ? '' : 's'} set`);
     tasteSummaryEl.textContent = parts.length
-      ? parts.join(' · ') + ' ▾'
-      : 'Not configured — tell Claude what you like ▾';
+      ? parts.join(' · ')
+      : 'Not configured — tell Claude what you like';
   }
 
   function loadPrefsIntoForm() {
@@ -1007,7 +1398,7 @@ import Footer from '../../components/Footer.astro';
     if (!note) {
       note = document.createElement('p');
       note.id = 'backlog-exclusion-note';
-      note.className = 'grid-status mono backlog-exclusion-note';
+      note.className = 'grid-status backlog-exclusion-note';
       backlogGrid.parentElement!.insertBefore(note, backlogGrid);
     }
     note.innerHTML = `${ex.size} game${ex.size === 1 ? '' : 's'} excluded · <button class="inline-link" id="backlog-reset">Reset</button>`;
@@ -1246,7 +1637,7 @@ import Footer from '../../components/Footer.astro';
       ${platformText ? `<p class="game-platforms">${platformText}</p>` : ''}
       ${game.description ? `<p class="game-desc">${escapeHtml(game.description)}</p>` : ''}
       <div class="card-actions">
-        <button class="btn rate-btn" type="button">Rate this</button>
+        <button class="rate-btn" type="button">Rate this</button>
         ${game.steamAppId
           ? `<a class="steam-link" href="https://store.steampowered.com/app/${game.steamAppId}/" target="_blank" rel="noopener">Steam ↗</a>`
           : ''}
