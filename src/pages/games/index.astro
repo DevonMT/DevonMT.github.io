@@ -1141,6 +1141,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const prefs = { favoritesNote: tasteFavorites.value.trim(), values, notes: tasteNotes.value.trim() };
     localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
     renderTasteSummary(prefs);
+    // Sync to server (fire-and-forget — failure is non-fatal, localStorage still works)
+    api('/preferences', { method: 'POST', body: JSON.stringify(prefs) }).catch(() => {});
   }
 
   function renderTasteSummary(prefs: { favoritesNote: string; values: string[]; notes: string }) {
@@ -1155,14 +1157,31 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       : 'Not configured — tell Claude what you like';
   }
 
-  function loadPrefsIntoForm() {
-    const prefs = getPrefs();
+  function applyPrefsToForm(prefs: { favoritesNote: string; values: string[]; notes: string }) {
     tasteFavorites.value = prefs.favoritesNote || '';
     tasteNotes.value = prefs.notes || '';
     document.querySelectorAll<HTMLInputElement>('.taste-chip input').forEach((el) => {
       el.checked = prefs.values.includes(el.value);
     });
     renderTasteSummary(prefs);
+  }
+
+  async function loadPrefsIntoForm() {
+    // Try server first (cross-device sync), fall back to localStorage.
+    try {
+      const data = await api('/preferences');
+      if (data?.prefs && typeof data.prefs === 'object') {
+        const serverPrefs = {
+          favoritesNote: String(data.prefs.favoritesNote ?? ''),
+          values: Array.isArray(data.prefs.values) ? data.prefs.values : [],
+          notes: String(data.prefs.notes ?? ''),
+        };
+        localStorage.setItem(PREFS_KEY, JSON.stringify(serverPrefs));
+        applyPrefsToForm(serverPrefs);
+        return;
+      }
+    } catch { /* no key yet or backend down — fall through */ }
+    applyPrefsToForm(getPrefs());
   }
 
   tasteToggle.addEventListener('click', () => {
@@ -1726,8 +1745,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   lookupInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runLookup(); });
 
   // ---- Init ----
-  function initDashboard() {
-    loadPrefsIntoForm();
+  async function initDashboard() {
+    await loadPrefsIntoForm();
     buildChips(
       document.getElementById('discover-platform-chips')!,
       PLATFORM_OPTIONS,
@@ -1754,6 +1773,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   // ---- Boot ----
-  if (getKey()) { showDashboard(); initDashboard(); }
+  if (getKey()) { showDashboard(); initDashboard().catch(() => {}); }
   else { showGate(); }
 </script>
