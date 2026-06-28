@@ -1,0 +1,1591 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Game Discovery — Devon Troedel"
+  description="Tell us your taste in games and get personalized recommendations, powered by Claude."
+>
+  <div id="site">
+    <div id="bg-grid" aria-hidden="true"></div>
+
+    <!-- ── Nav ── -->
+    <header class="site-nav">
+      <div class="nav-inner">
+        <a href="/" class="logo">
+          <span class="logo-dot" aria-hidden="true"></span>
+          <span>devondoes<span class="logo-accent">.dev</span></span>
+        </a>
+        <div class="nav-right">
+          <a href="/games" class="nav-back">← games</a>
+          <span class="nav-tag">// discover</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- ── Page header ── -->
+      <div class="page-head">
+        <div class="eyebrow-amber">// game discovery</div>
+        <h1 class="page-h1">Find your next game</h1>
+        <p class="page-sub">Fill in your taste profile — 20 seconds to start, 2 minutes to go deep. Claude will brainstorm picks matched specifically to you.</p>
+      </div>
+
+      <!-- ── Mode indicator ── -->
+      <div id="mode-bar" class="mode-bar">
+        <span class="mode-dot" aria-hidden="true"></span>
+        <span id="mode-label" class="mode-label">Public mode — profile saved to this browser</span>
+      </div>
+
+      <!-- ── Taste profile questionnaire ── -->
+      <form id="profile-form" novalidate>
+
+        <!-- ── Section 1: // how you play ── -->
+        <div class="section-card">
+          <div class="section-eyebrow">// how you play</div>
+
+          <!-- Pacing -->
+          <div class="field">
+            <div class="slider-header">
+              <label class="field-label" for="pacing">Pacing</label>
+              <span class="slider-ends">
+                <span class="slider-end-l">Methodical / tactical</span>
+                <span class="slider-end-r">Fast-twitch / reflexes</span>
+              </span>
+            </div>
+            <input type="range" id="pacing" name="pacing" min="0" max="100" value="50" class="slider" />
+            <div class="slider-track-labels" aria-hidden="true">
+              <span>0</span><span>50</span><span>100</span>
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="field">
+            <div class="slider-header">
+              <label class="field-label" for="difficulty">Difficulty tolerance</label>
+              <span class="slider-ends">
+                <span class="slider-end-l">Relaxing / forgiving</span>
+                <span class="slider-end-r">Punishing / I want to suffer</span>
+              </span>
+            </div>
+            <input type="range" id="difficulty" name="difficulty" min="0" max="100" value="50" class="slider" />
+            <div class="slider-track-labels" aria-hidden="true">
+              <span>0</span><span>50</span><span>100</span>
+            </div>
+          </div>
+
+          <!-- Session length -->
+          <div class="field">
+            <span class="field-label">Typical session length</span>
+            <div class="chip-row" id="sessionLength-chips" role="group" aria-label="Typical session length"></div>
+          </div>
+
+          <!-- Multiplayer -->
+          <div class="field">
+            <span class="field-label">Players</span>
+            <div class="chip-row" id="multiplayer-chips" role="group" aria-label="Players"></div>
+          </div>
+        </div>
+
+        <!-- ── Section 2: // what you're into ── -->
+        <div class="section-card">
+          <div class="section-eyebrow">// what you're into</div>
+
+          <!-- Story vs. systems -->
+          <div class="field">
+            <div class="slider-header">
+              <label class="field-label" for="storyVsSystems">Story vs. systems</label>
+              <span class="slider-ends">
+                <span class="slider-end-l">All about story &amp; characters</span>
+                <span class="slider-end-r">All about mechanics &amp; systems</span>
+              </span>
+            </div>
+            <input type="range" id="storyVsSystems" name="storyVsSystems" min="0" max="100" value="50" class="slider" />
+            <div class="slider-track-labels" aria-hidden="true">
+              <span>0</span><span>50</span><span>100</span>
+            </div>
+          </div>
+
+          <!-- Settings -->
+          <div class="field">
+            <span class="field-label">Settings <span class="field-cap">(pick up to 6)</span></span>
+            <div class="chip-row" id="settings-chips" role="group" aria-label="Settings"></div>
+          </div>
+
+          <!-- Genres -->
+          <div class="field">
+            <span class="field-label">Genres you gravitate to <span class="field-cap">(pick up to 8)</span></span>
+            <div class="chip-row" id="genres-chips" role="group" aria-label="Genres"></div>
+          </div>
+        </div>
+
+        <!-- ── Section 3: // the vibe ── -->
+        <div class="section-card">
+          <div class="section-eyebrow">// the vibe</div>
+
+          <!-- Tone -->
+          <div class="field">
+            <div class="slider-header">
+              <label class="field-label" for="tone">Tone / atmosphere</label>
+              <span class="slider-ends">
+                <span class="slider-end-l">Lighthearted / cozy / funny</span>
+                <span class="slider-end-r">Dark / gritty / serious</span>
+              </span>
+            </div>
+            <input type="range" id="tone" name="tone" min="0" max="100" value="50" class="slider" />
+            <div class="slider-track-labels" aria-hidden="true">
+              <span>0</span><span>50</span><span>100</span>
+            </div>
+          </div>
+
+          <!-- Art style -->
+          <div class="field">
+            <span class="field-label">Art-style leanings <span class="field-cap">(pick up to 5)</span></span>
+            <div class="chip-row" id="artStyle-chips" role="group" aria-label="Art style"></div>
+          </div>
+
+          <!-- Completion style -->
+          <div class="field">
+            <span class="field-label">Completion style</span>
+            <div class="chip-row" id="completion-chips" role="group" aria-label="Completion style"></div>
+          </div>
+        </div>
+
+        <!-- ── Section 4: // your north stars ── -->
+        <div class="section-card">
+          <div class="section-eyebrow">// your north stars</div>
+          <p class="section-hint">Highest-signal section. The "why" is more useful than the title — it tells Claude <em>which axis</em> of a game to match on.</p>
+
+          <!-- Reference games -->
+          <div class="field" id="ref-games-field">
+            <span class="field-label">Reference games + why you loved them</span>
+            <div id="ref-games-list"></div>
+            <button type="button" id="add-ref-game" class="btn-secondary btn-sm add-ref-btn">+ add another game</button>
+          </div>
+
+          <!-- Notes -->
+          <div class="field">
+            <label class="field-label" for="notes">Anything else</label>
+            <p class="field-hint">Dealbreakers, things you're sick of, mood right now, hardware constraints.</p>
+            <textarea id="notes" name="notes" class="g-textarea" rows="3" placeholder="e.g. PC only. Sick of live-service grinds. Want something I can finish."></textarea>
+          </div>
+        </div>
+
+        <!-- ── Profile strength meter ── -->
+        <div class="strength-bar-wrap">
+          <div class="strength-label-row">
+            <span class="field-label">Profile strength</span>
+            <span id="strength-pct" class="strength-pct">0%</span>
+          </div>
+          <div class="strength-track">
+            <div id="strength-fill" class="strength-fill"></div>
+          </div>
+          <p id="strength-hint" class="strength-hint">Move a slider or pick a chip to start building your profile.</p>
+        </div>
+
+        <!-- ── Sticky CTA ── -->
+        <div class="sticky-cta">
+          <div class="sticky-cta-inner">
+            <button type="button" id="discover-btn" class="btn-primary">
+              Brainstorm games →
+            </button>
+            <div class="cta-opts">
+              <div class="filter-group">
+                <span class="field-label">Platform</span>
+                <div class="chip-row" id="platform-filter-chips" role="group" aria-label="Platform filter"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </form><!-- #profile-form -->
+
+      <!-- ── Results ── -->
+      <section id="results-section" hidden>
+        <div class="results-head">
+          <div class="eyebrow-amber">// brainstorm results</div>
+          <h2 class="results-h2">Games you might love</h2>
+        </div>
+        <p id="results-status" class="grid-status" hidden></p>
+        <div id="results-grid" class="result-grid"></div>
+      </section>
+
+    </div><!-- .page-content -->
+
+    <!-- ── Footer ── -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span class="footer-copy">&copy; 2025 Devon Troedel</span>
+
+        <!--
+          PHASE 3 PLACEHOLDER — friend-key footer affordance
+          When Phase 3 ships, this area gets an expandable "// friend key" input
+          that: accepts the key → switches mode to 'friend' → stores in sessionStorage
+          → migrates any existing localStorage profile to the server (PUT /profile)
+          → loads the server profile on subsequent visits.
+          For now, only the structural placeholder lives here.
+        -->
+        <div id="friend-key-footer" class="friend-key-footer" aria-label="Friend key (Phase 3)">
+          <!-- Phase 3: expand button + key input will go here -->
+          <span class="footer-fk-note">// friend key <span class="footer-fk-phase">(coming soon)</span></span>
+        </div>
+
+        <a href="/games" class="footer-link">← games dashboard</a>
+      </div>
+    </footer>
+
+  </div><!-- #site -->
+</BaseLayout>
+
+<!-- Global styles: dynamically-created elements need global scope -->
+<style is:global>
+  /* ── Chips (built by buildChips()) ── */
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #9aa6c2;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 13px;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .chip:hover {
+    color: #e9edf7;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .chip.active {
+    color: #2dd4bf;
+    background: color-mix(in srgb, #2dd4bf 10%, transparent);
+    border-color: color-mix(in srgb, #2dd4bf 40%, transparent);
+    font-weight: 600;
+  }
+
+  /* ── Discover result cards ── */
+  .discover-card {
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .discover-card:hover {
+    border-color: color-mix(in srgb, #2dd4bf 35%, transparent);
+    transform: translateY(-3px);
+  }
+  .discover-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #f4f7fd;
+    display: block;
+  }
+  .discover-platforms {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+    display: block;
+    margin-top: 3px;
+  }
+
+  /* ── Confidence bar components ── */
+  .reco-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .reco-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #616d8c;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .reco-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .reco-bar {
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+  .reco-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .conf-high    { color: #2dd4bf; }
+  .conf-high-bg { background: #2dd4bf; }
+  .conf-mid     { color: #f0a868; }
+  .conf-mid-bg  { background: #f0a868; }
+  .conf-low     { color: #9aa6c2; }
+  .conf-low-bg  { background: #9aa6c2; }
+  .reco-text  { font-size: 13.5px; color: #9aa6c2; line-height: 1.55; margin: 0; }
+  .reco-error { font-size: 13.5px; color: #f87171; margin: 0; }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block;
+    width: 0.85em;
+    height: 0.85em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: g-spin 0.6s linear infinite;
+    vertical-align: -0.1em;
+  }
+  @keyframes g-spin { to { transform: rotate(360deg); } }
+  button[disabled] { opacity: 0.55; cursor: progress; }
+
+  /* ── Reference game rows (built by JS) ── */
+  .ref-game-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    gap: 10px;
+    align-items: start;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 640px) {
+    .ref-game-row { grid-template-columns: 1fr; }
+  }
+  .ref-game-title {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 9px 13px;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ref-game-title:focus {
+    outline: none;
+    border-color: color-mix(in srgb, #2dd4bf 60%, transparent);
+  }
+  .ref-game-why {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 9px 13px;
+    resize: vertical;
+    line-height: 1.5;
+    min-height: 70px;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ref-game-why:focus {
+    outline: none;
+    border-color: color-mix(in srgb, #2dd4bf 60%, transparent);
+  }
+  .ref-game-remove {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 7px;
+    color: #616d8c;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    margin-top: 2px;
+  }
+  .ref-game-remove:hover { color: #f87171; border-color: #f87171; }
+</style>
+
+<style>
+  /* ── Site shell ── */
+  #site {
+    --ac: #2dd4bf;
+    --ac-lite: #5fe6d4;
+    --ac-soft: #7ee0d0;
+    position: relative;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+      #0a0e1a;
+    overflow-x: hidden;
+  }
+
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* ── Nav ── */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(10, 14, 26, 0.72);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: #e9edf7;
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ac) 70%, transparent);
+    animation: g-pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .logo-accent { color: var(--ac); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-back {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .nav-back:hover { color: #9aa6c2; }
+
+  .nav-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Page content ── */
+  .page-content {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 28px 120px;
+  }
+
+  /* ── Page header ── */
+  .page-head {
+    padding: 52px 0 32px;
+  }
+
+  .eyebrow-amber {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+
+  .page-h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 48px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: #f4f7fd;
+    margin: 0 0 16px;
+  }
+
+  .page-sub {
+    font-size: 16px;
+    color: #9aa6c2;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 600px;
+  }
+
+  /* ── Mode bar ── */
+  .mode-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 24px;
+  }
+
+  .mode-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ac) 70%, transparent);
+    animation: g-pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .mode-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #9aa6c2;
+  }
+
+  /* ── Section cards ── */
+  .section-card {
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #f0a868;
+    letter-spacing: 0.08em;
+    margin-bottom: -4px;
+  }
+
+  .section-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #616d8c;
+    line-height: 1.6;
+    margin: -8px 0 0;
+  }
+  .section-hint em { color: #9aa6c2; font-style: normal; }
+
+  /* ── Fields ── */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #616d8c;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .field-cap {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #4a5470;
+    font-size: 10.5px;
+  }
+
+  .field-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #4a5470;
+    margin: -4px 0 0;
+    line-height: 1.5;
+  }
+
+  /* ── Sliders ── */
+  .slider-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .slider-ends {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .slider-end-l,
+  .slider-end-r {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #4a5470;
+  }
+
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    cursor: pointer;
+    accent-color: var(--ac);
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ac);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ac) 60%, transparent);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ac);
+    border: none;
+    cursor: pointer;
+  }
+
+  .slider-track-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #3a4260;
+    margin-top: -4px;
+  }
+
+  /* ── Chip rows ── */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ── Textarea ── */
+  .g-textarea {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    resize: vertical;
+    line-height: 1.55;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .g-textarea:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+  }
+
+  /* ── Add ref game button ── */
+  .add-ref-btn { align-self: flex-start; margin-top: 4px; }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 9px;
+    border: none;
+    background: var(--ac);
+    color: #0a0e1a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { background: var(--ac-lite); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: #cdd5e8;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover {
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+    color: #fff;
+  }
+
+  .btn-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 6px 13px;
+    border-radius: 7px;
+    border: 1px solid color-mix(in srgb, var(--ac) 35%, transparent);
+    background: color-mix(in srgb, var(--ac) 8%, transparent);
+    color: var(--ac-soft);
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-sm:hover { background: color-mix(in srgb, var(--ac) 16%, transparent); }
+
+  /* ── Profile strength meter ── */
+  .strength-bar-wrap {
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .strength-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .strength-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ac);
+  }
+
+  .strength-track {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  .strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: var(--ac);
+    transition: width 0.35s ease, background 0.35s ease;
+  }
+
+  .strength-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #4a5470;
+    margin: 0;
+  }
+
+  /* ── Sticky CTA ── */
+  .sticky-cta {
+    position: sticky;
+    bottom: 20px;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .sticky-cta-inner {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: rgba(10, 14, 26, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 14px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .cta-opts {
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Results ── */
+  .results-head {
+    padding: 40px 0 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    margin-top: 32px;
+  }
+
+  .results-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    color: #f4f7fd;
+    margin: 10px 0 0;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 640px) {
+    .result-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 900px) {
+    .result-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .grid-status {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #9aa6c2;
+  }
+  .grid-status.error { color: #f87171; }
+
+  /* ── Footer ── */
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 40px;
+  }
+
+  .footer-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #3a4260;
+  }
+
+  .friend-key-footer {
+    display: flex;
+    align-items: center;
+  }
+
+  .footer-fk-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #3a4260;
+  }
+
+  .footer-fk-phase {
+    color: #2a3050;
+    font-size: 10px;
+  }
+
+  .footer-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #3a4260;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-link:hover { color: #9aa6c2; }
+
+  /* ── Keyframes ── */
+  @keyframes g-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.82); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-dot, .mode-dot { animation: none; }
+  }
+</style>
+
+<script>
+  // ── Config ─────────────────────────────────────────────────────────────────
+  // TODO: replace with Railway URL after deploy (playfinder service)
+  const API_BASE = 'http://localhost:8787'; // TODO: replace with Railway URL after deploy
+
+  // ── Storage ────────────────────────────────────────────────────────────────
+  const PROFILE_KEY = 'playfinder_profile_v1';
+  // Phase 3: FRIEND_KEY_SESSION = sessionStorage key for friend key
+  // const FRIEND_KEY_SESSION = 'playfinder_friend_key';
+
+  // ── Slider defaults ────────────────────────────────────────────────────────
+  const SLIDER_DEFAULTS: Record<string, number> = {
+    pacing: 50,
+    difficulty: 50,
+    storyVsSystems: 50,
+    tone: 50,
+  };
+
+  // ── Chip option definitions ────────────────────────────────────────────────
+  interface ChipOption { value: string; label: string; }
+
+  const SESSION_LENGTH_OPTS: ChipOption[] = [
+    { value: 'quick',  label: '15–30 min' },
+    { value: 'medium', label: '1–2 hr' },
+    { value: 'long',   label: '3+ hr marathons' },
+    { value: 'varies', label: 'varies' },
+  ];
+
+  const MULTIPLAYER_OPTS: ChipOption[] = [
+    { value: 'single', label: 'solo' },
+    { value: 'coop',   label: 'co-op' },
+    { value: 'pvp',    label: 'competitive' },
+    { value: 'mix',    label: 'either works' },
+  ];
+
+  const SETTINGS_OPTS: ChipOption[] = [
+    { value: 'fantasy',          label: 'fantasy' },
+    { value: 'sci-fi',           label: 'sci-fi' },
+    { value: 'historical',       label: 'historical' },
+    { value: 'modern',           label: 'modern' },
+    { value: 'post-apocalyptic', label: 'post-apocalyptic' },
+    { value: 'horror',           label: 'horror' },
+    { value: 'cyberpunk',        label: 'cyberpunk' },
+    { value: 'space',            label: 'space' },
+    { value: 'grounded-realistic', label: 'grounded / realistic' },
+    { value: 'surreal-stylized', label: 'surreal / stylized' },
+  ];
+
+  const GENRES_OPTS: ChipOption[] = [
+    { value: 'rpg',          label: 'RPG' },
+    { value: 'action',       label: 'action' },
+    { value: 'strategy',     label: 'strategy' },
+    { value: 'shooter',      label: 'shooter' },
+    { value: 'platformer',   label: 'platformer' },
+    { value: 'roguelike',    label: 'roguelike' },
+    { value: 'sim',          label: 'sim' },
+    { value: 'survival',     label: 'survival' },
+    { value: 'puzzle',       label: 'puzzle' },
+    { value: 'fighting',     label: 'fighting' },
+    { value: 'racing',       label: 'racing' },
+    { value: 'metroidvania', label: 'metroidvania' },
+    { value: 'cozy',         label: 'cozy' },
+    { value: 'soulslike',    label: 'soulslike' },
+  ];
+
+  const ART_STYLE_OPTS: ChipOption[] = [
+    { value: 'realistic',    label: 'realistic' },
+    { value: 'stylized-3d',  label: 'stylized 3D' },
+    { value: 'pixel-art',    label: 'pixel art' },
+    { value: 'anime',        label: 'anime' },
+    { value: 'hand-drawn',   label: 'hand-drawn' },
+    { value: 'minimalist',   label: 'minimalist' },
+    { value: 'retro',        label: 'retro' },
+    { value: 'painterly',    label: 'painterly' },
+  ];
+
+  const COMPLETION_OPTS: ChipOption[] = [
+    { value: '100%-completionist', label: '100% completionist' },
+    { value: 'main-story',         label: 'main story then out' },
+    { value: 'endless-replayer',   label: 'endless replayer / NG+' },
+    { value: 'whatever-sticks',    label: 'whatever sticks' },
+  ];
+
+  const PLATFORM_FILTER_OPTS: ChipOption[] = [
+    { value: '',              label: 'any platform' },
+    { value: 'pc',            label: 'PC' },
+    { value: 'playstation5',  label: 'PS5' },
+    { value: 'playstation4',  label: 'PS4' },
+    { value: 'xbox-series-x', label: 'Xbox' },
+    { value: 'nintendo-switch', label: 'Switch' },
+  ];
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  // Single-select chip state keyed by fieldName → selected value
+  const singleSelect: Record<string, string> = {
+    sessionLength: 'varies',
+    multiplayer: 'mix',
+    completion: 'whatever-sticks',
+    platformFilter: '',
+  };
+
+  // Multi-select chip state keyed by fieldName → Set of selected values
+  const multiSelect: Record<string, Set<string>> = {
+    settings: new Set(),
+    genres: new Set(),
+    artStyle: new Set(),
+  };
+
+  // Multi-select caps
+  const MULTI_CAPS: Record<string, number> = {
+    settings: 6,
+    genres: 8,
+    artStyle: 5,
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function escapeHtml(s: string): string {
+    const div = document.createElement('div');
+    div.textContent = s ?? '';
+    return div.innerHTML;
+  }
+
+  function confClass(score: number): { text: string; bg: string } {
+    if (score >= 75) return { text: 'conf-high', bg: 'conf-high-bg' };
+    if (score >= 50) return { text: 'conf-mid',  bg: 'conf-mid-bg' };
+    return { text: 'conf-low', bg: 'conf-low-bg' };
+  }
+
+  // ── Chip builders ──────────────────────────────────────────────────────────
+
+  /**
+   * Build a set of single-select chips into a container.
+   * stateKey is a key in singleSelect.
+   */
+  function buildSingleChips(
+    container: HTMLElement,
+    options: ChipOption[],
+    stateKey: string,
+    onChange: () => void,
+  ): void {
+    container.innerHTML = '';
+    options.forEach(({ value, label }) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip' + (singleSelect[stateKey] === value ? ' active' : '');
+      btn.textContent = label;
+      btn.dataset['value'] = value;
+      btn.addEventListener('click', () => {
+        singleSelect[stateKey] = value;
+        container.querySelectorAll<HTMLElement>('.chip').forEach((c) => {
+          c.classList.toggle('active', c.dataset['value'] === value);
+        });
+        onChange();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  /**
+   * Build a set of multi-select chips into a container.
+   * stateKey is a key in multiSelect; cap is the max selections.
+   */
+  function buildMultiChips(
+    container: HTMLElement,
+    options: ChipOption[],
+    stateKey: string,
+    cap: number,
+    onChange: () => void,
+  ): void {
+    container.innerHTML = '';
+    const sel = multiSelect[stateKey]!;
+    options.forEach(({ value, label }) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip' + (sel.has(value) ? ' active' : '');
+      btn.textContent = label;
+      btn.dataset['value'] = value;
+      btn.addEventListener('click', () => {
+        if (sel.has(value)) {
+          sel.delete(value);
+          btn.classList.remove('active');
+        } else if (sel.size < cap) {
+          sel.add(value);
+          btn.classList.add('active');
+        }
+        // If at cap, silently ignore (don't 400 — just don't add more).
+        onChange();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // ── Reference game rows ────────────────────────────────────────────────────
+  interface RefGameEntry { title: string; why: string; }
+
+  let refGames: RefGameEntry[] = [{ title: '', why: '' }];
+
+  function renderRefGames(onChange: () => void): void {
+    const list = document.getElementById('ref-games-list')!;
+    const addBtn = document.getElementById('add-ref-game') as HTMLButtonElement;
+    list.innerHTML = '';
+
+    refGames.forEach((entry, idx) => {
+      const row = document.createElement('div');
+      row.className = 'ref-game-row';
+
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.className = 'ref-game-title';
+      titleInput.placeholder = 'Game title';
+      titleInput.value = entry.title;
+      titleInput.setAttribute('aria-label', `Reference game ${idx + 1} title`);
+      titleInput.addEventListener('input', () => {
+        const e = refGames[idx];
+        if (e) e.title = titleInput.value;
+        onChange();
+      });
+
+      const whyInput = document.createElement('textarea');
+      whyInput.className = 'ref-game-why';
+      whyInput.placeholder = 'What specifically you loved — the combat, the story beats, the freedom, the mood…';
+      whyInput.rows = 2;
+      whyInput.value = entry.why;
+      whyInput.setAttribute('aria-label', `Reference game ${idx + 1} why`);
+      whyInput.addEventListener('input', () => {
+        const e = refGames[idx];
+        if (e) e.why = whyInput.value;
+        onChange();
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'ref-game-remove';
+      removeBtn.textContent = '✕';
+      removeBtn.setAttribute('aria-label', `Remove game ${idx + 1}`);
+      removeBtn.disabled = refGames.length <= 1;
+      if (refGames.length <= 1) removeBtn.style.opacity = '0.3';
+      removeBtn.addEventListener('click', () => {
+        refGames.splice(idx, 1);
+        if (refGames.length === 0) refGames = [{ title: '', why: '' }];
+        renderRefGames(onChange);
+        onChange();
+      });
+
+      row.appendChild(titleInput);
+      row.appendChild(whyInput);
+      row.appendChild(removeBtn);
+      list.appendChild(row);
+    });
+
+    addBtn.style.display = refGames.length >= 5 ? 'none' : '';
+  }
+
+  // ── Profile serialization ─────────────────────────────────────────────────
+
+  function serializeProfile(): object {
+    const sliders: Record<string, number> = {};
+    ['pacing', 'difficulty', 'storyVsSystems', 'tone'].forEach((id) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      sliders[id] = el ? parseInt(el.value, 10) : SLIDER_DEFAULTS[id] ?? 50;
+    });
+
+    const cleanRefGames = refGames
+      .filter((r) => r.title.trim() || r.why.trim())
+      .map((r) => ({ title: r.title.trim(), why: r.why.trim() }));
+
+    const notesEl = document.getElementById('notes') as HTMLTextAreaElement | null;
+
+    return {
+      v: 1,
+      pacing:         sliders['pacing'] ?? 50,
+      difficulty:     sliders['difficulty'] ?? 50,
+      sessionLength:  singleSelect['sessionLength'] ?? 'varies',
+      multiplayer:    singleSelect['multiplayer'] ?? 'mix',
+      storyVsSystems: sliders['storyVsSystems'] ?? 50,
+      settings:       [...(multiSelect['settings'] ?? [])],
+      genres:         [...(multiSelect['genres'] ?? [])],
+      tone:           sliders['tone'] ?? 50,
+      artStyle:       [...(multiSelect['artStyle'] ?? [])],
+      completion:     singleSelect['completion'] ?? 'whatever-sticks',
+      referenceGames: cleanRefGames,
+      notes:          notesEl?.value.trim() ?? '',
+    };
+  }
+
+  // ── Profile strength meter ─────────────────────────────────────────────────
+
+  function renderStrength(): void {
+    const pct = document.getElementById('strength-pct')!;
+    const fill = document.getElementById('strength-fill')!;
+    const hint = document.getElementById('strength-hint')!;
+
+    let points = 0;
+    const max = 10;
+
+    // Sliders touched (not at default 50)
+    const sliderIds = ['pacing', 'difficulty', 'storyVsSystems', 'tone'];
+    sliderIds.forEach((id) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el && parseInt(el.value, 10) !== 50) points++;
+    });
+
+    // Single selects non-default
+    if (singleSelect['sessionLength'] !== 'varies') points++;
+    if (singleSelect['multiplayer'] !== 'mix') points++;
+    if (singleSelect['completion'] !== 'whatever-sticks') points++;
+
+    // Multi selects — 1 point if any selected
+    if ((multiSelect['settings']?.size ?? 0) > 0) points++;
+    if ((multiSelect['genres']?.size ?? 0) > 0) points++;
+    if ((multiSelect['artStyle']?.size ?? 0) > 0) points++;
+
+    // Bonus: reference game with a title
+    const hasRef = refGames.some((r) => r.title.trim().length > 0);
+    if (hasRef) points = Math.min(max, points + 1);
+
+    const score = Math.round((points / max) * 100);
+    pct.textContent = `${score}%`;
+    fill.style.width = `${score}%`;
+
+    if (score === 0) {
+      hint.textContent = 'Move a slider or pick a chip to start building your profile.';
+      fill.style.background = 'var(--ac)';
+    } else if (score < 40) {
+      hint.textContent = 'Good start — add a genre or reference game to sharpen results.';
+      fill.style.background = '#f0a868';
+    } else if (score < 70) {
+      hint.textContent = 'Nice profile — a reference game with a "why" will boost quality a lot.';
+      fill.style.background = '#f0a868';
+    } else {
+      hint.textContent = 'Strong profile — Claude has plenty of signal to work with.';
+      fill.style.background = 'var(--ac)';
+    }
+  }
+
+  // ── localStorage persistence (debounced) ──────────────────────────────────
+
+  let saveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function schedSave(): void {
+    renderStrength();
+    if (saveTimer !== null) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(serializeProfile()));
+      } catch {
+        // Storage full or blocked — non-fatal.
+      }
+    }, 400);
+  }
+
+  function loadProfile(): void {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw) as Record<string, unknown>;
+
+      // Sliders
+      const sliderIds = ['pacing', 'difficulty', 'storyVsSystems', 'tone'];
+      sliderIds.forEach((id) => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el && typeof p[id] === 'number') el.value = String(p[id]);
+      });
+
+      // Single selects
+      const singleKeys: Array<[string, string]> = [
+        ['sessionLength', 'varies'],
+        ['multiplayer', 'mix'],
+        ['completion', 'whatever-sticks'],
+      ];
+      singleKeys.forEach(([key, def]) => {
+        const val = typeof p[key] === 'string' ? (p[key] as string) : def;
+        singleSelect[key] = val;
+      });
+
+      // Multi selects
+      const multiKeys = ['settings', 'genres', 'artStyle'] as const;
+      multiKeys.forEach((key) => {
+        const arr = p[key];
+        if (Array.isArray(arr)) {
+          multiSelect[key] = new Set(arr.filter((v): v is string => typeof v === 'string'));
+        }
+      });
+
+      // Reference games
+      if (Array.isArray(p['referenceGames'])) {
+        const loaded = (p['referenceGames'] as unknown[])
+          .filter((r): r is Record<string, unknown> => typeof r === 'object' && r !== null)
+          .map((r) => ({
+            title: typeof r['title'] === 'string' ? r['title'] : '',
+            why:   typeof r['why']   === 'string' ? r['why']   : '',
+          }));
+        if (loaded.length > 0) refGames = loaded;
+      }
+
+      // Notes
+      const notesEl = document.getElementById('notes') as HTMLTextAreaElement | null;
+      if (notesEl && typeof p['notes'] === 'string') notesEl.value = p['notes'];
+    } catch {
+      // Corrupt or missing — silently ignore.
+    }
+  }
+
+  // ── API wrapper ────────────────────────────────────────────────────────────
+
+  async function api(path: string, init: RequestInit = {}): Promise<unknown> {
+    // Phase 3: attach x-friend-key when in friend mode
+    // const friendKey = sessionStorage.getItem(FRIEND_KEY_SESSION);
+    // const extraHeaders = friendKey ? { 'x-friend-key': friendKey } : {};
+
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        // ...(friendKey ? { 'x-friend-key': friendKey } : {}),
+        ...(init.headers ?? {}),
+      },
+    });
+
+    if (res.status === 429) {
+      let retryMins = 60;
+      try {
+        const body = await res.json() as Record<string, unknown>;
+        const secs = typeof body['retryAfterSeconds'] === 'number' ? body['retryAfterSeconds'] : 3600;
+        retryMins = Math.ceil(secs / 60);
+      } catch { /* ignore */ }
+      throw new RateLimitError(`You've hit the free limit — try again in ~${retryMins} minute(s), or use a friend key for unlimited access.`);
+    }
+
+    if (!res.ok) {
+      let msg = `Request failed (${res.status})`;
+      try {
+        const body = await res.json() as Record<string, unknown>;
+        if (typeof body['error'] === 'string') msg = body['error'];
+      } catch { /* ignore */ }
+      throw new Error(msg);
+    }
+
+    return res.json();
+  }
+
+  class RateLimitError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'RateLimitError';
+    }
+  }
+
+  // ── Result rendering ───────────────────────────────────────────────────────
+
+  function renderDiscoverCard(item: {
+    name: string;
+    platforms: string[];
+    description: string;
+    confidenceScore: number;
+    reasoning: string;
+  }): HTMLElement {
+    const card = document.createElement('article');
+    card.className = 'discover-card';
+    const score = Math.max(0, Math.min(100, Math.round(item.confidenceScore ?? 0)));
+    const cls = confClass(score);
+    const platformsText = (item.platforms ?? []).map(escapeHtml).join(' · ');
+
+    card.innerHTML = `
+      <div>
+        <span class="discover-name">${escapeHtml(item.name || 'Unknown')}</span>
+        ${platformsText ? `<span class="discover-platforms">${platformsText}</span>` : ''}
+      </div>
+      ${item.description ? `<p class="reco-text">${escapeHtml(item.description)}</p>` : ''}
+      <div class="reco-head">
+        <span class="reco-label">Match</span>
+        <span class="reco-score ${cls.text}">${score}</span>
+      </div>
+      <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
+      <p class="reco-text">${escapeHtml(item.reasoning || '')}</p>
+    `;
+    return card;
+  }
+
+  // ── Discover handler ───────────────────────────────────────────────────────
+
+  async function runDiscover(): Promise<void> {
+    const discoverBtn = document.getElementById('discover-btn') as HTMLButtonElement;
+    const resultsSection = document.getElementById('results-section')!;
+    const resultsStatus = document.getElementById('results-status')!;
+    const resultsGrid = document.getElementById('results-grid')!;
+
+    discoverBtn.disabled = true;
+    discoverBtn.innerHTML = '<span class="spinner"></span> Brainstorming…';
+
+    resultsSection.hidden = false;
+    resultsStatus.className = 'grid-status';
+    resultsStatus.hidden = false;
+    resultsStatus.innerHTML = '<span class="spinner"></span> Asking Claude for picks…';
+    resultsGrid.innerHTML = '';
+
+    // Scroll to results
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const platformVal = singleSelect['platformFilter'] ?? '';
+    const opts: Record<string, unknown> = {};
+    if (platformVal) opts['platforms'] = [platformVal];
+
+    try {
+      const data = await api('/discover', {
+        method: 'POST',
+        body: JSON.stringify({ profile: serializeProfile(), opts }),
+      }) as Record<string, unknown>;
+
+      const picks = (data['picks'] as unknown[]) ?? [];
+
+      if (picks.length === 0) {
+        resultsStatus.textContent = 'No picks returned — try adjusting your taste profile.';
+        resultsStatus.hidden = false;
+        return;
+      }
+
+      resultsStatus.hidden = true;
+      (picks as Array<{
+        name: string;
+        platforms: string[];
+        description: string;
+        confidenceScore: number;
+        reasoning: string;
+      }>).forEach((p) => resultsGrid.appendChild(renderDiscoverCard(p)));
+
+    } catch (err: unknown) {
+      resultsStatus.className = 'grid-status error';
+      resultsStatus.hidden = false;
+      if (err instanceof Error) {
+        resultsStatus.textContent = err.message;
+      } else {
+        resultsStatus.textContent = 'Something went wrong. Try again.';
+      }
+    } finally {
+      discoverBtn.disabled = false;
+      discoverBtn.textContent = 'Brainstorm games →';
+    }
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+
+  function init(): void {
+    // Load saved profile first so chip builders can pick up restored state.
+    loadProfile();
+
+    // Build single-select chips
+    buildSingleChips(
+      document.getElementById('sessionLength-chips')!,
+      SESSION_LENGTH_OPTS,
+      'sessionLength',
+      schedSave,
+    );
+    buildSingleChips(
+      document.getElementById('multiplayer-chips')!,
+      MULTIPLAYER_OPTS,
+      'multiplayer',
+      schedSave,
+    );
+    buildSingleChips(
+      document.getElementById('completion-chips')!,
+      COMPLETION_OPTS,
+      'completion',
+      schedSave,
+    );
+    buildSingleChips(
+      document.getElementById('platform-filter-chips')!,
+      PLATFORM_FILTER_OPTS,
+      'platformFilter',
+      schedSave,
+    );
+
+    // Build multi-select chips
+    buildMultiChips(
+      document.getElementById('settings-chips')!,
+      SETTINGS_OPTS,
+      'settings',
+      MULTI_CAPS['settings'] ?? 6,
+      schedSave,
+    );
+    buildMultiChips(
+      document.getElementById('genres-chips')!,
+      GENRES_OPTS,
+      'genres',
+      MULTI_CAPS['genres'] ?? 8,
+      schedSave,
+    );
+    buildMultiChips(
+      document.getElementById('artStyle-chips')!,
+      ART_STYLE_OPTS,
+      'artStyle',
+      MULTI_CAPS['artStyle'] ?? 5,
+      schedSave,
+    );
+
+    // Render ref games
+    renderRefGames(schedSave);
+
+    // Add ref game button
+    document.getElementById('add-ref-game')!.addEventListener('click', () => {
+      if (refGames.length < 5) {
+        refGames.push({ title: '', why: '' });
+        renderRefGames(schedSave);
+      }
+    });
+
+    // Slider listeners
+    ['pacing', 'difficulty', 'storyVsSystems', 'tone'].forEach((id) => {
+      document.getElementById(id)?.addEventListener('input', schedSave);
+    });
+
+    // Notes listener
+    document.getElementById('notes')?.addEventListener('input', schedSave);
+
+    // Discover CTA
+    document.getElementById('discover-btn')!.addEventListener('click', () => {
+      runDiscover().catch(() => {});
+    });
+
+    // Initial strength render
+    renderStrength();
+  }
+
+  init();
+</script>
