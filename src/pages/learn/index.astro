@@ -946,8 +946,17 @@ select.l-input { cursor: pointer; }
 
   // ── Boot ─────────────────────────────────────────────────────────
   const savedKey = localStorage.getItem(KEY_NAME);
-  if (savedKey) { showApp(); initApp(); }
-  else { showGate(); }
+  if (savedKey) {
+    showApp();
+    initApp();
+    // Honor hash deep-links from the hub: /learn#log or /learn#dash
+    const hash = location.hash.replace('#', '');
+    if (hash === 'dash') {
+      (document.querySelector('[data-tab="dash"]') as HTMLButtonElement)?.click();
+    }
+  } else {
+    showGate();
+  }
 </script>
 
 </BaseLayout>
