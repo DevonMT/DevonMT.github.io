@@ -5,6 +5,8 @@ import SiteNav from '../../components/SiteNav.astro';
 
 <BaseLayout title="Learn — Devon Troedel" description="Private learning tracker.">
 
+<div id="site">
+<div id="bg-grid" aria-hidden="true"></div>
 <SiteNav />
 
 <!-- ═══════════════════════════════════════════
@@ -51,7 +53,6 @@ import SiteNav from '../../components/SiteNav.astro';
 
   <div class="page-bar">
     <span class="page-tag">// learn</span>
-    <button id="lock-btn" class="btn-lock" type="button">lock</button>
   </div>
 
   <!-- Tab bar -->
@@ -233,12 +234,41 @@ import SiteNav from '../../components/SiteNav.astro';
 
     </section>
   </div><!-- /.page-wrap -->
+
+  <div class="key-strip">
+    <span class="key-strip-label">🔐 access key saved on this device</span>
+    <button id="lock-btn" class="btn-lock" type="button">lock</button>
+  </div>
+
 </div><!-- /#app -->
 
 <!-- ═══════════════════════════════════════════
      STYLES
 ════════════════════════════════════════════ -->
 <style is:global>
+/* ── Site wrapper ── */
+#site {
+  --ac: #2dd4bf;
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+    radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+    #0a0e1a;
+  overflow-x: clip;
+}
+#bg-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
 /* ── Page bar ── */
 .page-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-elevated); }
 .page-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); opacity: 0.8; }
@@ -388,6 +418,11 @@ select.l-input { cursor: pointer; }
 .balance-age.ok { color: var(--color-accent); }
 .balance-age.warn { color: var(--color-amber); }
 .balance-age.never { color: var(--color-danger); }
+
+/* ── Key strip (bottom of app) ── */
+.key-strip { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1.25rem; border-top: 1px solid var(--color-border); margin-top: 2rem; opacity: 0.45; transition: opacity var(--transition); }
+.key-strip:hover { opacity: 0.85; }
+.key-strip-label { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-text-muted); }
 
 /* ── Gate ── */
 .gate-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100dvh - 58px); padding: 1.5rem; }
@@ -941,5 +976,7 @@ select.l-input { cursor: pointer; }
     showGate();
   }
 </script>
+
+</div><!-- /#site -->
 
 </BaseLayout>
