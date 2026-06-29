@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
+import Gate from '../../components/Gate.astro';
 ---
 
 <BaseLayout
@@ -14,40 +15,8 @@ import SiteNav from '../../components/SiteNav.astro';
 
     <div class="page-content">
 
-      <!-- ── Access gate ── -->
-      <section id="gate" class="gate-wrap" hidden>
-        <div class="gate-outer">
-          <div class="gate-glow" aria-hidden="true"></div>
-          <div class="gate-card">
-            <div class="gate-titlebar">
-              <span class="dot-orange"></span>
-              <span class="dot-dim"></span>
-              <span class="dot-dim"></span>
-              <span class="gate-card-label">// access required · games</span>
-            </div>
-            <div class="gate-body">
-              <div class="gate-query" aria-hidden="true">
-                <span class="kw">SELECT</span> <span class="col">*</span>
-                <span class="kw">FROM</span> <span class="tbl">sessions</span>
-                <span class="kw">WHERE</span> <span class="col">api_key</span> = <span class="val">?</span>;
-              </div>
-              <p class="gate-intro">Enter the access key to unlock the dashboard.</p>
-              <form id="gate-form" class="gate-form" autocomplete="off">
-                <input
-                  id="gate-key"
-                  type="password"
-                  class="gate-input"
-                  placeholder="Access key"
-                  aria-label="Access key"
-                  required
-                />
-                <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
-              </form>
-              <p id="gate-error" class="gate-error" role="alert" hidden></p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <!-- ── Access gate (shared component) ── -->
+      <Gate label="games" table="sessions" intro="Enter the access key to unlock the dashboard." />
 
       <!-- ── Dashboard ── -->
       <section id="dashboard" class="dashboard" hidden>
@@ -486,134 +455,6 @@ import SiteNav from '../../components/SiteNav.astro';
     padding: 0 28px 80px;
   }
 
-  /* ── Gate ── */
-  /* display:grid (author origin) overrides the UA [hidden] rule, so toggling the
-     `hidden` attribute alone won't hide the gate. This guarantees it. */
-  .gate-wrap[hidden] { display: none; }
-  .gate-wrap {
-    min-height: calc(100vh - 56px);
-    display: grid;
-    place-items: center;
-    padding: 60px 0;
-  }
-
-  .gate-outer {
-    position: relative;
-    width: 100%;
-    max-width: 440px;
-  }
-
-  .gate-glow {
-    position: absolute;
-    inset: -1px;
-    border-radius: 16px;
-    background: linear-gradient(
-      150deg,
-      color-mix(in srgb, var(--ac) 45%, transparent),
-      rgba(240, 168, 104, 0.25),
-      transparent 70%
-    );
-    opacity: 0.7;
-    filter: blur(0.5px);
-  }
-
-  .gate-card {
-    position: relative;
-    border-radius: 15px;
-    background: #0d1322;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-    box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.8);
-  }
-
-  .gate-titlebar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 13px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    background: rgba(255, 255, 255, 0.015);
-  }
-
-  .dot-orange {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: #f0a868;
-    flex-shrink: 0;
-  }
-
-  .dot-dim {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.16);
-    flex-shrink: 0;
-  }
-
-  .gate-card-label {
-    margin-left: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: #616d8c;
-  }
-
-  .gate-body {
-    padding: 24px;
-  }
-
-  .gate-query {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    margin-bottom: 20px;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.025);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    line-height: 1.6;
-  }
-
-  .kw  { color: #f0a868; }
-  .col { color: #cdd5e8; }
-  .tbl { color: var(--ac); }
-  .val { color: var(--ac-soft); }
-
-  .gate-intro {
-    font-size: 14.5px;
-    color: #9aa6c2;
-    margin: 0 0 18px;
-  }
-
-  .gate-form {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .gate-input {
-    flex: 1 1 12rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 9px;
-    color: #e9edf7;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    padding: 10px 14px;
-    transition: border-color 0.2s;
-  }
-
-  .gate-input:focus {
-    outline: none;
-    border-color: color-mix(in srgb, var(--ac) 60%, transparent);
-  }
-
-  .gate-error {
-    color: #f87171;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px;
-    margin-top: 12px;
-  }
-
   /* ── Shared buttons ── */
   .btn-primary {
     display: inline-flex;
@@ -1050,12 +891,7 @@ import SiteNav from '../../components/SiteNav.astro';
   const KEY_NAME = 'devon_key';
 
   // ---- DOM refs ----
-  const gateEl      = document.getElementById('gate')!;
   const dashEl      = document.getElementById('dashboard')!;
-  const gateForm    = document.getElementById('gate-form') as HTMLFormElement;
-  const gateKey     = document.getElementById('gate-key') as HTMLInputElement;
-  const gateSubmit  = document.getElementById('gate-submit') as HTMLButtonElement;
-  const gateError   = document.getElementById('gate-error')!;
   const syncStatusEl = document.getElementById('sync-status')!;
   const syncNowBtn  = document.getElementById('sync-now') as HTMLButtonElement;
 
@@ -1173,7 +1009,7 @@ import SiteNav from '../../components/SiteNav.astro';
     });
     if (res.status === 401) {
       localStorage.removeItem(KEY_NAME);
-      showGate('Access key rejected. Please try again.');
+      document.dispatchEvent(new CustomEvent('gate:challenge', { detail: 'Access key rejected. Please try again.' }));
       throw new Error('Unauthorized');
     }
     if (!res.ok) {
@@ -1183,54 +1019,10 @@ import SiteNav from '../../components/SiteNav.astro';
     return res.json();
   }
 
-  // ---- Gate ----
-  function showGate(message?: string) {
-    dashEl.hidden = true;
-    gateEl.hidden = false;
-    if (message) { gateError.textContent = message; gateError.hidden = false; }
-    else { gateError.hidden = true; }
-    gateKey.value = '';
-    gateKey.focus();
-  }
-
+  // ---- Reveal the dashboard once the gate (shared component) authenticates ----
   function showDashboard() {
-    gateEl.hidden = true;
     dashEl.hidden = false;
-    // Reveal the nav's hub + lock controls (SiteNav only reveals them on load).
-    document.getElementById('hub-link')?.removeAttribute('hidden');
-    document.getElementById('lock-link')?.removeAttribute('hidden');
   }
-
-  gateForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const key = gateKey.value.trim();
-    if (!key) return;
-    gateError.hidden = true;
-    gateSubmit.disabled = true;
-    gateSubmit.innerHTML = '<span class="spinner"></span> Checking…';
-    try {
-      const res = await fetch(`${API_BASE}/health`, { headers: { 'x-api-secret': key } });
-      if (res.status === 401) {
-        gateError.textContent = 'Access key rejected. Please try again.';
-        gateError.hidden = false;
-        return;
-      }
-      if (!res.ok) {
-        gateError.textContent = `Backend error (${res.status}). Try again later.`;
-        gateError.hidden = false;
-        return;
-      }
-      localStorage.setItem(KEY_NAME, key);
-      showDashboard();
-      initDashboard();
-    } catch {
-      gateError.textContent = 'Could not reach the backend. Is it running?';
-      gateError.hidden = false;
-    } finally {
-      gateSubmit.disabled = false;
-      gateSubmit.textContent = 'Unlock';
-    }
-  });
 
   // ---- Sync status ----
   async function loadSyncStatus() {
@@ -1715,13 +1507,15 @@ import SiteNav from '../../components/SiteNav.astro';
   }
 
   // ---- Boot ----
-  if (getKey()) {
+  // The gate (shared component) owns auth and fires `gate:authed` when ready.
+  function start() {
     showDashboard();
     initDashboard().catch(() => {});
     // Honor hash deep-links from the hub: /games#own, #discover, #lookup
     const hash = location.hash.replace('#', '');
     if (['own', 'discover', 'lookup'].includes(hash)) switchTab(hash);
-  } else {
-    showGate();
   }
+  document.addEventListener('gate:authed', start);
+  document.addEventListener('gate:locked', () => { dashEl.hidden = true; });
+  if (document.documentElement.hasAttribute('data-authed')) start();
 </script>

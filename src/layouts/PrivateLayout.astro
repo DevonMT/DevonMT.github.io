@@ -1,0 +1,58 @@
+---
+// Shell for the key-gated private apps (/learn, /hub, …). Emits the standard
+// page structure — #site + #bg-grid + <SiteNav /> + <Gate /> — so a new private
+// page can't drift from the theme or forget the gate. The page's app markup goes
+// in the default slot (start it `hidden` and reveal it on the `gate:authed` event).
+import BaseLayout from './BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
+import Gate from '../components/Gate.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  /** short label for the gate titlebar, e.g. "learn" */
+  label: string;
+  /** SQL table name shown in the gate's decorative query */
+  table: string;
+  /** optional intro line in the gate */
+  intro?: string;
+}
+const { title, description, label, table, intro } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div id="site">
+    <div id="bg-grid" aria-hidden="true"></div>
+    <SiteNav />
+    <Gate label={label} table={table} intro={intro} />
+    <div class="private-body"><slot /></div>
+  </div>
+</BaseLayout>
+
+<style>
+  #site {
+    --ac: var(--color-accent);
+    --ac-lite: var(--color-accent-light);
+    --ac-soft: var(--color-accent-muted);
+    position: relative;
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+      #0a0e1a;
+    overflow-x: clip;
+  }
+  #bg-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+  /* Lift app content above the fixed grid (which paints at z-index 0). */
+  .private-body { position: relative; z-index: 1; }
+</style>
