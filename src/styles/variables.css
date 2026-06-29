@@ -1,20 +1,22 @@
 :root {
   /* ── Colors ───────────────────────────────────────────── */
-  --color-bg:            #0a0e27;
-  --color-bg-elevated:   #11162e;
-  --color-surface:       #161b35;
-  --color-border:        #232a4d;
+  /* Single source of truth — matches the "BI Console" palette used by the
+     #site-scoped pages (about, games, etc.). Keep these in sync with --ac. */
+  --color-bg:            #0a0e1a;
+  --color-bg-elevated:   #0e1424;
+  --color-surface:       #0d1322;
+  --color-border:        rgba(255, 255, 255, 0.08);
   --color-border-subtle: rgba(255, 255, 255, 0.06);
 
-  --color-text:          #e6e9f5;
-  --color-text-muted:    #9aa3c4;
-  --color-text-faint:    #6b7299;
+  --color-text:          #f4f7fd;
+  --color-text-muted:    #9aa6c2;
+  --color-text-faint:    #616d8c;
   --color-text-dark:     #2a3450;
 
-  --color-accent:        #14b8a6;
+  --color-accent:        #2dd4bf;
   --color-accent-hover:  #2dd4bf;
   --color-accent-light:  #5fe6d4;
-  --color-accent-soft:   rgba(20, 184, 166, 0.12);
+  --color-accent-soft:   rgba(45, 212, 191, 0.12);
 
   --color-amber:         #f0a868;
   --color-amber-bg:      rgba(240, 168, 104, 0.12);

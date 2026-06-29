@@ -39,6 +39,7 @@ function isActive(href: string): boolean {
         >{label}</a>
       ))}
       <a id="hub-link" href="/hub" class="nav-link nav-link--hub" hidden>// hub</a>
+      <button id="lock-link" class="nav-link nav-link--lock" type="button" hidden aria-label="Lock private apps">⊘ lock</button>
       <a href="/#contact" class="nav-cta">Say Hi</a>
     </nav>
   </div>
@@ -126,6 +127,19 @@ function isActive(href: string): boolean {
     opacity: 1;
     background: var(--color-accent-soft);
     color: var(--color-accent);
+  }
+
+  .nav-link--lock {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .nav-link--lock:hover {
+    color: var(--color-danger);
+    background: rgba(248, 113, 113, 0.08);
   }
 
   .nav-cta {
@@ -260,9 +274,17 @@ function isActive(href: string): boolean {
     });
   }
 
-  // Reveal the private hub link if the access key is present.
+  // Reveal the private hub + lock controls if the access key is present.
   const hubLink = document.getElementById('hub-link');
-  if (hubLink && localStorage.getItem('devon_key')) {
-    hubLink.removeAttribute('hidden');
+  const lockLink = document.getElementById('lock-link');
+  if (localStorage.getItem('devon_key')) {
+    hubLink?.removeAttribute('hidden');
+    lockLink?.removeAttribute('hidden');
   }
+
+  // Lock = forget the saved key everywhere and reload (drops private pages to their gate).
+  lockLink?.addEventListener('click', () => {
+    localStorage.removeItem('devon_key');
+    location.reload();
+  });
 </script>
