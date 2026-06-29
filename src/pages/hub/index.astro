@@ -1,0 +1,239 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Hub — Devon Troedel" description="Private hub.">
+
+<!-- ═══════════════════════════════════
+     ACCESS GATE
+════════════════════════════════════ -->
+<section id="gate" class="gate-wrap" hidden>
+  <div class="gate-outer">
+    <div class="gate-glow" aria-hidden="true"></div>
+    <div class="gate-card">
+      <div class="gate-titlebar">
+        <span class="dot-teal"></span>
+        <span class="dot-dim"></span>
+        <span class="dot-dim"></span>
+        <span class="gate-card-label">// access required · hub</span>
+      </div>
+      <div class="gate-body">
+        <div class="gate-query" aria-hidden="true">
+          <span class="kw">SELECT</span> <span class="col">*</span>
+          <span class="kw">FROM</span> <span class="tbl">private_apps</span>
+          <span class="kw">WHERE</span> <span class="col">user</span> = <span class="val">'devon'</span>;
+        </div>
+        <p class="gate-intro">Enter your access key to unlock the hub.</p>
+        <form id="gate-form" class="gate-form" autocomplete="off">
+          <input
+            id="gate-key"
+            type="password"
+            class="gate-input"
+            placeholder="Access key"
+            aria-label="Access key"
+            required
+          />
+          <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
+        </form>
+        <p id="gate-error" class="gate-error" role="alert" hidden></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     HUB (hidden until authenticated)
+════════════════════════════════════ -->
+<div id="hub" hidden>
+
+  <header class="h-nav">
+    <a href="/" class="logo">
+      <span class="logo-dot" aria-hidden="true"></span>
+      <span>devondoes<span class="logo-accent">.dev</span></span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-tag">// hub</span>
+      <button id="lock-btn" class="btn-lock" type="button">lock</button>
+    </div>
+  </header>
+
+  <main class="hub-wrap">
+    <div class="hub-head">
+      <div class="eyebrow">// private apps</div>
+      <p class="hub-sub">Your key is saved on this device. Tap any app to open it.</p>
+    </div>
+
+    <div class="app-grid">
+
+      <a href="/learn" class="app-card">
+        <div class="app-icon">📚</div>
+        <div class="app-body">
+          <div class="app-name">Learning Tracker</div>
+          <div class="app-desc">Log sessions across books, DataCamp, and DataExpert. Track streaks, skill coverage, and weekly goals.</div>
+          <div class="app-tags">
+            <span class="tag">Books</span>
+            <span class="tag">DataCamp</span>
+            <span class="tag">DataExpert</span>
+          </div>
+        </div>
+        <span class="app-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a href="/games" class="app-card">
+        <div class="app-icon">🎮</div>
+        <div class="app-body">
+          <div class="app-name">Games Dashboard</div>
+          <div class="app-desc">Claude-powered recommendations from your Steam library, upcoming releases browser, and game lookup.</div>
+          <div class="app-tags">
+            <span class="tag">Steam</span>
+            <span class="tag">RAWG</span>
+            <span class="tag">Claude</span>
+          </div>
+        </div>
+        <span class="app-arrow" aria-hidden="true">→</span>
+      </a>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════
+     STYLES
+════════════════════════════════════ -->
+<style is:global>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); min-height: 100dvh; }
+
+/* ── Nav ── */
+.h-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--color-text); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 500; }
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }
+.logo-accent { color: var(--color-accent); }
+.nav-right { display: flex; align-items: center; gap: 0.75rem; }
+.nav-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); }
+.btn-lock { background: none; border: 1px solid var(--color-border); color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.3rem 0.65rem; border-radius: var(--radius-xs); cursor: pointer; transition: border-color var(--transition), color var(--transition); }
+.btn-lock:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+/* ── Hub content ── */
+.hub-wrap { max-width: 640px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.hub-head { margin-bottom: 2rem; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+.hub-sub { font-size: 0.9rem; color: var(--color-text-muted); }
+
+/* ── App grid ── */
+.app-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.app-card {
+  display: flex; align-items: flex-start; gap: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.25rem 1.25rem 1rem;
+  text-decoration: none; color: inherit;
+  transition: border-color var(--transition), background var(--transition);
+  position: relative;
+}
+.app-card:hover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+.app-card:hover .app-arrow { color: var(--color-accent); transform: translateX(3px); }
+
+.app-icon { font-size: 1.75rem; flex-shrink: 0; margin-top: 0.1rem; }
+.app-body { flex: 1; min-width: 0; }
+.app-name { font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+.app-desc { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 0.75rem; }
+.app-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tag { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--color-accent-soft); color: var(--color-accent); }
+.app-arrow { flex-shrink: 0; font-size: 1rem; color: var(--color-text-faint); margin-top: 0.2rem; transition: color var(--transition), transform var(--transition); }
+
+/* ── Gate ── */
+.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: 100dvh; padding: 1.5rem; }
+.gate-outer { position: relative; width: 100%; max-width: 420px; }
+.gate-glow { position: absolute; inset: -40px; background: radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.15), transparent 70%); pointer-events: none; }
+.gate-card { position: relative; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+.gate-titlebar { display: flex; align-items: center; gap: 6px; padding: 0.65rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.dot-teal { width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent); }
+.dot-dim { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border); }
+.gate-card-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.35rem; }
+.gate-body { padding: 1.5rem; }
+.gate-query { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1.25rem; line-height: 1.6; }
+.kw { color: #7c9ef8; } .col { color: var(--color-accent); } .tbl { color: var(--color-amber); } .val { color: #f87171; }
+.gate-intro { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem; }
+.gate-form { display: flex; flex-direction: column; gap: 0.65rem; }
+.gate-input { width: 100%; background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text); font-family: var(--font-mono); font-size: 0.95rem; padding: 0.7rem 0.9rem; border-radius: var(--radius-xs); outline: none; transition: border-color var(--transition); }
+.gate-input:focus { border-color: var(--color-accent); }
+.btn-primary { background: var(--color-accent); color: #0a0e27; font-family: var(--font-sans); font-weight: 600; font-size: 0.95rem; border: none; border-radius: var(--radius-xs); padding: 0.75rem 1.5rem; cursor: pointer; transition: background var(--transition); width: 100%; min-height: 44px; }
+.btn-primary:hover { background: var(--color-accent-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+.gate-error { margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-danger); font-family: var(--font-mono); }
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #0a0e27; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- ═══════════════════════════════════
+     SCRIPT
+════════════════════════════════════ -->
+<script>
+  const API_BASE = 'https://games-backend-production-d763.up.railway.app';
+  const KEY_NAME = 'devon_key';
+
+  const gateEl    = document.getElementById('gate')!;
+  const hubEl     = document.getElementById('hub')!;
+  const gateForm  = document.getElementById('gate-form') as HTMLFormElement;
+  const gateKey   = document.getElementById('gate-key') as HTMLInputElement;
+  const gateSubmit = document.getElementById('gate-submit') as HTMLButtonElement;
+  const gateError = document.getElementById('gate-error')!;
+  const lockBtn   = document.getElementById('lock-btn') as HTMLButtonElement;
+
+  function showGate(msg?: string) {
+    hubEl.hidden = true;
+    gateEl.hidden = false;
+    gateError.hidden = !msg;
+    if (msg) gateError.textContent = msg;
+    gateKey.value = '';
+    setTimeout(() => gateKey.focus(), 50);
+  }
+
+  function showHub() { gateEl.hidden = true; hubEl.hidden = false; }
+
+  gateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const key = gateKey.value.trim();
+    if (!key) return;
+    gateError.hidden = true;
+    gateSubmit.disabled = true;
+    gateSubmit.innerHTML = '<span class="spinner"></span> Checking…';
+    try {
+      const res = await fetch(`${API_BASE}/health`, { headers: { 'x-api-secret': key } });
+      if (res.status === 401) { gateError.textContent = 'Access key rejected.'; gateError.hidden = false; return; }
+      if (!res.ok) { gateError.textContent = `Backend error (${res.status}).`; gateError.hidden = false; return; }
+      localStorage.setItem(KEY_NAME, key);
+      // Reveal hub link in nav (if SiteNav is present — it isn't on this page, but future-proof)
+      const hubLink = document.getElementById('hub-link');
+      if (hubLink) hubLink.removeAttribute('hidden');
+      showHub();
+    } catch {
+      gateError.textContent = 'Could not reach the backend.';
+      gateError.hidden = false;
+    } finally {
+      gateSubmit.disabled = false;
+      gateSubmit.textContent = 'Unlock';
+    }
+  });
+
+  lockBtn.addEventListener('click', () => {
+    localStorage.removeItem(KEY_NAME);
+    showGate();
+  });
+
+  // Boot
+  if (localStorage.getItem(KEY_NAME)) showHub();
+  else showGate();
+</script>
+
+</BaseLayout>

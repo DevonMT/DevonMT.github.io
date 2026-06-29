@@ -38,6 +38,7 @@ function isActive(href: string): boolean {
           aria-current={isActive(href) ? 'page' : undefined}
         >{label}</a>
       ))}
+      <a id="hub-link" href="/hub" class="nav-link nav-link--hub" hidden>// hub</a>
       <a href="/#contact" class="nav-cta">Say Hi</a>
     </nav>
   </div>
@@ -113,6 +114,18 @@ function isActive(href: string): boolean {
 
   .nav-link-active {
     color: var(--color-accent-hover) !important;
+  }
+
+  .nav-link--hub {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-accent);
+    opacity: 0.75;
+  }
+  .nav-link--hub:hover {
+    opacity: 1;
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
   }
 
   .nav-cta {
@@ -245,5 +258,11 @@ function isActive(href: string): boolean {
         toggle.checked = false;
       });
     });
+  }
+
+  // Reveal the private hub link if the access key is present.
+  const hubLink = document.getElementById('hub-link');
+  if (hubLink && localStorage.getItem('devon_key')) {
+    hubLink.removeAttribute('hidden');
   }
 </script>
