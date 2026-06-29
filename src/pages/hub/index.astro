@@ -1,8 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../../components/SiteNav.astro';
 ---
 
 <BaseLayout title="Hub — Devon Troedel" description="Private hub.">
+
+<SiteNav />
 
 <!-- ═══════════════════════════════════
      ACCESS GATE
@@ -46,16 +49,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ════════════════════════════════════ -->
 <div id="hub" hidden>
 
-  <header class="h-nav">
-    <a href="/" class="logo">
-      <span class="logo-dot" aria-hidden="true"></span>
-      <span>devondoes<span class="logo-accent">.dev</span></span>
-    </a>
-    <div class="nav-right">
-      <span class="nav-tag">// hub</span>
-      <button id="lock-btn" class="btn-lock" type="button">lock</button>
-    </div>
-  </header>
+  <div class="page-bar">
+    <span class="page-tag">// hub</span>
+    <button id="lock-btn" class="btn-lock" type="button">lock</button>
+  </div>
 
   <main class="hub-wrap">
     <div class="hub-head">
@@ -108,20 +105,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
      STYLES
 ════════════════════════════════════ -->
 <style is:global>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); min-height: 100dvh; }
-
-/* ── Nav ── */
-.h-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-.logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--color-text); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 500; }
-.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }
-.logo-accent { color: var(--color-accent); }
-.nav-right { display: flex; align-items: center; gap: 0.75rem; }
-.nav-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); }
+/* ── Page bar ── */
+.page-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-elevated); }
+.page-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); opacity: 0.8; }
 .btn-lock { background: none; border: 1px solid var(--color-border); color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.3rem 0.65rem; border-radius: var(--radius-xs); cursor: pointer; transition: border-color var(--transition), color var(--transition); }
 .btn-lock:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
@@ -160,7 +146,7 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
 .app-link:hover { background: var(--color-accent-soft); }
 
 /* ── Gate ── */
-.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: 100dvh; padding: 1.5rem; }
+.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100dvh - 58px); padding: 1.5rem; }
 .gate-outer { position: relative; width: 100%; max-width: 420px; }
 .gate-glow { position: absolute; inset: -40px; background: radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.15), transparent 70%); pointer-events: none; }
 .gate-card { position: relative; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
@@ -221,7 +207,6 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
       if (res.status === 401) { gateError.textContent = 'Access key rejected.'; gateError.hidden = false; return; }
       if (!res.ok) { gateError.textContent = `Backend error (${res.status}).`; gateError.hidden = false; return; }
       localStorage.setItem(KEY_NAME, key);
-      // Reveal hub link in nav (if SiteNav is present — it isn't on this page, but future-proof)
       const hubLink = document.getElementById('hub-link');
       if (hubLink) hubLink.removeAttribute('hidden');
       showHub();

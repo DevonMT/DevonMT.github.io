@@ -1,8 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../../components/SiteNav.astro';
 ---
 
 <BaseLayout title="Learn — Devon Troedel" description="Private learning tracker.">
+
+<SiteNav />
 
 <!-- ═══════════════════════════════════════════
      ACCESS GATE
@@ -46,17 +49,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ════════════════════════════════════════════ -->
 <div id="app" hidden>
 
-  <!-- Minimal nav -->
-  <header class="l-nav">
-    <a href="/" class="logo">
-      <span class="logo-dot" aria-hidden="true"></span>
-      <span>devondoes<span class="logo-accent">.dev</span></span>
-    </a>
-    <div class="nav-right">
-      <span class="nav-tag">// learn</span>
-      <button id="lock-btn" class="btn-lock" type="button">lock</button>
-    </div>
-  </header>
+  <div class="page-bar">
+    <span class="page-tag">// learn</span>
+    <button id="lock-btn" class="btn-lock" type="button">lock</button>
+  </div>
 
   <!-- Tab bar -->
   <div class="tab-bar">
@@ -243,22 +239,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
      STYLES
 ════════════════════════════════════════════ -->
 <style is:global>
-/* ── Reset / base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); min-height: 100dvh; }
-
-/* ── Nav ── */
-.l-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-border);
-  position: sticky; top: 0; background: var(--color-bg); z-index: 10;
-}
-.logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--color-text); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 500; }
-.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }
-.logo-accent { color: var(--color-accent); }
-.nav-right { display: flex; align-items: center; gap: 0.75rem; }
-.nav-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); }
+/* ── Page bar ── */
+.page-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-elevated); }
+.page-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); opacity: 0.8; }
 .btn-lock { background: none; border: 1px solid var(--color-border); color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.3rem 0.65rem; border-radius: var(--radius-xs); cursor: pointer; transition: border-color var(--transition), color var(--transition); }
 .btn-lock:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
@@ -407,7 +390,7 @@ select.l-input { cursor: pointer; }
 .balance-age.never { color: var(--color-danger); }
 
 /* ── Gate ── */
-.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: 100dvh; padding: 1.5rem; }
+.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100dvh - 58px); padding: 1.5rem; }
 .gate-outer { position: relative; width: 100%; max-width: 420px; }
 .gate-glow { position: absolute; inset: -40px; background: radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.15), transparent 70%); pointer-events: none; }
 .gate-card { position: relative; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
