@@ -65,7 +65,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     <div class="app-grid">
 
-      <a href="/learn" class="app-card">
+      <div class="app-card">
         <div class="app-icon">📚</div>
         <div class="app-body">
           <div class="app-name">Learning Tracker</div>
@@ -75,11 +75,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <span class="tag">DataCamp</span>
             <span class="tag">DataExpert</span>
           </div>
+          <div class="app-links">
+            <a href="/learn#log" class="app-link">→ Log a session</a>
+            <a href="/learn#dash" class="app-link">→ Dashboard</a>
+          </div>
         </div>
-        <span class="app-arrow" aria-hidden="true">→</span>
-      </a>
+      </div>
 
-      <a href="/games" class="app-card">
+      <div class="app-card">
         <div class="app-icon">🎮</div>
         <div class="app-body">
           <div class="app-name">Games Dashboard</div>
@@ -89,9 +92,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <span class="tag">RAWG</span>
             <span class="tag">Claude</span>
           </div>
+          <div class="app-links">
+            <a href="/games#own" class="app-link">→ My backlog</a>
+            <a href="/games#discover" class="app-link">→ Discover</a>
+            <a href="/games#lookup" class="app-link">→ Lookup</a>
+          </div>
         </div>
-        <span class="app-arrow" aria-hidden="true">→</span>
-      </a>
+      </div>
 
     </div>
   </main>
@@ -141,7 +148,6 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
   border-color: var(--color-accent);
   background: var(--color-bg-elevated);
 }
-.app-card:hover .app-arrow { color: var(--color-accent); transform: translateX(3px); }
 
 .app-icon { font-size: 1.75rem; flex-shrink: 0; margin-top: 0.1rem; }
 .app-body { flex: 1; min-width: 0; }
@@ -149,7 +155,9 @@ body { background: var(--color-bg); color: var(--color-text); font-family: var(-
 .app-desc { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 0.75rem; }
 .app-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .tag { font-family: var(--font-mono); font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--color-accent-soft); color: var(--color-accent); }
-.app-arrow { flex-shrink: 0; font-size: 1rem; color: var(--color-text-faint); margin-top: 0.2rem; transition: color var(--transition), transform var(--transition); }
+.app-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }
+.app-link { font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-accent); text-decoration: none; padding: 0.3rem 0.6rem; border: 1px solid var(--color-accent); border-radius: var(--radius-xs); transition: background var(--transition); }
+.app-link:hover { background: var(--color-accent-soft); }
 
 /* ── Gate ── */
 .gate-wrap { display: flex; align-items: center; justify-content: center; min-height: 100dvh; padding: 1.5rem; }

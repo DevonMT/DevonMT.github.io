@@ -1773,6 +1773,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   // ---- Boot ----
-  if (getKey()) { showDashboard(); initDashboard().catch(() => {}); }
-  else { showGate(); }
+  if (getKey()) {
+    showDashboard();
+    initDashboard().catch(() => {});
+    // Honor hash deep-links from the hub: /games#own, #discover, #lookup
+    const hash = location.hash.replace('#', '');
+    if (['own', 'discover', 'lookup'].includes(hash)) switchTab(hash);
+  } else {
+    showGate();
+  }
 </script>
