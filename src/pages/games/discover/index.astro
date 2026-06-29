@@ -25,7 +25,7 @@ import SiteNav from '../../../components/SiteNav.astro';
       <!-- ── Mode indicator ── -->
       <div id="mode-bar" class="mode-bar">
         <span class="mode-dot" aria-hidden="true"></span>
-        <span id="mode-label" class="mode-label">Public mode — profile saved to this browser</span>
+        <span id="mode-label" class="mode-label">Your profile is saved to this browser.</span>
       </div>
 
       <!-- ── Taste profile questionnaire ── -->
@@ -233,17 +233,35 @@ import SiteNav from '../../../components/SiteNav.astro';
       <div class="footer-inner">
         <span class="footer-copy">&copy; 2026 Devon Troedel</span>
 
-        <!--
-          PHASE 3 PLACEHOLDER — friend-key footer affordance
-          When Phase 3 ships, this area gets an expandable "// friend key" input
-          that: accepts the key → switches mode to 'friend' → stores in sessionStorage
-          → migrates any existing localStorage profile to the server (PUT /profile)
-          → loads the server profile on subsequent visits.
-          For now, only the structural placeholder lives here.
-        -->
-        <div id="friend-key-footer" class="friend-key-footer" aria-label="Friend key (Phase 3)">
-          <!-- Phase 3: expand button + key input will go here -->
-          <span class="footer-fk-note">// friend key <span class="footer-fk-phase">(coming soon)</span></span>
+        <!-- ── Friend key affordance (Phase 3) ── -->
+        <div id="friend-key-footer" class="friend-key-footer">
+          <!-- collapsed: just the label / toggle -->
+          <button type="button" id="fk-toggle" class="fk-toggle" aria-expanded="false" aria-controls="fk-panel">
+            <span class="footer-fk-note" id="fk-toggle-label">// friend key</span>
+          </button>
+          <!-- expanded panel -->
+          <div id="fk-panel" class="fk-panel" hidden>
+            <!-- unlock form (shown when no key active) -->
+            <div id="fk-unlock" class="fk-unlock">
+              <input
+                type="text"
+                id="fk-input"
+                class="fk-input"
+                placeholder="enter key"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Friend key"
+              />
+              <button type="button" id="fk-submit" class="btn-sm fk-submit-btn">Unlock</button>
+            </div>
+            <!-- active key status (shown when key is active) -->
+            <div id="fk-active" class="fk-active" hidden>
+              <span id="fk-active-label" class="fk-active-label">// key active</span>
+              <button type="button" id="fk-forget" class="fk-forget-btn">forget key</button>
+            </div>
+            <!-- inline status / error -->
+            <p id="fk-status" class="fk-status" hidden></p>
+          </div>
         </div>
 
         <a href="/games" class="footer-link">← games dashboard</a>
@@ -955,18 +973,107 @@ import SiteNav from '../../../components/SiteNav.astro';
   .friend-key-footer {
     display: flex;
     align-items: center;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+  }
+
+  /* The "// friend key" toggle button */
+  .fk-toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .fk-toggle:focus-visible {
+    outline: 1px dashed rgba(45, 212, 191, 0.5);
+    outline-offset: 3px;
   }
 
   .footer-fk-note {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: #3a4260;
+    transition: color 0.15s;
+  }
+  .fk-toggle:hover .footer-fk-note,
+  .fk-toggle[aria-expanded="true"] .footer-fk-note {
+    color: #9aa6c2;
   }
 
-  .footer-fk-phase {
-    color: #2a3050;
-    font-size: 10px;
+  /* Expanded panel */
+  .fk-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
   }
+
+  /* Unlock row */
+  .fk-unlock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .fk-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 7px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 10px;
+    width: 140px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .fk-input:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--ac) 50%, transparent);
+  }
+  .fk-input::placeholder { color: #2a3050; }
+
+  .fk-submit-btn {
+    flex-shrink: 0;
+  }
+
+  /* Active key row */
+  .fk-active {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fk-active-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ac);
+  }
+
+  .fk-forget-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #3a4260;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.15s;
+  }
+  .fk-forget-btn:hover { color: #f87171; }
+
+  /* Inline status / error */
+  .fk-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #f87171;
+    margin: 0;
+    max-width: 220px;
+    text-align: right;
+  }
+  .fk-status.ok { color: var(--ac); }
 
   .footer-link {
     font-family: 'JetBrains Mono', monospace;
@@ -995,8 +1102,11 @@ import SiteNav from '../../../components/SiteNav.astro';
 
   // ── Storage ────────────────────────────────────────────────────────────────
   const PROFILE_KEY = 'playfinder_profile_v1';
-  // Phase 3: FRIEND_KEY_SESSION = sessionStorage key for friend key
-  // const FRIEND_KEY_SESSION = 'playfinder_friend_key';
+  const FRIEND_KEY_SESSION = 'playfinder_friend_key';
+
+  // ── Mode state ─────────────────────────────────────────────────────────────
+  // 'public' = localStorage only; 'friend' = server-backed via friend key
+  let appMode: 'public' | 'friend' = 'public';
 
   // ── Slider defaults ────────────────────────────────────────────────────────
   const SLIDER_DEFAULTS: Record<string, number> = {
@@ -1323,9 +1433,48 @@ import SiteNav from '../../../components/SiteNav.astro';
     }
   }
 
-  // ── localStorage persistence (debounced) ──────────────────────────────────
+  // ── Mode indicator ─────────────────────────────────────────────────────────
+
+  function setMode(mode: 'public' | 'friend'): void {
+    appMode = mode;
+    const label = document.getElementById('mode-label');
+    if (label) {
+      label.textContent = mode === 'friend'
+        ? 'Your profile is saved to your key.'
+        : 'Your profile is saved to this browser.';
+    }
+    // Update footer toggle label to show active state when in friend mode
+    const toggleLabel = document.getElementById('fk-toggle-label');
+    if (toggleLabel) {
+      toggleLabel.textContent = mode === 'friend' ? '// friend key ✓' : '// friend key';
+    }
+    // Show/hide unlock vs active states in the panel
+    const unlockDiv = document.getElementById('fk-unlock');
+    const activeDiv = document.getElementById('fk-active');
+    if (unlockDiv) unlockDiv.hidden = mode === 'friend';
+    if (activeDiv) activeDiv.hidden = mode !== 'friend';
+  }
+
+  // ── localStorage + server persistence (debounced) ─────────────────────────
 
   let saveTimer: ReturnType<typeof setTimeout> | null = null;
+  let serverSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function schedServerSave(): void {
+    // Fire-and-forget PUT /profile when in friend mode. Debounced separately.
+    if (appMode !== 'friend') return;
+    if (serverSaveTimer !== null) clearTimeout(serverSaveTimer);
+    serverSaveTimer = setTimeout(() => {
+      const profile = serializeProfile();
+      api('/profile', {
+        method: 'PUT',
+        body: JSON.stringify({ profile }),
+      }).catch((err) => {
+        // Non-fatal — log quietly; localStorage copy is the fallback.
+        console.warn('[playfinder] server profile sync failed:', err);
+      });
+    }, 800);
+  }
 
   function schedSave(): void {
     renderStrength();
@@ -1336,6 +1485,7 @@ import SiteNav from '../../../components/SiteNav.astro';
       } catch {
         // Storage full or blocked — non-fatal.
       }
+      schedServerSave();
     }, 400);
   }
 
@@ -1344,65 +1494,70 @@ import SiteNav from '../../../components/SiteNav.astro';
       const raw = localStorage.getItem(PROFILE_KEY);
       if (!raw) return;
       const p = JSON.parse(raw) as Record<string, unknown>;
-
-      // Sliders
-      const sliderIds = ['pacing', 'difficulty', 'storyVsSystems', 'tone'];
-      sliderIds.forEach((id) => {
-        const el = document.getElementById(id) as HTMLInputElement | null;
-        if (el && typeof p[id] === 'number') el.value = String(p[id]);
-      });
-
-      // Single selects
-      const singleKeys: Array<[string, string]> = [
-        ['sessionLength', 'varies'],
-        ['multiplayer', 'mix'],
-        ['completion', 'whatever-sticks'],
-      ];
-      singleKeys.forEach(([key, def]) => {
-        const val = typeof p[key] === 'string' ? (p[key] as string) : def;
-        singleSelect[key] = val;
-      });
-
-      // Multi selects
-      const multiKeys = ['settings', 'genres', 'artStyle'] as const;
-      multiKeys.forEach((key) => {
-        const arr = p[key];
-        if (Array.isArray(arr)) {
-          multiSelect[key] = new Set(arr.filter((v): v is string => typeof v === 'string'));
-        }
-      });
-
-      // Reference games
-      if (Array.isArray(p['referenceGames'])) {
-        const loaded = (p['referenceGames'] as unknown[])
-          .filter((r): r is Record<string, unknown> => typeof r === 'object' && r !== null)
-          .map((r) => ({
-            title: typeof r['title'] === 'string' ? r['title'] : '',
-            why:   typeof r['why']   === 'string' ? r['why']   : '',
-          }));
-        if (loaded.length > 0) refGames = loaded;
-      }
-
-      // Notes
-      const notesEl = document.getElementById('notes') as HTMLTextAreaElement | null;
-      if (notesEl && typeof p['notes'] === 'string') notesEl.value = p['notes'];
+      hydrateProfile(p);
     } catch {
       // Corrupt or missing — silently ignore.
     }
   }
 
+  // ── Hydrate profile from a raw object (shared between localStorage & server) ──
+
+  function hydrateProfile(p: Record<string, unknown>): void {
+    // Sliders
+    const sliderIds = ['pacing', 'difficulty', 'storyVsSystems', 'tone'];
+    sliderIds.forEach((id) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el && typeof p[id] === 'number') el.value = String(p[id]);
+    });
+
+    // Single selects
+    const singleKeys: Array<[string, string]> = [
+      ['sessionLength', 'varies'],
+      ['multiplayer', 'mix'],
+      ['completion', 'whatever-sticks'],
+    ];
+    singleKeys.forEach(([key, def]) => {
+      const val = typeof p[key] === 'string' ? (p[key] as string) : def;
+      singleSelect[key] = val;
+    });
+
+    // Multi selects
+    const multiKeys = ['settings', 'genres', 'artStyle'] as const;
+    multiKeys.forEach((key) => {
+      const arr = p[key];
+      if (Array.isArray(arr)) {
+        multiSelect[key] = new Set(arr.filter((v): v is string => typeof v === 'string'));
+      }
+    });
+
+    // Reference games
+    if (Array.isArray(p['referenceGames'])) {
+      const loaded = (p['referenceGames'] as unknown[])
+        .filter((r): r is Record<string, unknown> => typeof r === 'object' && r !== null)
+        .map((r) => ({
+          title: typeof r['title'] === 'string' ? r['title'] : '',
+          why:   typeof r['why']   === 'string' ? r['why']   : '',
+        }));
+      if (loaded.length > 0) refGames = loaded;
+    }
+
+    // Notes
+    const notesEl = document.getElementById('notes') as HTMLTextAreaElement | null;
+    if (notesEl && typeof p['notes'] === 'string') notesEl.value = p['notes'];
+  }
+
   // ── API wrapper ────────────────────────────────────────────────────────────
 
   async function api(path: string, init: RequestInit = {}): Promise<unknown> {
-    // Phase 3: attach x-friend-key when in friend mode
-    // const friendKey = sessionStorage.getItem(FRIEND_KEY_SESSION);
-    // const extraHeaders = friendKey ? { 'x-friend-key': friendKey } : {};
+    // Attach x-friend-key when in friend mode
+    const friendKey = sessionStorage.getItem(FRIEND_KEY_SESSION);
+    const keyHeader: Record<string, string> = friendKey ? { 'x-friend-key': friendKey } : {};
 
     const res = await fetch(`${API_BASE}${path}`, {
       ...init,
       headers: {
         'Content-Type': 'application/json',
-        // ...(friendKey ? { 'x-friend-key': friendKey } : {}),
+        ...keyHeader,
         ...(init.headers ?? {}),
       },
     });
@@ -1423,7 +1578,7 @@ import SiteNav from '../../../components/SiteNav.astro';
         const body = await res.json() as Record<string, unknown>;
         if (typeof body['error'] === 'string') msg = body['error'];
       } catch { /* ignore */ }
-      throw new Error(msg);
+      throw new ApiError(msg, res.status);
     }
 
     return res.json();
@@ -1433,6 +1588,15 @@ import SiteNav from '../../../components/SiteNav.astro';
     constructor(message: string) {
       super(message);
       this.name = 'RateLimitError';
+    }
+  }
+
+  class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+      super(message);
+      this.name = 'ApiError';
+      this.status = status;
     }
   }
 
@@ -1742,5 +1906,213 @@ import SiteNav from '../../../components/SiteNav.astro';
     renderStrength();
   }
 
+  // ── Friend-key: rebuild chip visuals after hydrateProfile ──────────────────
+  // (chips were already built in init(); after a remote hydrate we need to
+  //  re-sync their active class without rebuilding event listeners)
+
+  function refreshChipVisuals(): void {
+    // Single selects
+    const singleMap: Array<[string, string]> = [
+      ['sessionLength-chips', 'sessionLength'],
+      ['multiplayer-chips', 'multiplayer'],
+      ['completion-chips', 'completion'],
+      ['platform-filter-chips', 'platformFilter'],
+    ];
+    singleMap.forEach(([containerId, stateKey]) => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.querySelectorAll<HTMLElement>('.chip').forEach((chip) => {
+        chip.classList.toggle('active', chip.dataset['value'] === singleSelect[stateKey]);
+      });
+    });
+
+    // Multi selects
+    const multiMap: Array<[string, string]> = [
+      ['settings-chips', 'settings'],
+      ['genres-chips', 'genres'],
+      ['artStyle-chips', 'artStyle'],
+    ];
+    multiMap.forEach(([containerId, stateKey]) => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const sel = multiSelect[stateKey] ?? new Set<string>();
+      container.querySelectorAll<HTMLElement>('.chip').forEach((chip) => {
+        chip.classList.toggle('active', sel.has(chip.dataset['value'] ?? ''));
+      });
+    });
+
+    renderRefGames(schedSave);
+    renderStrength();
+  }
+
+  // ── Friend-key: load-time sync + UI wiring ─────────────────────────────────
+
+  async function initFriendKey(): Promise<void> {
+    const toggle    = document.getElementById('fk-toggle')    as HTMLButtonElement;
+    const panel     = document.getElementById('fk-panel')!;
+    const fkInput   = document.getElementById('fk-input')     as HTMLInputElement;
+    const fkSubmit  = document.getElementById('fk-submit')    as HTMLButtonElement;
+    const fkForget  = document.getElementById('fk-forget')    as HTMLButtonElement;
+    const fkStatus  = document.getElementById('fk-status')!;
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    function showStatus(msg: string, isOk = false): void {
+      fkStatus.textContent = msg;
+      fkStatus.className = 'fk-status' + (isOk ? ' ok' : '');
+      fkStatus.hidden = false;
+    }
+
+    function clearStatus(): void {
+      fkStatus.hidden = true;
+      fkStatus.textContent = '';
+    }
+
+    // Temporarily store key so api() picks it up during validation fetch
+    function tempStoreKey(key: string): void {
+      sessionStorage.setItem(FRIEND_KEY_SESSION, key);
+    }
+    function clearKey(): void {
+      sessionStorage.removeItem(FRIEND_KEY_SESSION);
+    }
+
+    // ── toggle panel ─────────────────────────────────────────────────────────
+
+    toggle.addEventListener('click', () => {
+      const expanded = panel.hidden;
+      panel.hidden = !expanded;
+      toggle.setAttribute('aria-expanded', String(expanded));
+      if (expanded) {
+        clearStatus();
+        fkInput.focus();
+      }
+    });
+
+    // ── unlock flow ───────────────────────────────────────────────────────────
+
+    async function attemptUnlock(rawKey: string): Promise<void> {
+      const key = rawKey.trim();
+      if (!key) {
+        showStatus('// enter a key first');
+        return;
+      }
+
+      fkSubmit.disabled = true;
+      fkSubmit.innerHTML = '<span class="spinner"></span>';
+      clearStatus();
+
+      // Temporarily put key so api() attaches the header
+      tempStoreKey(key);
+
+      try {
+        const data = await api('/profile') as Record<string, unknown>;
+        // 200 — key is valid; switch to friend mode
+        sessionStorage.setItem(FRIEND_KEY_SESSION, key); // confirm persist
+        setMode('friend');
+
+        const serverProfile = data['profile'] as Record<string, unknown> | null;
+
+        if (serverProfile && typeof serverProfile === 'object') {
+          // Server has a profile — it wins; hydrate form + localStorage
+          hydrateProfile(serverProfile);
+          try { localStorage.setItem(PROFILE_KEY, JSON.stringify(serverProfile)); } catch { /* ignore */ }
+          refreshChipVisuals();
+          showStatus('// unlocked — profile loaded from server', true);
+        } else {
+          // Server has no profile yet — upload current localStorage copy
+          const localProfile = serializeProfile();
+          try {
+            await api('/profile', {
+              method: 'PUT',
+              body: JSON.stringify({ profile: localProfile }),
+            });
+          } catch (putErr) {
+            console.warn('[playfinder] initial PUT /profile failed:', putErr);
+          }
+          showStatus('// unlocked — profile saved to your key', true);
+        }
+
+        // Auto-clear success message after 4 s
+        setTimeout(clearStatus, 4000);
+
+      } catch (err: unknown) {
+        // 401 = invalid key; clear it so subsequent api() calls don't use it
+        clearKey();
+        setMode('public');
+        if (err instanceof ApiError && err.status === 401) {
+          showStatus('// invalid key — check and try again');
+        } else if (err instanceof Error) {
+          showStatus(`// error: ${err.message}`);
+        } else {
+          showStatus('// something went wrong — try again');
+        }
+      } finally {
+        fkSubmit.disabled = false;
+        fkSubmit.textContent = 'Unlock';
+      }
+    }
+
+    fkSubmit.addEventListener('click', () => {
+      attemptUnlock(fkInput.value).catch(() => {});
+    });
+    fkInput.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter') {
+        attemptUnlock(fkInput.value).catch(() => {});
+      }
+    });
+
+    // ── forget key ────────────────────────────────────────────────────────────
+
+    fkForget.addEventListener('click', () => {
+      clearKey();
+      setMode('public');
+      fkInput.value = '';
+      clearStatus();
+      // Collapse panel
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+
+    // ── load-time: if key already in sessionStorage, sync from server ─────────
+
+    const existingKey = sessionStorage.getItem(FRIEND_KEY_SESSION);
+    if (existingKey) {
+      try {
+        const data = await api('/profile') as Record<string, unknown>;
+        // Key is still valid
+        setMode('friend');
+        const serverProfile = data['profile'] as Record<string, unknown> | null;
+        if (serverProfile && typeof serverProfile === 'object') {
+          // Server wins — overwrite localStorage + form
+          hydrateProfile(serverProfile);
+          try { localStorage.setItem(PROFILE_KEY, JSON.stringify(serverProfile)); } catch { /* ignore */ }
+          refreshChipVisuals();
+        } else {
+          // Server has none — upload current localStorage copy
+          const localProfile = serializeProfile();
+          api('/profile', {
+            method: 'PUT',
+            body: JSON.stringify({ profile: localProfile }),
+          }).catch((err) => console.warn('[playfinder] load-time PUT failed:', err));
+        }
+      } catch (err: unknown) {
+        // 401 or network error — check if it's a key-revoke scenario
+        const isAuthErr = err instanceof ApiError && err.status === 401;
+        if (isAuthErr) {
+          // Key was revoked server-side — fall back silently to public mode
+          clearKey();
+          setMode('public');
+        } else {
+          // Network/other error — keep mode as friend optimistically
+          // (key might still be valid; we just couldn't verify right now)
+          setMode('friend');
+        }
+      }
+    }
+  }
+
   init();
+  initFriendKey().catch((err) => {
+    console.warn('[playfinder] friend-key init error:', err);
+  });
 </script>
