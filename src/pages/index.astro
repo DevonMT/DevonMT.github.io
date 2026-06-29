@@ -229,6 +229,21 @@ function postChipTag(tags: string[]): string {
         <div class="eyebrow-amber">05 / SAY HI</div>
         <h2 id="contact-heading" class="contact-h2">Let's turn some data into decisions.</h2>
         <div class="contact-grid">
+          <!-- Email address is assembled by JS (see script below) so scrapers that
+               don't run JS never see it; href is empty in the static HTML. -->
+          <a id="email-card" class="contact-card contact-card-email" data-u="devon.troedel" data-d="gmail.com">
+            <div class="contact-label contact-label-email">/say-hi</div>
+            <div class="contact-title">Email me →</div>
+          </a>
+          <a
+            href="https://linkedin.com/in/dtroedel"
+            target="_blank"
+            rel="noopener"
+            class="contact-card"
+          >
+            <div class="contact-label">/resume-ish</div>
+            <div class="contact-title">LinkedIn · dtroedel</div>
+          </a>
           <a href="https://github.com/DevonMT" target="_blank" rel="noopener" class="contact-card">
             <div class="contact-label">/work</div>
             <div class="contact-title">GitHub · DevonMT</div>
@@ -242,20 +257,10 @@ function postChipTag(tags: string[]): string {
             <div class="contact-label">/the-lab</div>
             <div class="contact-title">GitHub · ArcheKnight</div>
           </a>
-          <a
-            href="https://linkedin.com/in/dtroedel"
-            target="_blank"
-            rel="noopener"
-            class="contact-card"
-          >
-            <div class="contact-label">/resume-ish</div>
-            <div class="contact-title">LinkedIn · dtroedel</div>
-          </a>
-          <a href="/blog" class="contact-card contact-card-blog">
-            <div class="contact-label contact-label-blog">/blog</div>
-            <div class="contact-title">Read the writing →</div>
-          </a>
         </div>
+        <noscript>
+          <p class="contact-noscript">Prefer email? devon.troedel [at] gmail [dot] com</p>
+        </noscript>
       </section>
 
       <!-- FOOTER -->
@@ -931,16 +936,17 @@ function postChipTag(tags: string[]): string {
     border-color: rgba(240, 168, 104, 0.45);
   }
 
-  .contact-card-blog {
+  .contact-card-email {
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--ac) 10%, transparent),
       rgba(240, 168, 104, 0.08)
     );
     border-color: color-mix(in srgb, var(--ac) 25%, transparent);
+    cursor: pointer;
   }
 
-  .contact-card-blog:hover {
+  .contact-card-email:hover {
     border-color: color-mix(in srgb, var(--ac) 60%, transparent) !important;
   }
 
@@ -951,8 +957,15 @@ function postChipTag(tags: string[]): string {
     margin-bottom: 6px;
   }
 
-  .contact-label-blog {
+  .contact-label-email {
     color: var(--ac-soft);
+  }
+
+  .contact-noscript {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #9aa6c2;
   }
 
   .contact-title {
@@ -1229,5 +1242,17 @@ function postChipTag(tags: string[]): string {
     eggHint.addEventListener('keydown', (e) => {
       if ((e as KeyboardEvent).key === 'Enter') printEgg();
     });
+  }
+
+  // Assemble the contact email at runtime so address-harvesting bots that don't
+  // run JS never see it. The static HTML only carries the user/domain parts.
+  const emailCard = document.getElementById('email-card');
+  if (emailCard) {
+    const user = emailCard.getAttribute('data-u');
+    const domain = emailCard.getAttribute('data-d');
+    if (user && domain) {
+      const subject = encodeURIComponent('Hi from devontroedel.com');
+      emailCard.setAttribute('href', `mailto:${user}@${domain}?subject=${subject}`);
+    }
   }
 </script>
