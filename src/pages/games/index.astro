@@ -1108,7 +1108,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script>
   // ---- Config ----
   const API_BASE = 'https://games-backend-production-d763.up.railway.app';
-  const KEY_NAME = 'games_api_key';
+  const KEY_NAME = 'devon_key';
 
   // ---- DOM refs ----
   const gateEl      = document.getElementById('gate')!;
@@ -1194,7 +1194,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   document.querySelectorAll<HTMLInputElement>('.taste-chip input').forEach((el) => el.addEventListener('change', savePrefs));
 
   // ---- Helpers ----
-  function getKey(): string | null { return sessionStorage.getItem(KEY_NAME); }
+  function getKey(): string | null { return localStorage.getItem(KEY_NAME); }
 
   function fmtDate(d: Date): string { return d.toISOString().slice(0, 10); }
 
@@ -1234,7 +1234,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       },
     });
     if (res.status === 401) {
-      sessionStorage.removeItem(KEY_NAME);
+      localStorage.removeItem(KEY_NAME);
       showGate('Access key rejected. Please try again.');
       throw new Error('Unauthorized');
     }
@@ -1276,7 +1276,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         gateError.hidden = false;
         return;
       }
-      sessionStorage.setItem(KEY_NAME, key);
+      localStorage.setItem(KEY_NAME, key);
       showDashboard();
       initDashboard();
     } catch {
@@ -1288,7 +1288,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
   });
 
-  lockBtn.addEventListener('click', () => { sessionStorage.removeItem(KEY_NAME); showGate(); });
+  lockBtn.addEventListener('click', () => { localStorage.removeItem(KEY_NAME); showGate(); });
 
   // ---- Sync status ----
   async function loadSyncStatus() {
