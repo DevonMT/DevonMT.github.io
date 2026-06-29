@@ -2,10 +2,11 @@
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
 const navLinks = [
-  { href: '/about',    label: 'About' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/blog',     label: 'Writing' },
-  { href: '/#now',     label: 'Now' },
+  { href: '/about',           label: 'About' },
+  { href: '/projects',        label: 'Projects' },
+  { href: '/blog',            label: 'Writing' },
+  { href: '/games/discover',  label: 'Games' },
+  { href: '/#now',            label: 'Now' },
 ];
 
 function isActive(href: string): boolean {

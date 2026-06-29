@@ -8,6 +8,9 @@ export interface Props {
 const { project: p } = Astro.props;
 const body = p.longDescription ?? p.description;
 
+// Internal demos (e.g. "/games/discover") open in the same tab; external ones open in a new tab.
+const demoIsInternal = !!p.demo && p.demo.startsWith('/');
+
 const amber = p.tagColor === 'amber';
 const chipStyle = amber
   ? 'color:var(--color-amber);background:var(--color-amber-bg)'
@@ -63,7 +66,11 @@ const sc = statusColors[p.status];
         <a href={p.repo} target="_blank" rel="noopener noreferrer" class="pj-link">Code ↗</a>
       )}
       {p.demo && (
-        <a href={p.demo} target="_blank" rel="noopener noreferrer" class="pj-link">Demo ↗</a>
+        demoIsInternal ? (
+          <a href={p.demo} class="pj-link">Demo →</a>
+        ) : (
+          <a href={p.demo} target="_blank" rel="noopener noreferrer" class="pj-link">Demo ↗</a>
+        )
       )}
     </div>
   )}

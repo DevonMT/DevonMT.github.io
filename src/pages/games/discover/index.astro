@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SiteNav from '../../../components/SiteNav.astro';
 ---
 
 <BaseLayout
@@ -10,18 +11,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
     <div id="bg-grid" aria-hidden="true"></div>
 
     <!-- ── Nav ── -->
-    <header class="site-nav">
-      <div class="nav-inner">
-        <a href="/" class="logo">
-          <span class="logo-dot" aria-hidden="true"></span>
-          <span>devondoes<span class="logo-accent">.dev</span></span>
-        </a>
-        <div class="nav-right">
-          <a href="/games" class="nav-back">← games</a>
-          <span class="nav-tag">// discover</span>
-        </div>
-      </div>
-    </header>
+    <SiteNav />
 
     <div class="page-content">
 
@@ -196,7 +186,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
     <!-- ── Footer ── -->
     <footer class="site-footer">
       <div class="footer-inner">
-        <span class="footer-copy">&copy; 2025 Devon Troedel</span>
+        <span class="footer-copy">&copy; 2026 Devon Troedel</span>
 
         <!--
           PHASE 3 PLACEHOLDER — friend-key footer affordance
@@ -414,72 +404,6 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
       linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
     background-size: 64px 64px;
-  }
-
-  /* ── Nav ── */
-  .site-nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    backdrop-filter: blur(12px);
-    background: rgba(10, 14, 26, 0.72);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .nav-inner {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: -0.02em;
-    color: #e9edf7;
-    text-decoration: none;
-  }
-
-  .logo-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--ac);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--ac) 70%, transparent);
-    animation: g-pulse 2.4s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  .logo-accent { color: var(--ac); }
-
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .nav-back {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: #616d8c;
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .nav-back:hover { color: #9aa6c2; }
-
-  .nav-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px;
-    color: #f0a868;
-    letter-spacing: 0.06em;
   }
 
   /* ── Page content ── */
