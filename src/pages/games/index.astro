@@ -189,11 +189,6 @@ import SiteNav from '../../components/SiteNav.astro';
           <div id="lookup-grid" class="result-grid"></div>
         </div>
 
-      <div class="key-strip">
-        <span class="key-strip-label">🔐 access key saved on this device</span>
-        <button id="lock-btn" class="btn-sm btn-dim" type="button">lock</button>
-      </div>
-
       </section><!-- #dashboard -->
 
     </div><!-- .page-content -->
@@ -453,11 +448,6 @@ import SiteNav from '../../components/SiteNav.astro';
   }
   @keyframes g-spin { to { transform: rotate(360deg); } }
   button[disabled] { opacity: 0.55; cursor: progress; }
-
-  /* ── Key strip ── */
-  .key-strip { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 32px; opacity: 0.45; transition: opacity 0.18s; }
-  .key-strip:hover { opacity: 0.85; }
-  .key-strip-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #616d8c; }
 </style>
 
 <style>
@@ -497,6 +487,9 @@ import SiteNav from '../../components/SiteNav.astro';
   }
 
   /* ── Gate ── */
+  /* display:grid (author origin) overrides the UA [hidden] rule, so toggling the
+     `hidden` attribute alone won't hide the gate. This guarantees it. */
+  .gate-wrap[hidden] { display: none; }
   .gate-wrap {
     min-height: calc(100vh - 56px);
     display: grid;
@@ -1065,7 +1058,6 @@ import SiteNav from '../../components/SiteNav.astro';
   const gateError   = document.getElementById('gate-error')!;
   const syncStatusEl = document.getElementById('sync-status')!;
   const syncNowBtn  = document.getElementById('sync-now') as HTMLButtonElement;
-  const lockBtn     = document.getElementById('lock-btn') as HTMLButtonElement;
 
   // ---- Taste profile ----
   const tasteToggle     = document.getElementById('taste-toggle') as HTMLButtonElement;
@@ -1201,7 +1193,13 @@ import SiteNav from '../../components/SiteNav.astro';
     gateKey.focus();
   }
 
-  function showDashboard() { gateEl.hidden = true; dashEl.hidden = false; }
+  function showDashboard() {
+    gateEl.hidden = true;
+    dashEl.hidden = false;
+    // Reveal the nav's hub + lock controls (SiteNav only reveals them on load).
+    document.getElementById('hub-link')?.removeAttribute('hidden');
+    document.getElementById('lock-link')?.removeAttribute('hidden');
+  }
 
   gateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1233,8 +1231,6 @@ import SiteNav from '../../components/SiteNav.astro';
       gateSubmit.textContent = 'Unlock';
     }
   });
-
-  lockBtn.addEventListener('click', () => { localStorage.removeItem(KEY_NAME); showGate(); });
 
   // ---- Sync status ----
   async function loadSyncStatus() {
