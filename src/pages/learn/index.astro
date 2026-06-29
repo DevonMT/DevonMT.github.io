@@ -1,0 +1,953 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Learn — Devon Troedel" description="Private learning tracker.">
+
+<!-- ═══════════════════════════════════════════
+     ACCESS GATE
+════════════════════════════════════════════ -->
+<section id="gate" class="gate-wrap" hidden>
+  <div class="gate-outer">
+    <div class="gate-glow" aria-hidden="true"></div>
+    <div class="gate-card">
+      <div class="gate-titlebar">
+        <span class="dot-teal"></span>
+        <span class="dot-dim"></span>
+        <span class="dot-dim"></span>
+        <span class="gate-card-label">// access required · learn</span>
+      </div>
+      <div class="gate-body">
+        <div class="gate-query" aria-hidden="true">
+          <span class="kw">SELECT</span> <span class="col">*</span>
+          <span class="kw">FROM</span> <span class="tbl">learn_sessions</span>
+          <span class="kw">WHERE</span> <span class="col">api_key</span> = <span class="val">?</span>;
+        </div>
+        <p class="gate-intro">Enter the access key to unlock the tracker.</p>
+        <form id="gate-form" class="gate-form" autocomplete="off">
+          <input
+            id="gate-key"
+            type="password"
+            class="gate-input"
+            placeholder="Access key"
+            aria-label="Access key"
+            required
+          />
+          <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
+        </form>
+        <p id="gate-error" class="gate-error" role="alert" hidden></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     APP (hidden until authenticated)
+════════════════════════════════════════════ -->
+<div id="app" hidden>
+
+  <!-- Minimal nav -->
+  <header class="l-nav">
+    <a href="/" class="logo">
+      <span class="logo-dot" aria-hidden="true"></span>
+      <span>devondoes<span class="logo-accent">.dev</span></span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-tag">// learn</span>
+      <button id="lock-btn" class="btn-lock" type="button">lock</button>
+    </div>
+  </header>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="log" type="button">// log</button>
+    <button class="tab-btn" data-tab="dash" type="button">// dashboard</button>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- ─── LOG VIEW ─── -->
+    <section id="view-log">
+      <form id="log-form" novalidate>
+
+        <!-- Source -->
+        <div class="field">
+          <div class="field-label">Source</div>
+          <div class="source-row">
+            <button type="button" class="src-btn active" data-src="book">Book</button>
+            <button type="button" class="src-btn" data-src="datacamp">DataCamp</button>
+            <button type="button" class="src-btn" data-src="dataexpert">DataExpert.io</button>
+          </div>
+          <input type="hidden" id="f-source" value="book">
+        </div>
+
+        <!-- Item -->
+        <div class="field">
+          <label class="field-label" for="f-item-text">Item</label>
+          <div id="item-wrap">
+            <select id="f-item-book" class="l-input">
+              <option value="">Select a book…</option>
+              <option>Python Programming and SQL</option>
+              <option>Python for Data Analysis</option>
+              <option>SQL Cookbook</option>
+              <option>The Data Warehouse Toolkit</option>
+              <option>Learn Microsoft Power BI</option>
+              <option>Fundamentals of Data Engineering</option>
+              <option>Data Pipelines Pocket Reference</option>
+              <option>Designing Data-Intensive Applications</option>
+              <option>Fluent Python</option>
+              <option>Learning Spark</option>
+              <option>Streaming Systems</option>
+            </select>
+            <input
+              type="text"
+              id="f-item-text"
+              class="l-input"
+              placeholder="Course or module name…"
+              hidden
+            />
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="field">
+          <div class="field-label">Skills</div>
+          <div class="chip-row" id="skill-chips"></div>
+        </div>
+
+        <!-- Duration -->
+        <div class="field">
+          <label class="field-label" for="f-minutes">Duration</label>
+          <div class="min-row">
+            <button type="button" class="min-btn" data-min="25">25 min</button>
+            <button type="button" class="min-btn" data-min="50">50 min</button>
+            <button type="button" class="min-btn" data-min="60">60 min</button>
+            <button type="button" class="min-btn" data-min="90">90 min</button>
+          </div>
+          <input
+            type="number"
+            id="f-minutes"
+            class="l-input"
+            min="1"
+            max="600"
+            placeholder="or enter minutes…"
+            style="margin-top:0.5rem"
+          />
+        </div>
+
+        <!-- Note -->
+        <div class="field">
+          <label class="field-label" for="f-note">
+            Note <span class="muted">(optional)</span>
+          </label>
+          <textarea
+            id="f-note"
+            class="l-input l-textarea"
+            rows="2"
+            placeholder="Key takeaway, what you built, what clicked…"
+          ></textarea>
+        </div>
+
+        <button type="submit" id="log-submit" class="btn-primary btn-full">Log session</button>
+        <p id="log-msg" class="log-msg" hidden></p>
+      </form>
+
+      <!-- Recent sessions -->
+      <div class="recent-section">
+        <div class="section-label">// recent</div>
+        <div id="recent-list" class="recent-list"></div>
+      </div>
+    </section>
+
+    <!-- ─── DASHBOARD VIEW ─── -->
+    <section id="view-dash" hidden>
+
+      <!-- Stat cards -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-val" id="s-streak">—</div>
+          <div class="stat-lbl">day streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="s-hours">—</div>
+          <div class="stat-lbl">total hours</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="s-week">—</div>
+          <div class="stat-lbl">this week</div>
+        </div>
+      </div>
+
+      <!-- Weekly goal -->
+      <div class="chart-card">
+        <div class="chart-lbl">
+          // weekly goal
+          <span class="chart-sub">target: 5 sessions / week</span>
+        </div>
+        <div class="goal-wrap">
+          <div class="goal-track">
+            <div id="goal-fill" class="goal-fill"></div>
+          </div>
+          <span id="goal-txt" class="goal-txt">0 / 5</span>
+        </div>
+      </div>
+
+      <!-- Activity heatmap -->
+      <div class="chart-card">
+        <div class="chart-lbl">// activity <span class="chart-sub">last 26 weeks</span></div>
+        <div class="heatmap-scroll">
+          <div id="heatmap" class="heatmap"></div>
+          <div id="heatmap-months" class="heatmap-months"></div>
+        </div>
+        <div class="heatmap-legend">
+          <span class="legend-lbl">less</span>
+          <span class="hm-cell" style="background:#161b35"></span>
+          <span class="hm-cell" style="background:rgba(20,184,166,0.3)"></span>
+          <span class="hm-cell" style="background:rgba(20,184,166,0.6)"></span>
+          <span class="hm-cell" style="background:#14b8a6"></span>
+          <span class="legend-lbl">more</span>
+        </div>
+      </div>
+
+      <!-- Source + Skills -->
+      <div class="charts-2col">
+        <div class="chart-card">
+          <div class="chart-lbl">// by source</div>
+          <div class="donut-wrap">
+            <canvas id="chart-source"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-lbl">// by skill (hrs)</div>
+          <canvas id="chart-skills"></canvas>
+        </div>
+      </div>
+
+      <!-- Monthly trend -->
+      <div class="chart-card">
+        <div class="chart-lbl">// monthly sessions</div>
+        <canvas id="chart-trend"></canvas>
+      </div>
+
+      <!-- Balance check -->
+      <div class="chart-card">
+        <div class="chart-lbl">// balance check <span class="chart-sub">last touched per skill</span></div>
+        <div id="balance-list" class="balance-list"></div>
+      </div>
+
+    </section>
+  </div><!-- /.page-wrap -->
+</div><!-- /#app -->
+
+<!-- ═══════════════════════════════════════════
+     STYLES
+════════════════════════════════════════════ -->
+<style is:global>
+/* ── Reset / base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); min-height: 100dvh; }
+
+/* ── Nav ── */
+.l-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky; top: 0; background: var(--color-bg); z-index: 10;
+}
+.logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--color-text); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 500; }
+.logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }
+.logo-accent { color: var(--color-accent); }
+.nav-right { display: flex; align-items: center; gap: 0.75rem; }
+.nav-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); }
+.btn-lock { background: none; border: 1px solid var(--color-border); color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.75rem; padding: 0.3rem 0.65rem; border-radius: var(--radius-xs); cursor: pointer; transition: border-color var(--transition), color var(--transition); }
+.btn-lock:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; border-bottom: 1px solid var(--color-border); }
+.tab-btn { flex: 1; background: none; border: none; color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.85rem; padding: 0.85rem 1rem; cursor: pointer; border-bottom: 2px solid transparent; transition: color var(--transition), border-color var(--transition); }
+.tab-btn.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+.tab-btn:hover:not(.active) { color: var(--color-text); }
+
+/* ── Page wrap ── */
+.page-wrap { max-width: 560px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+/* ── Form shared ── */
+.field { margin-bottom: 1.25rem; }
+.field-label { display: block; font-size: 0.75rem; font-family: var(--font-mono); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+.muted { color: var(--color-text-faint); text-transform: none; letter-spacing: normal; }
+.l-input {
+  width: 100%; background: var(--color-surface); border: 1px solid var(--color-border);
+  color: var(--color-text); font-family: var(--font-sans); font-size: 0.95rem;
+  padding: 0.65rem 0.85rem; border-radius: var(--radius-xs); outline: none;
+  transition: border-color var(--transition);
+  -webkit-appearance: none; appearance: none;
+}
+.l-input:focus { border-color: var(--color-accent); }
+.l-textarea { resize: vertical; min-height: 64px; }
+select.l-input { cursor: pointer; }
+
+/* ── Source buttons ── */
+.source-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.src-btn {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  color: var(--color-text-muted); font-family: var(--font-sans); font-size: 0.85rem;
+  padding: 0.65rem 0.5rem; border-radius: var(--radius-xs); cursor: pointer;
+  transition: all var(--transition); min-height: 44px; text-align: center;
+}
+.src-btn.active { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent); }
+.src-btn:hover:not(.active) { border-color: var(--color-text-faint); color: var(--color-text); }
+
+/* ── Skill chips ── */
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.skill-chip {
+  display: inline-flex; align-items: center;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  color: var(--color-text-muted); font-size: 0.8rem; font-family: var(--font-mono);
+  padding: 0.35rem 0.75rem; border-radius: 100px; cursor: pointer;
+  transition: all var(--transition); user-select: none; min-height: 36px;
+}
+.skill-chip.active { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent); }
+.skill-chip:hover:not(.active) { border-color: var(--color-text-faint); color: var(--color-text); }
+
+/* ── Minutes ── */
+.min-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+.min-btn {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.8rem;
+  padding: 0.55rem 0.25rem; border-radius: var(--radius-xs); cursor: pointer;
+  transition: all var(--transition); min-height: 40px;
+}
+.min-btn.active { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent); }
+.min-btn:hover:not(.active) { border-color: var(--color-text-faint); color: var(--color-text); }
+
+/* ── Buttons ── */
+.btn-primary {
+  background: var(--color-accent); color: #0a0e27; font-family: var(--font-sans);
+  font-weight: 600; font-size: 0.95rem; border: none; border-radius: var(--radius-xs);
+  padding: 0.75rem 1.5rem; cursor: pointer; transition: background var(--transition);
+  min-height: 44px;
+}
+.btn-primary:hover { background: var(--color-accent-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+.btn-full { width: 100%; }
+.log-msg { margin-top: 0.5rem; font-size: 0.85rem; font-family: var(--font-mono); }
+.log-msg.ok { color: var(--color-accent); }
+.log-msg.err { color: var(--color-danger); }
+
+/* ── Recent sessions ── */
+.recent-section { margin-top: 2rem; }
+.section-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+.recent-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.recent-item {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs); padding: 0.65rem 0.85rem;
+}
+.recent-meta { flex: 1; min-width: 0; }
+.recent-item-name { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-item-sub { font-size: 0.75rem; color: var(--color-text-muted); font-family: var(--font-mono); margin-top: 0.25rem; }
+.recent-del { background: none; border: none; color: var(--color-text-faint); font-size: 1rem; cursor: pointer; padding: 0.15rem 0.3rem; flex-shrink: 0; transition: color var(--transition); }
+.recent-del:hover { color: var(--color-danger); }
+.recent-empty { font-size: 0.85rem; color: var(--color-text-faint); font-family: var(--font-mono); }
+.src-tag { display: inline-block; font-size: 0.7rem; font-family: var(--font-mono); padding: 0.1rem 0.4rem; border-radius: 4px; background: var(--color-accent-soft); color: var(--color-accent); margin-right: 0.35rem; }
+.src-tag.dc { background: rgba(240,168,104,0.12); color: var(--color-amber); }
+.src-tag.de { background: rgba(167,139,250,0.12); color: #a78bfa; }
+
+/* ── Dashboard shared ── */
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.stat-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xs); padding: 1rem 0.75rem; text-align: center; }
+.stat-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--color-accent); line-height: 1; }
+.stat-lbl { font-size: 0.7rem; font-family: var(--font-mono); color: var(--color-text-muted); margin-top: 0.35rem; }
+
+.chart-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xs); padding: 1rem 1rem 1.25rem; margin-bottom: 0.75rem; }
+.chart-lbl { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.85rem; }
+.chart-sub { font-size: 0.7rem; color: var(--color-text-faint); text-transform: none; letter-spacing: normal; margin-left: 0.5rem; }
+
+/* ── Weekly goal ── */
+.goal-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.goal-track { flex: 1; height: 10px; background: var(--color-bg); border-radius: 100px; overflow: hidden; }
+.goal-fill { height: 100%; background: var(--color-accent); border-radius: 100px; transition: width 0.6s ease; }
+.goal-txt { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted); white-space: nowrap; }
+
+/* ── Heatmap ── */
+.heatmap-scroll { overflow-x: auto; padding-bottom: 0.25rem; }
+.heatmap {
+  display: grid;
+  grid-template-rows: repeat(7, 11px);
+  grid-auto-flow: column;
+  grid-auto-columns: 11px;
+  gap: 2px;
+  width: max-content;
+}
+.hm-cell { width: 11px; height: 11px; border-radius: 2px; }
+.heatmap-months {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 13px;
+  gap: 0;
+  margin-top: 4px;
+  width: max-content;
+}
+.hm-month { font-size: 0.6rem; font-family: var(--font-mono); color: var(--color-text-faint); }
+.heatmap-legend { display: flex; align-items: center; gap: 4px; margin-top: 0.5rem; }
+.legend-lbl { font-size: 0.65rem; font-family: var(--font-mono); color: var(--color-text-faint); }
+
+/* ── Charts 2-col ── */
+.charts-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+.donut-wrap { max-width: 180px; margin: 0 auto; }
+@media (max-width: 480px) { .charts-2col { grid-template-columns: 1fr; } }
+
+/* ── Balance check ── */
+.balance-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.balance-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; }
+.balance-skill { font-family: var(--font-mono); }
+.balance-age { font-size: 0.75rem; font-family: var(--font-mono); }
+.balance-age.ok { color: var(--color-accent); }
+.balance-age.warn { color: var(--color-amber); }
+.balance-age.never { color: var(--color-danger); }
+
+/* ── Gate ── */
+.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: 100dvh; padding: 1.5rem; }
+.gate-outer { position: relative; width: 100%; max-width: 420px; }
+.gate-glow { position: absolute; inset: -40px; background: radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.15), transparent 70%); pointer-events: none; }
+.gate-card { position: relative; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+.gate-titlebar { display: flex; align-items: center; gap: 6px; padding: 0.65rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.dot-teal { width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent); }
+.dot-dim { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border); }
+.gate-card-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.35rem; }
+.gate-body { padding: 1.5rem; }
+.gate-query { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1.25rem; line-height: 1.6; }
+.kw { color: #7c9ef8; } .col { color: var(--color-accent); } .tbl { color: var(--color-amber); } .val { color: #f87171; }
+.gate-intro { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem; }
+.gate-form { display: flex; flex-direction: column; gap: 0.65rem; }
+.gate-input { width: 100%; background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text); font-family: var(--font-mono); font-size: 0.95rem; padding: 0.7rem 0.9rem; border-radius: var(--radius-xs); outline: none; transition: border-color var(--transition); }
+.gate-input:focus { border-color: var(--color-accent); }
+.gate-error { margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-danger); font-family: var(--font-mono); }
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #0a0e27; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- ═══════════════════════════════════════════
+     CHART.JS (loaded lazily when dashboard opens)
+════════════════════════════════════════════ -->
+<script>
+  declare const Chart: any;
+
+  // ── Config ──────────────────────────────────────────────────────
+  const API_BASE = 'https://games-backend-production-d763.up.railway.app';
+  const KEY_NAME = 'learn_api_key';
+
+  const SKILLS = ['Python','SQL','Data Modeling','dbt','Orchestration','Warehousing','Power BI','Streaming','General'] as const;
+  type SkillTag = typeof SKILLS[number];
+
+  interface Session {
+    id: number;
+    loggedAt: string;
+    source: 'book' | 'datacamp' | 'dataexpert';
+    item: string;
+    skills: SkillTag[];
+    minutes: number;
+    note: string | null;
+  }
+
+  // ── State ────────────────────────────────────────────────────────
+  let sessions: Session[] = [];
+  let chartSource: any = null;
+  let chartSkills: any = null;
+  let chartTrend: any = null;
+  let chartJsLoaded = false;
+
+  // ── DOM refs ─────────────────────────────────────────────────────
+  const gateEl    = document.getElementById('gate')!;
+  const appEl     = document.getElementById('app')!;
+  const gateForm  = document.getElementById('gate-form') as HTMLFormElement;
+  const gateKey   = document.getElementById('gate-key') as HTMLInputElement;
+  const gateSubmit = document.getElementById('gate-submit') as HTMLButtonElement;
+  const gateError = document.getElementById('gate-error')!;
+  const lockBtn   = document.getElementById('lock-btn') as HTMLButtonElement;
+
+  const viewLog  = document.getElementById('view-log')!;
+  const viewDash = document.getElementById('view-dash')!;
+
+  const logForm   = document.getElementById('log-form') as HTMLFormElement;
+  const logSubmit = document.getElementById('log-submit') as HTMLButtonElement;
+  const logMsg    = document.getElementById('log-msg')!;
+  const fSource   = document.getElementById('f-source') as HTMLInputElement;
+  const fItemBook = document.getElementById('f-item-book') as HTMLSelectElement;
+  const fItemText = document.getElementById('f-item-text') as HTMLInputElement;
+  const fMinutes  = document.getElementById('f-minutes') as HTMLInputElement;
+  const fNote     = document.getElementById('f-note') as HTMLTextAreaElement;
+
+  // ── API helper ───────────────────────────────────────────────────
+  function getKey(): string | null { return localStorage.getItem(KEY_NAME); }
+
+  async function api(path: string, init: RequestInit = {}): Promise<any> {
+    const key = getKey();
+    if (!key) throw new Error('No access key');
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-secret': key,
+        ...(init.headers || {}),
+      },
+    });
+    if (res.status === 401) { showGate('Access key rejected.'); throw new Error('Unauthorized'); }
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.error || `Request failed (${res.status})`);
+    }
+    return res.json();
+  }
+
+  // ── Gate ─────────────────────────────────────────────────────────
+  function showGate(msg?: string) {
+    appEl.hidden = true;
+    gateEl.hidden = false;
+    gateError.hidden = !msg;
+    if (msg) gateError.textContent = msg;
+    gateKey.value = '';
+    setTimeout(() => gateKey.focus(), 50);
+  }
+
+  function showApp() { gateEl.hidden = true; appEl.hidden = false; }
+
+  gateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const key = gateKey.value.trim();
+    if (!key) return;
+    gateError.hidden = true;
+    gateSubmit.disabled = true;
+    gateSubmit.innerHTML = '<span class="spinner"></span> Checking…';
+    try {
+      const res = await fetch(`${API_BASE}/health`, { headers: { 'x-api-secret': key } });
+      if (res.status === 401) { gateError.textContent = 'Access key rejected.'; gateError.hidden = false; return; }
+      if (!res.ok) { gateError.textContent = `Backend error (${res.status}).`; gateError.hidden = false; return; }
+      localStorage.setItem(KEY_NAME, key);
+      showApp();
+      initApp();
+    } catch {
+      gateError.textContent = 'Could not reach the backend.';
+      gateError.hidden = false;
+    } finally {
+      gateSubmit.disabled = false;
+      gateSubmit.textContent = 'Unlock';
+    }
+  });
+
+  lockBtn.addEventListener('click', () => { localStorage.removeItem(KEY_NAME); showGate(); });
+
+  // ── Source selector ──────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.src-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const src = btn.dataset.src!;
+      fSource.value = src;
+      if (src === 'book') {
+        fItemBook.hidden = false;
+        fItemText.hidden = true;
+        fItemText.value = '';
+      } else {
+        fItemBook.hidden = true;
+        fItemBook.value = '';
+        fItemText.hidden = false;
+        fItemText.placeholder = src === 'datacamp' ? 'Course or lesson name…' : 'Module or project name…';
+      }
+    });
+  });
+
+  // ── Skill chips ──────────────────────────────────────────────────
+  const chipRow = document.getElementById('skill-chips')!;
+  SKILLS.forEach(skill => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'skill-chip';
+    btn.textContent = skill;
+    btn.dataset.skill = skill;
+    btn.addEventListener('click', () => btn.classList.toggle('active'));
+    chipRow.appendChild(btn);
+  });
+
+  function getSelectedSkills(): SkillTag[] {
+    return [...document.querySelectorAll<HTMLButtonElement>('.skill-chip.active')]
+      .map(b => b.dataset.skill as SkillTag);
+  }
+
+  function clearForm() {
+    // Reset source to Book
+    document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('active'));
+    (document.querySelector('[data-src="book"]') as HTMLButtonElement).classList.add('active');
+    fSource.value = 'book';
+    fItemBook.hidden = false; fItemBook.value = '';
+    fItemText.hidden = true; fItemText.value = '';
+    // Clear skills
+    document.querySelectorAll('.skill-chip').forEach(c => c.classList.remove('active'));
+    // Clear minutes
+    fMinutes.value = '';
+    document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
+    fNote.value = '';
+  }
+
+  // ── Minutes presets ──────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.min-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      fMinutes.value = btn.dataset.min!;
+    });
+  });
+  fMinutes.addEventListener('input', () => {
+    document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
+  });
+
+  // ── Log form submit ──────────────────────────────────────────────
+  logForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const source = fSource.value;
+    const item = source === 'book' ? fItemBook.value : fItemText.value.trim();
+    const mins = Number(fMinutes.value);
+    const skills = getSelectedSkills();
+
+    if (!item) { showMsg('Select or enter an item.', 'err'); return; }
+    if (!mins || mins < 1) { showMsg('Enter a duration.', 'err'); return; }
+
+    logSubmit.disabled = true;
+    logSubmit.innerHTML = '<span class="spinner"></span> Logging…';
+    try {
+      await api('/learn/sessions', {
+        method: 'POST',
+        body: JSON.stringify({ source, item, skills, minutes: mins, note: fNote.value.trim() || null }),
+      });
+      showMsg('Session logged!', 'ok');
+      clearForm();
+      sessions = (await api('/learn/sessions')).sessions as Session[];
+      renderRecentList();
+      if (!viewDash.hidden) renderDashboard();
+    } catch (err: any) {
+      showMsg(err.message || 'Error logging session.', 'err');
+    } finally {
+      logSubmit.disabled = false;
+      logSubmit.textContent = 'Log session';
+    }
+  });
+
+  function showMsg(text: string, type: 'ok' | 'err') {
+    logMsg.textContent = text;
+    logMsg.className = `log-msg ${type}`;
+    logMsg.hidden = false;
+    setTimeout(() => { logMsg.hidden = true; }, 3500);
+  }
+
+  // ── Tabs ─────────────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      viewLog.hidden  = tab !== 'log';
+      viewDash.hidden = tab !== 'dash';
+      if (tab === 'dash') {
+        if (!chartJsLoaded) await loadChartJs();
+        renderDashboard();
+      }
+    });
+  });
+
+  async function loadChartJs(): Promise<void> {
+    return new Promise((resolve) => {
+      if (typeof Chart !== 'undefined') { chartJsLoaded = true; resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js';
+      s.onload = () => { chartJsLoaded = true; resolve(); };
+      document.head.appendChild(s);
+    });
+  }
+
+  // ── Recent sessions list ─────────────────────────────────────────
+  function srcTag(src: string): string {
+    const cls = src === 'datacamp' ? 'dc' : src === 'dataexpert' ? 'de' : '';
+    const label = src === 'book' ? 'Book' : src === 'datacamp' ? 'DC' : 'DE';
+    return `<span class="src-tag ${cls}">${label}</span>`;
+  }
+
+  function renderRecentList() {
+    const el = document.getElementById('recent-list')!;
+    const recent = sessions.slice(0, 8);
+    if (!recent.length) {
+      el.innerHTML = '<div class="recent-empty">No sessions logged yet.</div>';
+      return;
+    }
+    el.innerHTML = recent.map(s => {
+      const date = new Date(s.loggedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const skillStr = s.skills.length ? s.skills.join(', ') : '—';
+      return `
+        <div class="recent-item">
+          <div class="recent-meta">
+            <div class="recent-item-name">${srcTag(s.source)}${esc(s.item)}</div>
+            <div class="recent-item-sub">${date} · ${s.minutes} min · ${esc(skillStr)}</div>
+          </div>
+          <button class="recent-del" title="Delete" data-id="${s.id}">×</button>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll<HTMLButtonElement>('.recent-del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = Number(btn.dataset.id);
+        btn.disabled = true;
+        try {
+          await api(`/learn/sessions/${id}`, { method: 'DELETE' });
+          sessions = sessions.filter(s => s.id !== id);
+          renderRecentList();
+          if (!viewDash.hidden) renderDashboard();
+        } catch { btn.disabled = false; }
+      });
+    });
+  }
+
+  function esc(str: string): string {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ── Dashboard rendering ──────────────────────────────────────────
+  function toLocalDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('en-CA'); // YYYY-MM-DD
+  }
+
+  function renderDashboard() {
+    renderStats();
+    renderWeeklyGoal();
+    renderHeatmap();
+    renderCharts();
+    renderBalanceCheck();
+  }
+
+  function renderStats() {
+    const totalMins = sessions.reduce((a, s) => a + s.minutes, 0);
+    document.getElementById('s-hours')!.textContent = (totalMins / 60).toFixed(1);
+
+    // Streak: consecutive days with ≥1 session ending today or yesterday
+    const datesWithSessions = new Set(sessions.map(s => toLocalDate(s.loggedAt)));
+    const today = new Date(); today.setHours(0,0,0,0);
+    let streak = 0;
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      if (datesWithSessions.has(d.toLocaleDateString('en-CA'))) { streak++; }
+      else { break; }
+    }
+    document.getElementById('s-streak')!.textContent = String(streak);
+
+    // This week (Mon–Sun)
+    const dow = (today.getDay() + 6) % 7;
+    const weekStart = new Date(today); weekStart.setDate(today.getDate() - dow);
+    const weekStartStr = weekStart.toLocaleDateString('en-CA');
+    const weekCount = sessions.filter(s => toLocalDate(s.loggedAt) >= weekStartStr).length;
+    document.getElementById('s-week')!.textContent = String(weekCount);
+  }
+
+  function renderWeeklyGoal() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dow = (today.getDay() + 6) % 7;
+    const weekStart = new Date(today); weekStart.setDate(today.getDate() - dow);
+    const weekCount = sessions.filter(s => toLocalDate(s.loggedAt) >= weekStart.toLocaleDateString('en-CA')).length;
+    const target = 5;
+    const pct = Math.min(100, (weekCount / target) * 100);
+    (document.getElementById('goal-fill') as HTMLElement).style.width = `${pct}%`;
+    document.getElementById('goal-txt')!.textContent = `${weekCount} / ${target}`;
+  }
+
+  function heatColor(n: number): string {
+    if (n === 0) return '#161b35';
+    if (n === 1) return 'rgba(20,184,166,0.35)';
+    if (n <= 3)  return 'rgba(20,184,166,0.65)';
+    return '#14b8a6';
+  }
+
+  function renderHeatmap() {
+    const counts: Record<string, number> = {};
+    sessions.forEach(s => {
+      const d = toLocalDate(s.loggedAt);
+      counts[d] = (counts[d] || 0) + 1;
+    });
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dow = (today.getDay() + 6) % 7; // 0=Mon
+    const start = new Date(today);
+    start.setDate(today.getDate() - dow - 25 * 7);
+
+    const heatmapEl = document.getElementById('heatmap')!;
+    const monthsEl  = document.getElementById('heatmap-months')!;
+    heatmapEl.innerHTML = '';
+    monthsEl.innerHTML = '';
+
+    let lastMonth = -1;
+    for (let w = 0; w < 26; w++) {
+      let monthLabel = '';
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(start); date.setDate(start.getDate() + w * 7 + d);
+        const dateStr = date.toLocaleDateString('en-CA');
+        const count = counts[dateStr] || 0;
+        const future = date > today;
+
+        const cell = document.createElement('div');
+        cell.className = 'hm-cell';
+        cell.style.background = future ? 'transparent' : heatColor(count);
+        if (!future) cell.title = `${dateStr}: ${count} session${count !== 1 ? 's' : ''}`;
+        heatmapEl.appendChild(cell);
+
+        if (d === 0 && date.getMonth() !== lastMonth) {
+          lastMonth = date.getMonth();
+          monthLabel = date.toLocaleString('default', { month: 'short' });
+        }
+      }
+      const lbl = document.createElement('div');
+      lbl.className = 'hm-month';
+      lbl.textContent = monthLabel;
+      monthsEl.appendChild(lbl);
+    }
+  }
+
+  function renderCharts() {
+    if (!chartJsLoaded) return;
+
+    const CHART_DEFAULTS = {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa3c4', font: { family: 'JetBrains Mono', size: 10 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa3c4', font: { family: 'JetBrains Mono', size: 10 } } },
+      },
+    };
+
+    // Source donut
+    const srcMins: Record<string, number> = { book: 0, datacamp: 0, dataexpert: 0 };
+    sessions.forEach(s => { srcMins[s.source] = (srcMins[s.source] || 0) + s.minutes; });
+    const srcCtx = (document.getElementById('chart-source') as HTMLCanvasElement).getContext('2d')!;
+    if (chartSource) chartSource.destroy();
+    chartSource = new Chart(srcCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Book', 'DataCamp', 'DataExpert'],
+        datasets: [{
+          data: [srcMins.book / 60, srcMins.datacamp / 60, srcMins.dataexpert / 60].map(v => Math.round(v * 10) / 10),
+          backgroundColor: ['rgba(20,184,166,0.8)', 'rgba(240,168,104,0.8)', 'rgba(167,139,250,0.8)'],
+          borderColor: '#11162e',
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        plugins: { legend: { display: true, position: 'bottom', labels: { color: '#9aa3c4', font: { family: 'JetBrains Mono', size: 9 }, boxWidth: 10, padding: 8 } } },
+        cutout: '65%',
+      },
+    });
+
+    // Skill hours bar
+    const skillMins: Record<string, number> = {};
+    SKILLS.forEach(sk => { skillMins[sk] = 0; });
+    sessions.forEach(s => { s.skills.forEach(sk => { skillMins[sk] = (skillMins[sk] || 0) + s.minutes; }); });
+    const skillCtx = (document.getElementById('chart-skills') as HTMLCanvasElement).getContext('2d')!;
+    if (chartSkills) chartSkills.destroy();
+    chartSkills = new Chart(skillCtx, {
+      type: 'bar',
+      data: {
+        labels: SKILLS,
+        datasets: [{
+          data: SKILLS.map(sk => Math.round((skillMins[sk] || 0) / 60 * 10) / 10),
+          backgroundColor: SKILLS.map(sk => skillMins[sk] > 0 ? 'rgba(20,184,166,0.7)' : 'rgba(255,255,255,0.06)'),
+          borderRadius: 3,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ...CHART_DEFAULTS.scales.x, title: { display: false } },
+          y: { ...CHART_DEFAULTS.scales.y, grid: { display: false } },
+        },
+      },
+    });
+
+    // Monthly trend (last 5 months)
+    const months: string[] = [];
+    const monthCounts: number[] = [];
+    const now = new Date();
+    for (let i = 4; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleString('default', { month: 'short' });
+      const prefix = d.toLocaleDateString('en-CA').slice(0, 7); // "2026-06"
+      months.push(label);
+      monthCounts.push(sessions.filter(s => s.loggedAt.startsWith(prefix)).length);
+    }
+    const trendCtx = (document.getElementById('chart-trend') as HTMLCanvasElement).getContext('2d')!;
+    if (chartTrend) chartTrend.destroy();
+    chartTrend = new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [{
+          data: monthCounts,
+          borderColor: '#14b8a6',
+          backgroundColor: 'rgba(20,184,166,0.1)',
+          pointBackgroundColor: '#14b8a6',
+          pointRadius: 4,
+          tension: 0.3,
+          fill: true,
+        }],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: CHART_DEFAULTS.scales.x,
+          y: { ...CHART_DEFAULTS.scales.y, beginAtZero: true, ticks: { ...CHART_DEFAULTS.scales.y.ticks, stepSize: 1 } },
+        },
+      },
+    });
+  }
+
+  function renderBalanceCheck() {
+    const lastSeen: Record<string, string> = {};
+    sessions.forEach(s => {
+      const d = toLocalDate(s.loggedAt);
+      s.skills.forEach(sk => {
+        if (!lastSeen[sk] || d > lastSeen[sk]) lastSeen[sk] = d;
+      });
+    });
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const el = document.getElementById('balance-list')!;
+    el.innerHTML = SKILLS.map(skill => {
+      let ageLabel: string;
+      let cls: string;
+      if (!lastSeen[skill]) {
+        ageLabel = 'never'; cls = 'never';
+      } else {
+        const last = new Date(lastSeen[skill]);
+        const days = Math.round((today.getTime() - last.getTime()) / 86400000);
+        ageLabel = days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days}d ago`;
+        cls = days <= 7 ? 'ok' : days <= 21 ? 'warn' : 'never';
+      }
+      return `
+        <div class="balance-item">
+          <span class="balance-skill">${esc(skill)}</span>
+          <span class="balance-age ${cls}">${ageLabel}</span>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────
+  async function initApp() {
+    try {
+      const data = await api('/learn/sessions');
+      sessions = data.sessions as Session[];
+    } catch { sessions = []; }
+    renderRecentList();
+  }
+
+  // ── Boot ─────────────────────────────────────────────────────────
+  const savedKey = localStorage.getItem(KEY_NAME);
+  if (savedKey) { showApp(); initApp(); }
+  else { showGate(); }
+</script>
+
+</BaseLayout>
