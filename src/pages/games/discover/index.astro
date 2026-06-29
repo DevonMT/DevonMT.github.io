@@ -15,11 +15,27 @@ import SiteNav from '../../../components/SiteNav.astro';
 
     <div class="page-content">
 
-      <!-- ── Page header ── -->
+      <!-- ── Hero ── -->
       <div class="page-head">
-        <div class="eyebrow-amber">// game discovery</div>
-        <h1 class="page-h1">Find your next game</h1>
-        <p class="page-sub">Fill in your taste profile — 20 seconds to start, 2 minutes to go deep. Claude will brainstorm picks matched specifically to you.</p>
+        <div class="eyebrow-amber">// playfinder</div>
+        <h1 class="page-h1">Games matched to your taste,<br class="hero-br"> not the charts.</h1>
+        <p class="page-sub">Build a quick taste profile and get two tools: Claude brainstorms picks tuned to you, or scores any game you name against your preferences.</p>
+        <div class="hero-how">
+          <div class="hero-how-item">
+            <span class="hero-how-label">// discover</span>
+            <span class="hero-how-desc">Claude brainstorms games matched to your taste profile.</span>
+          </div>
+          <div class="hero-how-sep" aria-hidden="true"></div>
+          <div class="hero-how-item">
+            <span class="hero-how-label">// lookup</span>
+            <span class="hero-how-desc">Name or describe a game — get it scored against your profile.</span>
+          </div>
+          <div class="hero-how-sep" aria-hidden="true"></div>
+          <div class="hero-how-item">
+            <span class="hero-how-label">// no account</span>
+            <span class="hero-how-desc">Your profile saves to this browser. Share it via link anytime.</span>
+          </div>
+        </div>
       </div>
 
       <!-- ── Mode indicator ── -->
@@ -175,6 +191,10 @@ import SiteNav from '../../../components/SiteNav.astro';
                 <div class="filter-group">
                   <span class="field-label">Platform</span>
                   <div class="chip-row" id="platform-filter-chips" role="group" aria-label="Platform filter"></div>
+                </div>
+                <div class="share-group">
+                  <button type="button" id="copy-share-btn" class="btn-secondary btn-sm">Copy share link</button>
+                  <span id="share-confirm" class="share-confirm" hidden>// link copied</span>
                 </div>
               </div>
             </div>
@@ -1084,6 +1104,79 @@ import SiteNav from '../../../components/SiteNav.astro';
   }
   .footer-link:hover { color: #9aa6c2; }
 
+  /* ── Hero how-it-works ── */
+  .hero-br { display: none; }
+  @media (min-width: 560px) { .hero-br { display: inline; } }
+
+  .hero-how {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 24px;
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .hero-how-item {
+    flex: 1 1 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 14px 18px;
+  }
+
+  .hero-how-sep {
+    width: 1px;
+    background: rgba(255, 255, 255, 0.07);
+    align-self: stretch;
+  }
+  @media (max-width: 560px) {
+    .hero-how-sep { width: 100%; height: 1px; align-self: auto; }
+  }
+
+  .hero-how-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #f0a868;
+    letter-spacing: 0.07em;
+  }
+
+  .hero-how-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #616d8c;
+    line-height: 1.5;
+  }
+
+  /* ── Share affordance ── */
+  .share-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .share-confirm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ac);
+    white-space: nowrap;
+  }
+
+  /* ── Share-loaded notice (injected by JS) ── */
+  .share-loaded-notice {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ac);
+    background: color-mix(in srgb, var(--ac) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ac) 25%, transparent);
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 16px;
+  }
+
   /* ── Keyframes ── */
   @keyframes g-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -1107,6 +1200,12 @@ import SiteNav from '../../../components/SiteNav.astro';
   // ── Mode state ─────────────────────────────────────────────────────────────
   // 'public' = localStorage only; 'friend' = server-backed via friend key
   let appMode: 'public' | 'friend' = 'public';
+
+  // ── Share-load flag ────────────────────────────────────────────────────────
+  // Set to true by init() when a #p= share link was consumed on load.
+  // Read by initFriendKey() to reconcile the share-loaded notice if the
+  // server profile later overwrites the share-hydrated form.
+  let loadedFromShare = false;
 
   // ── Slider defaults ────────────────────────────────────────────────────────
   const SLIDER_DEFAULTS: Record<string, number> = {
@@ -1218,6 +1317,34 @@ import SiteNav from '../../../components/SiteNav.astro';
     const div = document.createElement('div');
     div.textContent = s ?? '';
     return div.innerHTML;
+  }
+
+  // ── Share-link encode / decode (UTF-8 safe) ────────────────────────────────
+
+  function encodeProfile(profileObj: object): string {
+    const json = JSON.stringify(profileObj);
+    const bytes = new TextEncoder().encode(json);
+    // btoa requires a Latin-1 string; we build one from the raw bytes.
+    const binStr = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+    // Make URL-safe: replace +→- /→_ and strip padding =
+    return btoa(binStr).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function decodeProfile(encoded: string): Record<string, unknown> | null {
+    try {
+      // Restore standard base64 characters and re-add padding
+      const b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = b64 + '=='.slice(0, (4 - (b64.length % 4)) % 4);
+      const binStr = atob(padded);
+      const bytes = Uint8Array.from(binStr, (c) => c.charCodeAt(0));
+      const json = new TextDecoder().decode(bytes);
+      const parsed = JSON.parse(json) as Record<string, unknown>;
+      // Basic sanity check — must look like a playfinder profile
+      if (typeof parsed !== 'object' || parsed === null) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
   }
 
   function confClass(score: number): { text: string; bg: string } {
@@ -1760,9 +1887,36 @@ import SiteNav from '../../../components/SiteNav.astro';
 
   // ── Init ───────────────────────────────────────────────────────────────────
 
+  // ── Share-link: check URL hash for a shared profile ───────────────────────
+  // Returns true if a valid shared profile was found and hydrated.
+
+  function checkShareHash(): boolean {
+    const hash = location.hash; // e.g. "#p=abc123"
+    if (!hash.startsWith('#p=')) return false;
+    const encoded = hash.slice(3); // everything after "#p="
+    if (!encoded) return false;
+    const profile = decodeProfile(encoded);
+    if (!profile) return false;
+
+    // Hydrate the form with the shared profile (chips not built yet —
+    // hydrateProfile sets JS state; chip visuals are synced after buildChips)
+    hydrateProfile(profile);
+
+    // Persist to localStorage so normal edit/save flow takes over
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch { /* ignore */ }
+
+    // Strip the hash so a refresh doesn't re-trigger
+    history.replaceState(null, '', location.pathname + location.search);
+
+    return true;
+  }
+
   function init(): void {
-    // Load saved profile first so chip builders can pick up restored state.
-    loadProfile();
+    // ── Share-link has highest precedence for form hydration ─────────────────
+    loadedFromShare = checkShareHash();
+
+    // Load saved profile only if no shared profile was found
+    if (!loadedFromShare) loadProfile();
 
     // Build single-select chips
     buildSingleChips(
@@ -1901,6 +2055,43 @@ import SiteNav from '../../../components/SiteNav.astro';
       // Always proceed — non-blocking
       runDiscover().catch(() => {});
     });
+
+    // ── Show "loaded a shared profile" notice if applicable ──────────────────
+    if (loadedFromShare) {
+      const notice = document.createElement('p');
+      notice.className = 'share-loaded-notice';
+      notice.textContent = '// loaded a shared profile — tweak anything and it saves to your browser.';
+      // Insert immediately before the mode-bar
+      const modeBar = document.getElementById('mode-bar');
+      if (modeBar) modeBar.insertAdjacentElement('beforebegin', notice);
+    }
+
+    // ── Copy share link button ─────────────────────────────────────────────────
+    const copyShareBtn = document.getElementById('copy-share-btn') as HTMLButtonElement | null;
+    const shareConfirm = document.getElementById('share-confirm');
+
+    if (copyShareBtn && shareConfirm) {
+      copyShareBtn.addEventListener('click', () => {
+        const profile = serializeProfile();
+        const encoded = encodeProfile(profile);
+        const shareUrl = `${location.origin}${location.pathname}#p=${encoded}`;
+
+        const showConfirm = () => {
+          shareConfirm.hidden = false;
+          setTimeout(() => { shareConfirm.hidden = true; }, 2000);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareUrl).then(showConfirm).catch(() => {
+            // Clipboard write failed — fall back to prompt
+            prompt('Copy this share link:', shareUrl);
+          });
+        } else {
+          // No clipboard API — fall back to prompt
+          prompt('Copy this share link:', shareUrl);
+        }
+      });
+    }
 
     // Initial strength render
     renderStrength();
@@ -2087,6 +2278,13 @@ import SiteNav from '../../../components/SiteNav.astro';
           hydrateProfile(serverProfile);
           try { localStorage.setItem(PROFILE_KEY, JSON.stringify(serverProfile)); } catch { /* ignore */ }
           refreshChipVisuals();
+          // If a share link had been loaded first, the banner is now false — reconcile it.
+          if (loadedFromShare) {
+            const notice = document.querySelector<HTMLElement>('.share-loaded-notice');
+            if (notice) {
+              notice.textContent = '// your saved key profile took precedence over the shared link.';
+            }
+          }
         } else {
           // Server has none — upload current localStorage copy
           const localProfile = serializeProfile();
