@@ -41,7 +41,7 @@ import { projects } from '../data/projects';
       radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
       radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
       #0a0e1a;
-    overflow-x: hidden;
+    overflow-x: clip; /* `clip` keeps the sticky nav working; `hidden` would break it */
   }
 
   #bg-grid {
