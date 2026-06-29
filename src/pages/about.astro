@@ -124,10 +124,15 @@ const experience = [
           <a href="https://github.com/ArcheKnight" target="_blank" rel="noopener noreferrer" class="action-btn action-btn-amber">
             GitHub · ArcheKnight ↗
           </a>
-          <a href="mailto:devon.troedel@gmail.com" class="action-btn">
+          <!-- Email href is assembled by JS (see script below) so address-harvesting
+               bots that don't run JS never see it. -->
+          <a id="email-link" class="action-btn" data-u="devon.troedel" data-d="gmail.com">
             Email
           </a>
         </div>
+        <noscript>
+          <p class="links-noscript">Prefer email? devon.troedel [at] gmail [dot] com</p>
+        </noscript>
       </section>
 
       <SiteFooter />
@@ -383,6 +388,13 @@ const experience = [
     color: #f0a868;
   }
 
+  .links-noscript {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #9aa6c2;
+  }
+
   /* Responsive */
   @media (max-width: 720px) {
     .about-grid {
@@ -395,3 +407,17 @@ const experience = [
     }
   }
 </style>
+
+<script>
+  // Assemble the contact email at runtime so address-harvesting bots that don't
+  // run JS never see it. The static HTML only carries the user/domain parts.
+  const emailLink = document.getElementById('email-link');
+  if (emailLink) {
+    const user = emailLink.getAttribute('data-u');
+    const domain = emailLink.getAttribute('data-d');
+    if (user && domain) {
+      const subject = encodeURIComponent('Hi from devontroedel.com');
+      emailLink.setAttribute('href', `mailto:${user}@${domain}?subject=${subject}`);
+    }
+  }
+</script>
