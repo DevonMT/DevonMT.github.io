@@ -154,24 +154,59 @@ import SiteNav from '../../../components/SiteNav.astro';
           <p id="strength-hint" class="strength-hint">Move a slider or pick a chip to start building your profile.</p>
         </div>
 
-        <!-- ── Sticky CTA ── -->
-        <div class="sticky-cta">
-          <div class="sticky-cta-inner">
-            <button type="button" id="discover-btn" class="btn-primary">
-              Brainstorm games →
-            </button>
-            <div class="cta-opts">
-              <div class="filter-group">
-                <span class="field-label">Platform</span>
-                <div class="chip-row" id="platform-filter-chips" role="group" aria-label="Platform filter"></div>
+        <!-- ── Tab switcher ── -->
+        <div class="tab-switcher" role="tablist" aria-label="Action mode">
+          <button type="button" id="tab-discover" class="tab-btn tab-btn-active" role="tab" aria-selected="true" aria-controls="panel-discover">
+            // discover
+          </button>
+          <button type="button" id="tab-lookup" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-lookup">
+            // lookup
+          </button>
+        </div>
+
+        <!-- ── Sticky CTA (Discover panel) ── -->
+        <div id="panel-discover" role="tabpanel" aria-labelledby="tab-discover">
+          <div class="sticky-cta">
+            <div class="sticky-cta-inner">
+              <button type="button" id="discover-btn" class="btn-primary">
+                Brainstorm games →
+              </button>
+              <div class="cta-opts">
+                <div class="filter-group">
+                  <span class="field-label">Platform</span>
+                  <div class="chip-row" id="platform-filter-chips" role="group" aria-label="Platform filter"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- ── Lookup panel ── -->
+        <div id="panel-lookup" role="tabpanel" aria-labelledby="tab-lookup" hidden>
+          <div class="lookup-panel">
+            <div class="section-eyebrow">// lookup</div>
+            <p class="lookup-helper">Name a game — or describe one — and I'll score it against your taste.</p>
+            <div class="lookup-row">
+              <input
+                type="text"
+                id="lookup-query"
+                class="lookup-input"
+                placeholder="e.g. Hollow Knight: Silksong — or 'a cozy co-op farming sim'"
+                autocomplete="off"
+              />
+              <button type="button" id="lookup-btn" class="btn-primary">
+                Score it →
+              </button>
+            </div>
+            <p id="lookup-inline-hint" class="lookup-inline-hint" hidden>
+              Enter a game name or description to score.
+            </p>
+          </div>
+        </div>
+
       </form><!-- #profile-form -->
 
-      <!-- ── Results ── -->
+      <!-- ── Discover results ── -->
       <section id="results-section" hidden>
         <div class="results-head">
           <div class="eyebrow-amber">// brainstorm results</div>
@@ -179,6 +214,16 @@ import SiteNav from '../../../components/SiteNav.astro';
         </div>
         <p id="results-status" class="grid-status" hidden></p>
         <div id="results-grid" class="result-grid"></div>
+      </section>
+
+      <!-- ── Lookup results ── -->
+      <section id="lookup-results-section" hidden>
+        <div class="results-head">
+          <div class="eyebrow-amber">// lookup results</div>
+          <h2 class="results-h2">Score breakdown</h2>
+        </div>
+        <p id="lookup-results-status" class="grid-status" hidden></p>
+        <div id="lookup-results-grid" class="result-grid"></div>
       </section>
 
     </div><!-- .page-content -->
@@ -757,6 +802,90 @@ import SiteNav from '../../../components/SiteNav.astro';
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  /* ── Tab switcher ── */
+  .tab-switcher {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .tab-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #616d8c;
+    letter-spacing: 0.06em;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .tab-btn:hover {
+    color: #9aa6c2;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .tab-btn-active {
+    color: #f0a868;
+    border-color: color-mix(in srgb, #f0a868 40%, transparent);
+    background: color-mix(in srgb, #f0a868 6%, transparent);
+  }
+
+  /* ── Lookup panel ── */
+  .lookup-panel {
+    background: #0e1424;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lookup-helper {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: #9aa6c2;
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  .lookup-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .lookup-input {
+    flex: 1 1 0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    color: #e9edf7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .lookup-input:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--ac) 60%, transparent);
+  }
+  .lookup-input::placeholder { color: #3a4260; }
+
+  .lookup-inline-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #f0a868;
+    margin: 0;
+  }
+
+  @media (max-width: 480px) {
+    .lookup-row { flex-direction: column; align-items: stretch; }
   }
 
   /* ── Results ── */
@@ -1399,6 +1528,72 @@ import SiteNav from '../../../components/SiteNav.astro';
     }
   }
 
+  // ── Lookup handler ─────────────────────────────────────────────────────────
+
+  async function runLookup(): Promise<void> {
+    const lookupInput  = document.getElementById('lookup-query')      as HTMLInputElement;
+    const lookupBtn    = document.getElementById('lookup-btn')         as HTMLButtonElement;
+    const inlineHint   = document.getElementById('lookup-inline-hint')!;
+    const lookupSection = document.getElementById('lookup-results-section')!;
+    const lookupStatus  = document.getElementById('lookup-results-status')!;
+    const lookupGrid    = document.getElementById('lookup-results-grid')!;
+
+    const query = lookupInput.value.trim();
+    if (!query) {
+      inlineHint.hidden = false;
+      lookupInput.focus();
+      return;
+    }
+    inlineHint.hidden = true;
+
+    lookupBtn.disabled = true;
+    lookupBtn.innerHTML = '<span class="spinner"></span> Scoring…';
+
+    lookupSection.hidden = false;
+    lookupStatus.className = 'grid-status';
+    lookupStatus.hidden = false;
+    lookupStatus.innerHTML = '<span class="spinner"></span> Asking Claude to score this against your taste…';
+    lookupGrid.innerHTML = '';
+
+    lookupSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    try {
+      const data = await api('/lookup', {
+        method: 'POST',
+        body: JSON.stringify({ profile: serializeProfile(), query }),
+      }) as Record<string, unknown>;
+
+      const results = (data['results'] as unknown[]) ?? [];
+
+      if (results.length === 0) {
+        lookupStatus.textContent = 'No results returned — try a different game name or description.';
+        lookupStatus.hidden = false;
+        return;
+      }
+
+      lookupStatus.hidden = true;
+      (results as Array<{
+        name: string;
+        platforms: string[];
+        description: string;
+        confidenceScore: number;
+        reasoning: string;
+      }>).forEach((item) => lookupGrid.appendChild(renderDiscoverCard(item)));
+
+    } catch (err: unknown) {
+      lookupStatus.className = 'grid-status error';
+      lookupStatus.hidden = false;
+      if (err instanceof Error) {
+        lookupStatus.textContent = err.message;
+      } else {
+        lookupStatus.textContent = 'Something went wrong. Try again.';
+      }
+    } finally {
+      lookupBtn.disabled = false;
+      lookupBtn.textContent = 'Score it →';
+    }
+  }
+
   // ── Init ───────────────────────────────────────────────────────────────────
 
   function init(): void {
@@ -1472,6 +1667,45 @@ import SiteNav from '../../../components/SiteNav.astro';
 
     // Notes listener
     document.getElementById('notes')?.addEventListener('input', schedSave);
+
+    // ── Tab switching ──────────────────────────────────────────────────────────
+    const tabDiscover = document.getElementById('tab-discover') as HTMLButtonElement;
+    const tabLookup   = document.getElementById('tab-lookup')   as HTMLButtonElement;
+    const panelDiscover = document.getElementById('panel-discover')!;
+    const panelLookup   = document.getElementById('panel-lookup')!;
+    const resultsSection      = document.getElementById('results-section')!;
+    const lookupResultsSection = document.getElementById('lookup-results-section')!;
+
+    function activateTab(which: 'discover' | 'lookup'): void {
+      const isDiscover = which === 'discover';
+      tabDiscover.classList.toggle('tab-btn-active', isDiscover);
+      tabDiscover.setAttribute('aria-selected', String(isDiscover));
+      tabLookup.classList.toggle('tab-btn-active', !isDiscover);
+      tabLookup.setAttribute('aria-selected', String(!isDiscover));
+
+      panelDiscover.hidden = !isDiscover;
+      panelLookup.hidden   =  isDiscover;
+
+      // Hide the other tab's results when switching
+      if (isDiscover) {
+        lookupResultsSection.hidden = true;
+      } else {
+        resultsSection.hidden = true;
+      }
+    }
+
+    tabDiscover.addEventListener('click', () => activateTab('discover'));
+    tabLookup.addEventListener('click',   () => activateTab('lookup'));
+
+    // Lookup button + Enter key
+    document.getElementById('lookup-btn')!.addEventListener('click', () => {
+      runLookup().catch(() => {});
+    });
+    document.getElementById('lookup-query')!.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter') {
+        runLookup().catch(() => {});
+      }
+    });
 
     // Discover CTA — thin-profile nudge (non-blocking)
     document.getElementById('discover-btn')!.addEventListener('click', () => {
