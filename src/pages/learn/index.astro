@@ -242,7 +242,7 @@ import SiteNav from '../../components/SiteNav.astro';
 <style is:global>
 /* ── Site wrapper ── */
 #site {
-  --ac: #2dd4bf;
+  --ac: var(--color-accent);
   position: relative;
   min-height: 100vh;
   background:
@@ -843,7 +843,7 @@ select.l-input { cursor: pointer; }
         datasets: [{
           data: [srcMins.book / 60, srcMins.datacamp / 60, srcMins.dataexpert / 60].map(v => Math.round(v * 10) / 10),
           backgroundColor: ['rgba(45,212,191,0.8)', 'rgba(240,168,104,0.8)', 'rgba(167,139,250,0.8)'],
-          borderColor: '#11162e',
+          borderColor: '#0e1424',
           borderWidth: 2,
         }],
       },

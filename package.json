@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "lint:theme": "node scripts/check-theme.mjs",
+    "build": "node scripts/check-theme.mjs && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
