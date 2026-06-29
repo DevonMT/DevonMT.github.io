@@ -47,31 +47,21 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 
           <!-- Pacing -->
           <div class="field">
-            <div class="slider-header">
-              <label class="field-label" for="pacing">Pacing</label>
-              <span class="slider-ends">
-                <span class="slider-end-l">Methodical / tactical</span>
-                <span class="slider-end-r">Fast-twitch / reflexes</span>
-              </span>
-            </div>
+            <label class="field-label" for="pacing">Pacing</label>
             <input type="range" id="pacing" name="pacing" min="0" max="100" value="50" class="slider" />
-            <div class="slider-track-labels" aria-hidden="true">
-              <span>0</span><span>50</span><span>100</span>
+            <div class="slider-ends">
+              <span class="slider-end-l">Methodical / tactical</span>
+              <span class="slider-end-r">Fast-twitch / reflexes</span>
             </div>
           </div>
 
           <!-- Difficulty -->
           <div class="field">
-            <div class="slider-header">
-              <label class="field-label" for="difficulty">Difficulty tolerance</label>
-              <span class="slider-ends">
-                <span class="slider-end-l">Relaxing / forgiving</span>
-                <span class="slider-end-r">Punishing / I want to suffer</span>
-              </span>
-            </div>
+            <label class="field-label" for="difficulty">Difficulty tolerance</label>
             <input type="range" id="difficulty" name="difficulty" min="0" max="100" value="50" class="slider" />
-            <div class="slider-track-labels" aria-hidden="true">
-              <span>0</span><span>50</span><span>100</span>
+            <div class="slider-ends">
+              <span class="slider-end-l">Relaxing / forgiving</span>
+              <span class="slider-end-r">Punishing / I want to suffer</span>
             </div>
           </div>
 
@@ -94,16 +84,11 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 
           <!-- Story vs. systems -->
           <div class="field">
-            <div class="slider-header">
-              <label class="field-label" for="storyVsSystems">Story vs. systems</label>
-              <span class="slider-ends">
-                <span class="slider-end-l">All about story &amp; characters</span>
-                <span class="slider-end-r">All about mechanics &amp; systems</span>
-              </span>
-            </div>
+            <label class="field-label" for="storyVsSystems">Story vs. systems</label>
             <input type="range" id="storyVsSystems" name="storyVsSystems" min="0" max="100" value="50" class="slider" />
-            <div class="slider-track-labels" aria-hidden="true">
-              <span>0</span><span>50</span><span>100</span>
+            <div class="slider-ends">
+              <span class="slider-end-l">All about story &amp; characters</span>
+              <span class="slider-end-r">All about mechanics &amp; systems</span>
             </div>
           </div>
 
@@ -126,16 +111,11 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 
           <!-- Tone -->
           <div class="field">
-            <div class="slider-header">
-              <label class="field-label" for="tone">Tone / atmosphere</label>
-              <span class="slider-ends">
-                <span class="slider-end-l">Lighthearted / cozy / funny</span>
-                <span class="slider-end-r">Dark / gritty / serious</span>
-              </span>
-            </div>
+            <label class="field-label" for="tone">Tone / atmosphere</label>
             <input type="range" id="tone" name="tone" min="0" max="100" value="50" class="slider" />
-            <div class="slider-track-labels" aria-hidden="true">
-              <span>0</span><span>50</span><span>100</span>
+            <div class="slider-ends">
+              <span class="slider-end-l">Lighthearted / cozy / funny</span>
+              <span class="slider-end-r">Dark / gritty / serious</span>
             </div>
           </div>
 
@@ -631,25 +611,25 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
   }
 
   /* ── Sliders ── */
-  .slider-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
   .slider-ends {
     display: flex;
+    justify-content: space-between;
     gap: 12px;
-    flex-wrap: wrap;
+    margin-top: 6px;
   }
 
-  .slider-end-l,
+  .slider-end-l {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: #4a5470;
+    text-align: left;
+  }
+
   .slider-end-r {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     color: #4a5470;
+    text-align: right;
   }
 
   .slider {
@@ -684,15 +664,6 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
     background: var(--ac);
     border: none;
     cursor: pointer;
-  }
-
-  .slider-track-labels {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: #3a4260;
-    margin-top: -4px;
   }
 
   /* ── Chip rows ── */
@@ -1578,8 +1549,34 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
     // Notes listener
     document.getElementById('notes')?.addEventListener('input', schedSave);
 
-    // Discover CTA
+    // Discover CTA — thin-profile nudge (non-blocking)
     document.getElementById('discover-btn')!.addEventListener('click', () => {
+      // Check if profile is essentially empty:
+      // no chips selected in any group, no ref game with title or why, all sliders at default 50
+      const noChips =
+        singleSelect['sessionLength'] === 'varies' &&
+        singleSelect['multiplayer'] === 'mix' &&
+        singleSelect['completion'] === 'whatever-sticks' &&
+        (multiSelect['settings']?.size ?? 0) === 0 &&
+        (multiSelect['genres']?.size ?? 0) === 0 &&
+        (multiSelect['artStyle']?.size ?? 0) === 0;
+
+      const allSlidersDefault = ['pacing', 'difficulty', 'storyVsSystems', 'tone'].every((id) => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        return !el || parseInt(el.value, 10) === 50;
+      });
+
+      const noRefGame = !refGames.some((r) => r.title.trim().length > 0 || r.why.trim().length > 0);
+
+      if (noChips && allSlidersDefault && noRefGame) {
+        const hint = document.getElementById('strength-hint')!;
+        hint.textContent = 'Pick a few chips or add a reference game with the why for sharper picks.';
+        hint.style.color = '#f0a868';
+        // Reset hint color after a few seconds so it doesn't persist as an error
+        setTimeout(() => { hint.style.color = ''; renderStrength(); }, 5000);
+      }
+
+      // Always proceed — non-blocking
       runDiscover().catch(() => {});
     });
 
