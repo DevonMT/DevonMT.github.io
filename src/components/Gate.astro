@@ -1,0 +1,175 @@
+---
+// Access-key gate for the private apps. Owns the whole auth lifecycle:
+//   - boots hidden; reveals itself only if no key is saved
+//   - validates the key against the backend /health endpoint
+//   - on success: stores the key, hides itself, reveals the nav lock/hub
+//     controls, and dispatches `gate:authed` for the page to react to
+//   - listens for `gate:challenge` (e.g. a 401 from a later data call) to
+//     re-show itself with an error
+//
+// Pages just listen: document.addEventListener('gate:authed', () => { ...reveal app... })
+export interface Props {
+  /** short page label, shown in the titlebar and the decorative query */
+  label: string;
+  /** SQL table name shown in the decorative query */
+  table: string;
+  /** intro line above the input */
+  intro?: string;
+}
+const { label, table, intro = 'Enter the access key to unlock.' } = Astro.props;
+---
+
+<section id="gate" class="gate-wrap" hidden>
+  <div class="gate-outer">
+    <div class="gate-glow" aria-hidden="true"></div>
+    <div class="gate-card">
+      <div class="gate-titlebar">
+        <span class="dot-accent"></span>
+        <span class="dot-dim"></span>
+        <span class="dot-dim"></span>
+        <span class="gate-card-label">// access required · {label}</span>
+      </div>
+      <div class="gate-body">
+        <div class="gate-query" aria-hidden="true">
+          <span class="kw">SELECT</span> <span class="col">*</span>
+          <span class="kw">FROM</span> <span class="tbl">{table}</span>
+          <span class="kw">WHERE</span> <span class="col">api_key</span> = <span class="val">?</span>;
+        </div>
+        <p class="gate-intro">{intro}</p>
+        <form id="gate-form" class="gate-form" autocomplete="off">
+          <input
+            id="gate-key"
+            type="password"
+            class="gate-input"
+            placeholder="Access key"
+            aria-label="Access key"
+            required
+          />
+          <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
+        </form>
+        <p id="gate-error" class="gate-error" role="alert" hidden></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* .gate-wrap sets display:grid, which (author origin) overrides the UA [hidden]
+     rule — so toggling `hidden` alone won't hide it. This guarantees it. */
+  .gate-wrap[hidden] { display: none; }
+  .gate-wrap { min-height: calc(100vh - 58px); display: grid; place-items: center; padding: 60px 24px; }
+
+  .gate-outer { position: relative; width: 100%; max-width: 440px; }
+  .gate-glow {
+    position: absolute; inset: -1px; border-radius: 16px;
+    background: linear-gradient(150deg, color-mix(in srgb, var(--ac) 45%, transparent), rgba(240, 168, 104, 0.25), transparent 70%);
+    opacity: 0.7; filter: blur(0.5px);
+  }
+  .gate-card {
+    position: relative; border-radius: 15px; background: #0d1322;
+    border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;
+    box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.8);
+  }
+  .gate-titlebar {
+    display: flex; align-items: center; gap: 8px; padding: 13px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.015);
+  }
+  .dot-accent { width: 11px; height: 11px; border-radius: 50%; background: #f0a868; flex-shrink: 0; }
+  .dot-dim { width: 11px; height: 11px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); flex-shrink: 0; }
+  .gate-card-label { margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #616d8c; }
+  .gate-body { padding: 24px; }
+  .gate-query {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 20px;
+    padding: 14px 16px; background: rgba(255, 255, 255, 0.025); border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06); line-height: 1.6;
+  }
+  .kw  { color: #f0a868; }
+  .col { color: #cdd5e8; }
+  .tbl { color: var(--ac); }
+  .val { color: var(--ac-soft); }
+  .gate-intro { font-size: 14.5px; color: #9aa6c2; margin: 0 0 18px; }
+  .gate-form { display: flex; gap: 10px; flex-wrap: wrap; }
+  .gate-input {
+    flex: 1 1 12rem; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px; color: #e9edf7; font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    padding: 10px 14px; transition: border-color 0.2s;
+  }
+  .gate-input:focus { outline: none; border-color: color-mix(in srgb, var(--ac) 60%, transparent); }
+  .gate-error { color: #f87171; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; margin-top: 12px; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 9px;
+    border: none; background: var(--ac); color: #0a0e1a; font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap;
+  }
+  .btn-primary:hover { background: var(--ac-lite); }
+  .spinner {
+    display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0, 0, 0, 0.3);
+    border-top-color: #0a0e1a; border-radius: 50%; animation: gate-spin 0.7s linear infinite; vertical-align: middle;
+  }
+  @keyframes gate-spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+  import { API_BASE, KEY_NAME } from '../lib/privateClient';
+
+  const gate   = document.getElementById('gate')!;
+  const form   = document.getElementById('gate-form') as HTMLFormElement;
+  const input  = document.getElementById('gate-key') as HTMLInputElement;
+  const submit = document.getElementById('gate-submit') as HTMLButtonElement;
+  const error  = document.getElementById('gate-error')!;
+
+  function revealNav() {
+    document.getElementById('hub-link')?.removeAttribute('hidden');
+    document.getElementById('lock-link')?.removeAttribute('hidden');
+  }
+
+  function authed() {
+    gate.hidden = true;
+    revealNav();
+    // Flag on <html> so a page whose listener attaches *after* this runs can still
+    // read the authed state synchronously on boot (avoids a script-order race).
+    document.documentElement.setAttribute('data-authed', '');
+    document.dispatchEvent(new CustomEvent('gate:authed'));
+  }
+
+  function challenge(msg?: string) {
+    gate.hidden = false;
+    document.documentElement.removeAttribute('data-authed');
+    // Tell the page to hide its (now unauthorized) content behind the gate.
+    document.dispatchEvent(new CustomEvent('gate:locked'));
+    error.hidden = !msg;
+    if (msg) error.textContent = msg;
+    input.value = '';
+    setTimeout(() => input.focus(), 50);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const key = input.value.trim();
+    if (!key) return;
+    error.hidden = true;
+    submit.disabled = true;
+    submit.innerHTML = '<span class="spinner"></span> Checking…';
+    try {
+      const res = await fetch(`${API_BASE}/health`, { headers: { 'x-api-secret': key } });
+      if (res.status === 401) { error.textContent = 'Access key rejected.'; error.hidden = false; return; }
+      if (!res.ok) { error.textContent = `Backend error (${res.status}).`; error.hidden = false; return; }
+      localStorage.setItem(KEY_NAME, key);
+      authed();
+    } catch {
+      error.textContent = 'Could not reach the backend.';
+      error.hidden = false;
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Unlock';
+    }
+  });
+
+  // A later data call can ask the gate to re-challenge (e.g. on a 401).
+  document.addEventListener('gate:challenge', (e) => challenge((e as CustomEvent).detail));
+
+  // Boot: skip straight past the gate if a key is already saved on this device.
+  if (localStorage.getItem(KEY_NAME)) authed();
+  else challenge();
+</script>

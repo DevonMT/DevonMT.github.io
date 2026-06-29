@@ -1,50 +1,14 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SiteNav from '../../components/SiteNav.astro';
+import PrivateLayout from '../../layouts/PrivateLayout.astro';
 ---
 
-<BaseLayout title="Learn — Devon Troedel" description="Private learning tracker.">
-
-<div id="site">
-<div id="bg-grid" aria-hidden="true"></div>
-<SiteNav />
-
-<!-- ═══════════════════════════════════════════
-     ACCESS GATE
-════════════════════════════════════════════ -->
-<section id="gate" class="gate-wrap" hidden>
-  <div class="gate-outer">
-    <div class="gate-glow" aria-hidden="true"></div>
-    <div class="gate-card">
-      <div class="gate-titlebar">
-        <span class="dot-teal"></span>
-        <span class="dot-dim"></span>
-        <span class="dot-dim"></span>
-        <span class="gate-card-label">// access required · learn</span>
-      </div>
-      <div class="gate-body">
-        <div class="gate-query" aria-hidden="true">
-          <span class="kw">SELECT</span> <span class="col">*</span>
-          <span class="kw">FROM</span> <span class="tbl">learn_sessions</span>
-          <span class="kw">WHERE</span> <span class="col">api_key</span> = <span class="val">?</span>;
-        </div>
-        <p class="gate-intro">Enter the access key to unlock the tracker.</p>
-        <form id="gate-form" class="gate-form" autocomplete="off">
-          <input
-            id="gate-key"
-            type="password"
-            class="gate-input"
-            placeholder="Access key"
-            aria-label="Access key"
-            required
-          />
-          <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
-        </form>
-        <p id="gate-error" class="gate-error" role="alert" hidden></p>
-      </div>
-    </div>
-  </div>
-</section>
+<PrivateLayout
+  title="Learn — Devon Troedel"
+  description="Private learning tracker."
+  label="learn"
+  table="learn_sessions"
+  intro="Enter the access key to unlock the tracker."
+>
 
 <!-- ═══════════════════════════════════════════
      APP (hidden until authenticated)
@@ -240,29 +204,6 @@ import SiteNav from '../../components/SiteNav.astro';
      STYLES
 ════════════════════════════════════════════ -->
 <style is:global>
-/* ── Site wrapper ── */
-#site {
-  --ac: var(--color-accent);
-  position: relative;
-  min-height: 100vh;
-  background:
-    radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
-    radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
-    #0a0e1a;
-  overflow-x: clip;
-}
-#bg-grid {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.5;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
-  background-size: 64px 64px;
-}
-
 /* ── Page bar ── */
 .page-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.25rem; border-bottom: 1px solid var(--color-border); }
 .page-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-accent); opacity: 0.8; }
@@ -411,26 +352,7 @@ select.l-input { cursor: pointer; }
 .balance-age.warn { color: var(--color-amber); }
 .balance-age.never { color: var(--color-danger); }
 
-/* ── Gate ── */
-/* .gate-wrap sets display:flex, which (author origin) overrides the UA [hidden]
-   rule — so toggling the `hidden` attribute alone won't hide it. This guarantees it. */
-.gate-wrap[hidden] { display: none; }
-.gate-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100dvh - 58px); padding: 1.5rem; }
-.gate-outer { position: relative; width: 100%; max-width: 420px; }
-.gate-glow { position: absolute; inset: -40px; background: radial-gradient(ellipse at 50% 50%, rgba(45,212,191,0.15), transparent 70%); pointer-events: none; }
-.gate-card { position: relative; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
-.gate-titlebar { display: flex; align-items: center; gap: 6px; padding: 0.65rem 1rem; background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
-.dot-teal { width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent); }
-.dot-dim { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border); }
-.gate-card-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.35rem; }
-.gate-body { padding: 1.5rem; }
-.gate-query { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-faint); margin-bottom: 1.25rem; line-height: 1.6; }
-.kw { color: #7c9ef8; } .col { color: var(--color-accent); } .tbl { color: var(--color-amber); } .val { color: #f87171; }
-.gate-intro { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem; }
-.gate-form { display: flex; flex-direction: column; gap: 0.65rem; }
-.gate-input { width: 100%; background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text); font-family: var(--font-mono); font-size: 0.95rem; padding: 0.7rem 0.9rem; border-radius: var(--radius-xs); outline: none; transition: border-color var(--transition); }
-.gate-input:focus { border-color: var(--color-accent); }
-.gate-error { margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-danger); font-family: var(--font-mono); }
+/* ── Spinner (log-submit button) ── */
 .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #0a0e1a; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
@@ -439,12 +361,11 @@ select.l-input { cursor: pointer; }
      CHART.JS (loaded lazily when dashboard opens)
 ════════════════════════════════════════════ -->
 <script>
+  import { apiFetch } from '../../lib/privateClient';
+
   declare const Chart: any;
 
   // ── Config ──────────────────────────────────────────────────────
-  const API_BASE = 'https://games-backend-production-d763.up.railway.app';
-  const KEY_NAME = 'devon_key';
-
   const SKILLS = ['Python','SQL','Data Modeling','dbt','Orchestration','Warehousing','Power BI','Streaming','General'] as const;
   type SkillTag = typeof SKILLS[number];
 
@@ -466,12 +387,7 @@ select.l-input { cursor: pointer; }
   let chartJsLoaded = false;
 
   // ── DOM refs ─────────────────────────────────────────────────────
-  const gateEl    = document.getElementById('gate')!;
   const appEl     = document.getElementById('app')!;
-  const gateForm  = document.getElementById('gate-form') as HTMLFormElement;
-  const gateKey   = document.getElementById('gate-key') as HTMLInputElement;
-  const gateSubmit = document.getElementById('gate-submit') as HTMLButtonElement;
-  const gateError = document.getElementById('gate-error')!;
 
   const viewLog  = document.getElementById('view-log')!;
   const viewDash = document.getElementById('view-dash')!;
@@ -485,68 +401,11 @@ select.l-input { cursor: pointer; }
   const fMinutes  = document.getElementById('f-minutes') as HTMLInputElement;
   const fNote     = document.getElementById('f-note') as HTMLTextAreaElement;
 
-  // ── API helper ───────────────────────────────────────────────────
-  function getKey(): string | null { return localStorage.getItem(KEY_NAME); }
+  // ── API (shared client — attaches the key, re-challenges the gate on 401) ──
+  const api = apiFetch;
 
-  async function api(path: string, init: RequestInit = {}): Promise<any> {
-    const key = getKey();
-    if (!key) throw new Error('No access key');
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-secret': key,
-        ...(init.headers || {}),
-      },
-    });
-    if (res.status === 401) { showGate('Access key rejected.'); throw new Error('Unauthorized'); }
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      throw new Error(body?.error || `Request failed (${res.status})`);
-    }
-    return res.json();
-  }
-
-  // ── Gate ─────────────────────────────────────────────────────────
-  function showGate(msg?: string) {
-    appEl.hidden = true;
-    gateEl.hidden = false;
-    gateError.hidden = !msg;
-    if (msg) gateError.textContent = msg;
-    gateKey.value = '';
-    setTimeout(() => gateKey.focus(), 50);
-  }
-
-  function showApp() {
-    gateEl.hidden = true;
-    appEl.hidden = false;
-    // Reveal the nav's hub + lock controls (SiteNav only reveals them on load).
-    document.getElementById('hub-link')?.removeAttribute('hidden');
-    document.getElementById('lock-link')?.removeAttribute('hidden');
-  }
-
-  gateForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const key = gateKey.value.trim();
-    if (!key) return;
-    gateError.hidden = true;
-    gateSubmit.disabled = true;
-    gateSubmit.innerHTML = '<span class="spinner"></span> Checking…';
-    try {
-      const res = await fetch(`${API_BASE}/health`, { headers: { 'x-api-secret': key } });
-      if (res.status === 401) { gateError.textContent = 'Access key rejected.'; gateError.hidden = false; return; }
-      if (!res.ok) { gateError.textContent = `Backend error (${res.status}).`; gateError.hidden = false; return; }
-      localStorage.setItem(KEY_NAME, key);
-      showApp();
-      initApp();
-    } catch {
-      gateError.textContent = 'Could not reach the backend.';
-      gateError.hidden = false;
-    } finally {
-      gateSubmit.disabled = false;
-      gateSubmit.textContent = 'Unlock';
-    }
-  });
+  // ── Reveal the app once the gate (in PrivateLayout) authenticates ──
+  function showApp() { appEl.hidden = false; }
 
   // ── Source selector ──────────────────────────────────────────────
   document.querySelectorAll<HTMLButtonElement>('.src-btn').forEach(btn => {
@@ -956,8 +815,8 @@ select.l-input { cursor: pointer; }
   }
 
   // ── Boot ─────────────────────────────────────────────────────────
-  const savedKey = localStorage.getItem(KEY_NAME);
-  if (savedKey) {
+  // The gate (in PrivateLayout) owns auth and fires `gate:authed` when ready.
+  function start() {
     showApp();
     initApp();
     // Honor hash deep-links from the hub: /learn#log or /learn#dash
@@ -965,11 +824,11 @@ select.l-input { cursor: pointer; }
     if (hash === 'dash') {
       (document.querySelector('[data-tab="dash"]') as HTMLButtonElement)?.click();
     }
-  } else {
-    showGate();
   }
+  document.addEventListener('gate:authed', start);
+  document.addEventListener('gate:locked', () => { appEl.hidden = true; });
+  // Cover the case where the gate already authed before this listener attached.
+  if (document.documentElement.hasAttribute('data-authed')) start();
 </script>
 
-</div><!-- /#site -->
-
-</BaseLayout>
+</PrivateLayout>
