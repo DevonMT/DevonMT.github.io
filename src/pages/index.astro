@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
 import { featuredProjects } from '../data/projects';
 import { getCollection } from 'astro:content';
 
@@ -24,21 +25,7 @@ function postChipTag(tags: string[]): string {
     <div id="bg-grid" aria-hidden="true"></div>
 
     <!-- NAV -->
-    <header class="site-nav">
-      <div class="nav-inner">
-        <a href="#top" class="logo">
-          <span class="logo-dot" aria-hidden="true"></span>
-          <span>devondoes<span class="logo-accent">.dev</span></span>
-        </a>
-        <nav class="nav-links" aria-label="Primary navigation">
-          <a href="#about" class="nav-link">About</a>
-          <a href="#projects" class="nav-link">Projects</a>
-          <a href="#blog" class="nav-link">Writing</a>
-          <a href="#now" class="nav-link">Now</a>
-          <a href="#contact" class="nav-cta">Say Hi</a>
-        </nav>
-      </div>
-    </header>
+    <SiteNav />
 
     <div id="top" class="page-content">
 
@@ -138,14 +125,20 @@ function postChipTag(tags: string[]): string {
                 <span class="chip">{s}</span>
               ))}
             </div>
+            <a href="/about" class="about-more">full story &amp; experience →</a>
           </div>
         </div>
       </section>
 
       <!-- PROJECTS -->
       <section id="projects" class="section" aria-labelledby="projects-heading">
-        <div class="eyebrow-amber">02 / PROJECTS</div>
-        <h2 id="projects-heading" class="section-h2">Weekend projects that got a little out of hand</h2>
+        <div class="writing-head">
+          <div>
+            <div class="eyebrow-amber">02 / PROJECTS</div>
+            <h2 id="projects-heading" class="section-h2">Weekend projects that got a little out of hand</h2>
+          </div>
+          <a href="/projects" class="all-posts">all projects →</a>
+        </div>
         <div class="projects-grid">
           {
             featuredProjects.map((p) => {
@@ -292,7 +285,9 @@ function postChipTag(tags: string[]): string {
       radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
       radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
       #0a0e1a;
-    overflow-x: hidden;
+    /* `clip` (not `hidden`) prevents #site from becoming a scroll container,
+       which would break the sticky nav's position: sticky. */
+    overflow-x: clip;
   }
 
   #bg-grid {
@@ -305,89 +300,6 @@ function postChipTag(tags: string[]): string {
       linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
     background-size: 64px 64px;
-  }
-
-  /* ── Nav ─────────────────────────────────────────────────────────── */
-  .site-nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    backdrop-filter: blur(12px);
-    background: rgba(10, 14, 26, 0.72);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .nav-inner {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: -0.02em;
-    color: #e9edf7;
-    text-decoration: none;
-  }
-
-  .logo-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--ac);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--ac) 70%, transparent);
-    animation: pulse 2.4s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  .logo-accent {
-    color: var(--ac);
-  }
-
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .nav-link {
-    padding: 7px 12px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    color: #9aa6c2;
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.2s, background 0.2s;
-  }
-
-  .nav-link:hover {
-    color: #e9edf7;
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .nav-cta {
-    margin-left: 6px;
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #0a0e1a;
-    background: var(--ac);
-    text-decoration: none;
-    transition: background 0.2s;
-  }
-
-  .nav-cta:hover {
-    background: var(--ac-lite);
   }
 
   /* ── Page content wrapper ────────────────────────────────────────── */
@@ -750,6 +662,20 @@ function postChipTag(tags: string[]): string {
     color: #cdd5e8;
   }
 
+  .about-more {
+    display: inline-block;
+    margin-top: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ac-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .about-more:hover {
+    color: var(--ac-lite);
+  }
+
   /* ── Projects ───────────────────────────────────────────────────── */
   .projects-grid {
     display: grid;
@@ -1095,6 +1021,58 @@ function postChipTag(tags: string[]): string {
   @keyframes flashcell {
     0% { background: rgba(240, 168, 104, 0.35); }
     100% { background: transparent; }
+  }
+
+  /* ── Responsive ─────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 36px;
+      padding: 56px 0 56px;
+    }
+    h1 { font-size: 56px; }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    .contact-grid { grid-template-columns: repeat(2, 1fr); }
+    .about-grid { gap: 32px; }
+  }
+
+  @media (max-width: 640px) {
+    .page-content { padding: 0 20px; }
+
+    .hero { padding: 40px 0 44px; }
+    .hero-eyebrow { margin-bottom: 16px; }
+    h1 { font-size: 44px; }
+    .hero-p { font-size: 16px; }
+
+    .query-card-wrap { display: none; }
+
+    .stats { grid-template-columns: 1fr; gap: 12px; padding-bottom: 56px; }
+
+    .section { padding: 28px 0 56px; }
+    .section-h2 { font-size: 26px; }
+
+    .about-grid { grid-template-columns: 1fr; }
+    .about-h2 { font-size: 26px; }
+
+    .projects-grid { grid-template-columns: 1fr; }
+
+    .now-panel {
+      grid-template-columns: 1fr;
+      padding: 28px 24px;
+      gap: 18px;
+    }
+    .now-rail { flex-direction: row; gap: 8px; }
+    .now-live { writing-mode: horizontal-tb; }
+
+    .contact-grid { grid-template-columns: 1fr; }
+    .contact-h2 { font-size: 32px; }
+
+    .writing-head { flex-wrap: wrap; }
+
+    .post-row { grid-template-columns: 64px 1fr; gap: 12px; }
+    .post-tag { display: none; }
+
+    .site-footer { flex-direction: column; align-items: flex-start; gap: 14px; }
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────── */
