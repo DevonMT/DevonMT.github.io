@@ -10,14 +10,14 @@ const body = p.longDescription ?? p.description;
 
 const amber = p.tagColor === 'amber';
 const chipStyle = amber
-  ? 'color:#f0a868;background:rgba(240,168,104,0.12)'
-  : 'color:var(--ac-soft,#7ee0d0);background:color-mix(in srgb,var(--ac,#2dd4bf) 10%,transparent)';
-const strokeColor = amber ? '#f0a868' : 'var(--ac,#2dd4bf)';
+  ? 'color:var(--color-amber);background:var(--color-amber-bg)'
+  : 'color:var(--color-accent-light);background:var(--color-accent-soft)';
+const strokeColor = amber ? 'var(--color-amber)' : 'var(--color-accent-hover)';
 
 const statusColors: Record<Project['status'], { dot: string; label: string }> = {
-  active:   { dot: '#2dd4bf', label: '#2dd4bf' },
-  complete: { dot: '#9aa6c2', label: '#9aa6c2' },
-  archived: { dot: '#616d8c', label: '#616d8c' },
+  active:   { dot: 'var(--color-accent-hover)', label: 'var(--color-accent-hover)' },
+  complete: { dot: 'var(--color-text-muted)',   label: 'var(--color-text-muted)' },
+  archived: { dot: 'var(--color-text-faint)',   label: 'var(--color-text-faint)' },
 };
 const sc = statusColors[p.status];
 ---
@@ -72,20 +72,20 @@ const sc = statusColors[p.status];
 <style>
   .pj-card {
     position: relative;
-    border-radius: 15px;
-    background: #0e1424;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
     padding: 22px;
     display: flex;
     flex-direction: column;
     gap: 0;
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: transform var(--transition-slow), border-color var(--transition-slow), box-shadow var(--transition-slow);
   }
 
   .pj-card:hover {
     transform: translateY(-5px);
-    border-color: color-mix(in srgb, var(--ac, #2dd4bf) 35%, transparent);
-    box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+    border-color: color-mix(in srgb, var(--color-accent-hover) 35%, transparent);
+    box-shadow: var(--shadow-card);
   }
 
   .pj-top {
@@ -116,7 +116,7 @@ const sc = statusColors[p.status];
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: rgba(45, 212, 191, 0.35);
+    background: var(--color-accent-soft);
     animation: card-pulse 2s ease-in-out infinite;
   }
 
@@ -143,18 +143,18 @@ const sc = statusColors[p.status];
   }
 
   .pj-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-weight: 600;
     font-size: 20px;
     margin: 0 0 10px;
-    color: #f4f7fd;
+    color: var(--color-text);
     line-height: 1.2;
   }
 
   .pj-body {
     font-size: 14px;
     line-height: 1.6;
-    color: #9aa6c2;
+    color: var(--color-text-muted);
     margin: 0 0 18px;
     flex: 1;
   }
@@ -168,15 +168,15 @@ const sc = statusColors[p.status];
   }
 
   .stack-item {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
-    color: #616d8c;
+    color: var(--color-text-faint);
   }
 
   .stack-sep {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
-    color: #2a3450;
+    color: var(--color-text-dark);
   }
 
   .pj-links {
@@ -188,20 +188,20 @@ const sc = statusColors[p.status];
   }
 
   .pj-link {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 500;
-    color: #9aa6c2;
+    color: var(--color-text-muted);
     text-decoration: none;
     padding: 6px 12px;
-    border-radius: 7px;
+    border-radius: var(--radius-xs);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: color 0.2s, border-color 0.2s;
+    transition: color var(--transition), border-color var(--transition);
   }
 
   .pj-link:hover {
-    color: var(--ac, #2dd4bf);
-    border-color: color-mix(in srgb, var(--ac, #2dd4bf) 40%, transparent);
+    color: var(--color-accent-hover);
+    border-color: color-mix(in srgb, var(--color-accent-hover) 40%, transparent);
   }
 
   @keyframes card-pulse {
