@@ -19,6 +19,9 @@ pnpm-debug.log*
 .env.production
 .env.local
 
+# archives (avoid accidentally committing exported bundles)
+*.zip
+
 # editor / OS
 .DS_Store
 .vscode/*
