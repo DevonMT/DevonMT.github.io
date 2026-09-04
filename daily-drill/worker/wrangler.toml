@@ -10,10 +10,11 @@ compatibility_date = "2026-09-04"
 pattern = "sync.devondoes.dev"
 custom_domain = true
 
-# Origins allowed to call this Worker. The drill is served from the custom
-# domain; localhost is here so the dev server can exercise sync too.
+# Origins allowed to call this Worker. devontroedel.com is where the drill is
+# served today; the devondoes.dev entries are here so moving it onto that zone
+# later does not silently break sync. localhost is for the dev server.
 [vars]
-ALLOWED_ORIGINS = "https://devontroedel.com,http://localhost:4321"
+ALLOWED_ORIGINS = "https://devontroedel.com,https://devondoes.dev,https://www.devondoes.dev,https://drill.devondoes.dev,http://localhost:4321"
 
 # The attempt log. One key, one small JSON blob.
 # Create with:  npx wrangler kv namespace create DRILL
