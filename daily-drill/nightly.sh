@@ -21,6 +21,8 @@ COUNT="${DRILL_COUNT:-6}"          # concepts per run; ~4 questions each
 DRY="${DRILL_DRY:-0}"              # DRILL_DRY=1 does everything except commit and push
 BRIEFING="daily-drill/.briefing.json"
 DRAFT="daily-drill/drafts/auto-$(date +%F).json"
+# a second run on the same day must not collide with the morning's committed draft
+[ -e "$REPO/$DRAFT" ] && DRAFT="daily-drill/drafts/auto-$(date +%F-%H%M).json"
 
 # cron gets a minimal PATH; claude lives in the user-prefix npm bin
 export PATH="$HOME/.npm-global/bin:/usr/local/bin:/usr/bin:/bin"
@@ -28,14 +30,33 @@ export PATH="$HOME/.npm-global/bin:/usr/local/bin:/usr/bin:/bin"
 log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 fail() { log "FAILED: $*"; exit 1; }
 
+# A failed run must not poison the next one. Without this the leftover briefing
+# and draft leave the tree dirty, and every following night refuses to start.
+cleanup() {
+  local code=$?
+  rm -f "$REPO/$BRIEFING"
+  # only discard a draft this run created; never one a previous run committed
+  if [ "$code" -ne 0 ] && [ "$DRY" != "1" ] && [ -n "${DRAFT:-}" ]; then
+    if ! git -C "$REPO" ls-files --error-unmatch "$DRAFT" >/dev/null 2>&1; then
+      rm -f "$REPO/$DRAFT"
+      log "cleaned up after a failed run; tomorrow starts from a clean tree"
+    fi
+  fi
+}
+trap cleanup EXIT
+
 command -v claude >/dev/null || fail "claude not on PATH (npm i -g @anthropic-ai/claude-code)"
 command -v node   >/dev/null || fail "node not on PATH"
 cd "$REPO" || fail "no repo at $REPO"
 
 log "=== daily drill: authoring run ==="
 
-# Start from a clean, current tree. Refuse to run on top of local edits rather
-# than sweeping them into an automated commit.
+# Start from a clean, current tree. Drafts abandoned by an interrupted run are
+# ours to discard - git clean only removes untracked files, so drafts committed
+# by previous successful runs are left alone. Anything else dirty is a person's
+# work and stops the run rather than being swept into an automated commit.
+rm -f "$BRIEFING"
+git clean -qf daily-drill/drafts/ 2>/dev/null || true
 [ -z "$(git status --porcelain)" ] || fail "working tree is dirty; refusing to run"
 git pull --rebase --quiet origin main || fail "git pull failed"
 
