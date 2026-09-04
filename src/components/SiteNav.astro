@@ -38,8 +38,6 @@ function isActive(href: string): boolean {
           aria-current={isActive(href) ? 'page' : undefined}
         >{label}</a>
       ))}
-      <a id="hub-link" href="/hub" class="nav-link nav-link--hub" hidden>// hub</a>
-      <button id="lock-link" class="nav-link nav-link--lock" type="button" hidden aria-label="Lock private apps">⊘ lock</button>
       <a href="/#contact" class="nav-cta">Say Hi</a>
     </nav>
   </div>
@@ -274,17 +272,4 @@ function isActive(href: string): boolean {
     });
   }
 
-  // Reveal the private hub + lock controls if the access key is present.
-  const hubLink = document.getElementById('hub-link');
-  const lockLink = document.getElementById('lock-link');
-  if (localStorage.getItem('devon_key')) {
-    hubLink?.removeAttribute('hidden');
-    lockLink?.removeAttribute('hidden');
-  }
-
-  // Lock = forget the saved key everywhere and reload (drops private pages to their gate).
-  lockLink?.addEventListener('click', () => {
-    localStorage.removeItem('devon_key');
-    location.reload();
-  });
 </script>

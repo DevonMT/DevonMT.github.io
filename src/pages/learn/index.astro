@@ -2,6 +2,15 @@
 import PrivateLayout from '../../layouts/PrivateLayout.astro';
 ---
 
+<script>
+  // This page now lives on the hub at games.devondoes.dev, served same-origin
+  // with its API behind Cloudflare Access. The copy built for devontroedel.com
+  // ('key' mode) is kept only so one source builds both; it forwards there.
+  import { AUTH_MODE } from '../../lib/privateClient';
+  if (AUTH_MODE !== 'access') location.replace('https://games.devondoes.dev/learn/');
+</script>
+
+
 <PrivateLayout
   title="Learn — Devon Troedel"
   description="Private learning tracker."
