@@ -12,7 +12,7 @@ ALLOWED_ORIGINS = "https://devontroedel.com,http://localhost:4321"
 # then paste the returned id below.
 [[kv_namespaces]]
 binding = "DRILL"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "d63d1871fa664b9f8811449cfa9fd495"
 
 # DRILL_KEY is a secret, never a var - set it with:
 #   npx wrangler secret put DRILL_KEY

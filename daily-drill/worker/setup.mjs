@@ -58,11 +58,19 @@ if (toml.includes(PLACEHOLDER)) {
 }
 
 // 3. the secret ---------------------------------------------------------
-step('Setting the access key');
-console.log('  wrangler will prompt for it. Use the SAME key the other private');
-console.log('  apps use, so one key unlocks a device everywhere.\n');
-if (wrangler(['secret', 'put', 'DRILL_KEY'], { stdio: 'inherit' }).status !== 0) {
-  die('setting DRILL_KEY failed');
+// Re-running after a failed deploy must not make you type the key again.
+const secretList = wrangler(['secret', 'list']);
+const alreadySet = `${secretList.stdout ?? ''}`.includes('DRILL_KEY');
+
+if (alreadySet && !process.argv.includes('--rotate-key')) {
+  console.log('\n▸ DRILL_KEY is already set; leaving it alone (--rotate-key to replace it).');
+} else {
+  step('Setting the access key');
+  console.log('  wrangler will prompt for it. Use the SAME key the other private');
+  console.log('  apps use, so one key unlocks a device everywhere.\n');
+  if (wrangler(['secret', 'put', 'DRILL_KEY'], { stdio: 'inherit' }).status !== 0) {
+    die('setting DRILL_KEY failed');
+  }
 }
 
 // 4. deploy -------------------------------------------------------------
@@ -70,7 +78,17 @@ step('Deploying');
 const deploy = wrangler(['deploy']);
 const output = `${deploy.stdout ?? ''}${deploy.stderr ?? ''}`;
 console.log(output);
-if (deploy.status !== 0) die('deploy failed');
+if (deploy.status !== 0) {
+  // A new account has no workers.dev subdomain until you pick one, and the
+  // error text buries that behind a wall of routing advice.
+  if (output.includes('register a workers.dev subdomain')) {
+    console.error('\n✗ This Cloudflare account has no workers.dev subdomain yet.');
+    console.error('  Pick one at the onboarding link above (it becomes <name>.workers.dev),');
+    console.error('  then re-run this script — your key is already set, so it will not ask again.');
+    process.exit(1);
+  }
+  die('deploy failed');
+}
 
 const url = output.match(/https:\/\/[^\s]+\.workers\.dev/)?.[0];
 console.log('\n\x1b[32m✓ Sync is live.\x1b[0m');
