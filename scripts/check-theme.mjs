@@ -18,8 +18,11 @@ import { join, relative, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
-const SRC = join(ROOT, 'src');
-const SCAN_EXT = new Set(['.astro', '.css', '.ts', '.tsx', '.js', '.jsx']);
+// public/drill ships its own copy of the palette (it is served raw and cannot
+// import from src/), which is exactly the duplication that caused the original
+// drift — so it is scanned too.
+const SCAN_DIRS = [join(ROOT, 'src'), join(ROOT, 'public', 'drill')];
+const SCAN_EXT = new Set(['.astro', '.css', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.html']);
 
 // Legacy / wrong-palette values that must never reappear. Each entry: a label and
 // a RegExp. Hex entries use a negative lookahead so e.g. #14b8a6 won't match a
@@ -46,7 +49,8 @@ function walk(dir) {
 }
 
 const violations = [];
-for (const file of walk(SRC)) {
+const files = SCAN_DIRS.filter(d => { try { return statSync(d).isDirectory(); } catch { return false; } }).flatMap(walk);
+for (const file of files) {
   const lines = readFileSync(file, 'utf8').split(/\r?\n/);
   lines.forEach((line, i) => {
     for (const [label, re] of LEGACY) {

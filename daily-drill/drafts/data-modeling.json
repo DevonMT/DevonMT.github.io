@@ -1,0 +1,496 @@
+[
+  {
+    "concept_id": "modeling.normalization",
+    "type": "explain",
+    "prompt": "Explain what normalization is buying you, using an update anomaly as the example.",
+    "criteria": [
+      "States the principle: one fact stored in exactly one place",
+      "Gives a concrete anomaly, such as a customer address repeated on every order row",
+      "Says the anomaly is that an update touching only some copies leaves the data contradicting itself"
+    ]
+  },
+  {
+    "concept_id": "modeling.normalization",
+    "type": "mcq",
+    "prompt": "A table stores order_id, product_id, and supplier_name, where supplier_name depends only on product_id. What is the problem?",
+    "options": [
+      "Nothing; the table is fine as long as order_id is unique",
+      "A non-key attribute depends on part of the key, so supplier_name is duplicated and can drift",
+      "The table has too few columns to be useful",
+      "supplier_name should be an integer"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.normalization",
+    "type": "cloze",
+    "prompt": "Fill in the blank: normalization aims to store each fact ______ time(s), so an update cannot leave two copies disagreeing.",
+    "blanks": [{ "accept": ["one", "1", "once", "a single", "exactly one"] }]
+  },
+  {
+    "concept_id": "modeling.normalization",
+    "type": "when_not",
+    "prompt": "When is chasing a higher normal form the wrong priority?",
+    "criteria": [
+      "Names an analytical read pattern where the joins cost more than the duplication saves",
+      "Says a warehouse presentation layer optimizes for query simplicity rather than update safety",
+      "Notes that data written once and never updated cannot suffer update anomalies"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.denormalization",
+    "type": "explain",
+    "prompt": "You flatten a five-table join into one wide table to make a dashboard fast. Explain what you have taken on by doing that.",
+    "criteria": [
+      "Says read speed was bought with write complexity and storage",
+      "States that a value now lives in more than one place and can drift",
+      "Names the obligation: a rebuild path so the flattened table can be regenerated from the source"
+    ]
+  },
+  {
+    "concept_id": "modeling.denormalization",
+    "type": "push_back",
+    "prompt": "A stakeholder asks you to denormalize six more marts this quarter because the first one made their dashboard fast. You have capacity for two. What do you cut, and how do you say so?",
+    "criteria": [
+      "Names a basis for choosing which two, such as query volume or user count",
+      "States the cost being avoided rather than only the work being declined",
+      "Offers a concrete alternative for the other four, such as a shared conformed layer",
+      "Puts the decision back to them as a prioritization rather than a refusal"
+    ]
+  },
+  {
+    "concept_id": "modeling.denormalization",
+    "type": "mcq",
+    "prompt": "What most reliably makes a denormalized table safe to keep long-term?",
+    "options": [
+      "Documenting it in a wiki",
+      "A deterministic rebuild from the normalized source, run on a schedule",
+      "Adding indexes to every column",
+      "Restricting write access to one person"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.denormalization",
+    "type": "tf_why",
+    "prompt": "True or false: denormalization is a modeling mistake that a good warehouse design avoids. Give the verdict, then your reasoning.",
+    "verdict": false,
+    "criteria": [
+      "States that denormalization is a deliberate read-performance tradeoff, not an error",
+      "Says the presentation layer of a warehouse is denormalized on purpose",
+      "Names the condition that makes it safe: a rebuild path and one owner of the definition"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.star_schema",
+    "type": "explain",
+    "prompt": "Explain a star schema to someone who has only ever seen normalized application tables, and say why BI tools like it.",
+    "criteria": [
+      "States that facts hold the measurements and dimensions hold the descriptions",
+      "Says every dimension is one join away from the fact, so the join path is obvious",
+      "Names the benefit: a tool or a person can pick a measure and a filter without knowing the schema"
+    ]
+  },
+  {
+    "concept_id": "modeling.star_schema",
+    "type": "matching",
+    "prompt": "Sort each of these into the role it plays in a star schema.",
+    "left": ["order_amount", "customer_name", "order_date_key", "product_category"],
+    "right": [
+      "Dimension attribute describing a product",
+      "Measure stored in the fact table",
+      "Dimension attribute describing a customer",
+      "Foreign key from the fact to a dimension"
+    ],
+    "pairs": [[0, 1], [1, 2], [2, 3], [3, 0]]
+  },
+  {
+    "concept_id": "modeling.star_schema",
+    "type": "mcq",
+    "prompt": "What most distinguishes a fact table from a dimension table?",
+    "options": [
+      "Fact tables are always larger",
+      "Fact tables hold measurements at a stated grain; dimensions hold the attributes you filter and group by",
+      "Dimension tables cannot have foreign keys",
+      "Fact tables must be denormalized"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.star_schema",
+    "type": "to_stakeholder",
+    "prompt": "A department head asks why the rebuild is taking a month when \"the data is already in the database\". Explain what a star schema gives them, without naming a single technical term.",
+    "criteria": [
+      "Frames the benefit in terms of questions they can answer themselves",
+      "Names the cost of the current state in their language, such as every question needing a request",
+      "Gives a concrete before-and-after example from their own reporting",
+      "Avoids schema and join vocabulary entirely"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.fact_grain",
+    "type": "explain",
+    "prompt": "Explain what the grain of a fact table is, and why declaring it is the first thing you do rather than something you write down afterwards.",
+    "criteria": [
+      "Completes the sentence form: one row per something specific",
+      "Says every measure and every dimension key must make sense at that grain",
+      "Names the failure: mixing grains makes sums double-count and nobody can tell by looking"
+    ]
+  },
+  {
+    "concept_id": "modeling.fact_grain",
+    "type": "mcq",
+    "prompt": "Which is a properly declared grain?",
+    "options": [
+      "One row per sales fact",
+      "One row per order line item per day",
+      "Orders and their items",
+      "One row, aggregated as needed"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.fact_grain",
+    "type": "critique",
+    "prompt": "A colleague proposes a fact table holding both order-level rows and item-level rows, with a `level` column to tell them apart. What is wrong with that?",
+    "criteria": [
+      "States that the table now has two grains, so a plain SUM double-counts",
+      "Says every downstream query must remember to filter on the level column",
+      "Notes the failure is silent: forgetting the filter returns a plausible wrong number",
+      "Recommends two tables, or one grain with the other derived"
+    ]
+  },
+  {
+    "concept_id": "modeling.fact_grain",
+    "type": "cloze",
+    "prompt": "Fill in the blank: a properly declared grain completes the sentence \"one ______ per ...\" as a full, specific statement before any DDL is written.",
+    "blanks": [{ "accept": ["row", "Row", "record"] }]
+  },
+
+  {
+    "concept_id": "modeling.additivity",
+    "type": "explain",
+    "prompt": "Explain why summing an account balance across the twelve months of a year gives a meaningless number, and what to do instead.",
+    "criteria": [
+      "Says a balance is a snapshot, so it is not additive across time",
+      "States that it remains additive across other dimensions such as accounts",
+      "Names the right treatment: take the period-end value, or an average, rather than a sum"
+    ]
+  },
+  {
+    "concept_id": "modeling.additivity",
+    "type": "mcq",
+    "prompt": "Which measure is semi-additive?",
+    "options": [
+      "Revenue in dollars",
+      "Inventory on hand",
+      "Conversion rate",
+      "Number of orders"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.additivity",
+    "type": "matching",
+    "prompt": "Match each measure to its additivity.",
+    "left": ["Order revenue", "Warehouse stock level", "Click-through rate"],
+    "right": [
+      "Non-additive: must be recomputed from its numerator and denominator",
+      "Fully additive across every dimension",
+      "Semi-additive: sums across locations, not across time"
+    ],
+    "pairs": [[0, 1], [1, 2], [2, 0]]
+  },
+  {
+    "concept_id": "modeling.additivity",
+    "type": "breaks_first",
+    "prompt": "A BI tool is configured to default every numeric column to SUM. Your fact table contains a `conversion_rate` column. What breaks first, and how does anyone find out?",
+    "criteria": [
+      "Says the rate is summed across rows and produces a value above 100%",
+      "Notes that at a low grain the wrongness may look plausible rather than absurd",
+      "States the discovery usually comes from someone reconciling against another report",
+      "Names the fix: store the numerator and denominator and compute the rate at query time"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.dimensions",
+    "type": "explain",
+    "prompt": "Explain what a conformed dimension is and why it turns into an organizational argument rather than a technical one.",
+    "criteria": [
+      "Says a conformed dimension is shared with the same meaning across several fact tables",
+      "States that it is what lets two marts be compared or joined",
+      "Names the argument: agreeing one definition of the entity across teams that each have their own"
+    ]
+  },
+  {
+    "concept_id": "modeling.dimensions",
+    "type": "mcq",
+    "prompt": "Two marts each maintain their own customer table with different definitions of an active customer. What is the first consequence?",
+    "options": [
+      "Storage costs double",
+      "The two marts cannot be compared, and each reports a different customer count",
+      "Queries against either mart get slower",
+      "Neither mart can use a surrogate key"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.dimensions",
+    "type": "tf_why",
+    "prompt": "True or false: a dimension table should hold only columns that are used for filtering or grouping today. Give the verdict, then your reasoning.",
+    "verdict": false,
+    "criteria": [
+      "States that dimensions are deliberately wide and descriptive",
+      "Says attributes nobody asked for yet are what make future questions answerable without a rebuild",
+      "Notes that dimension tables are small relative to facts, so the storage argument is weak"
+    ]
+  },
+  {
+    "concept_id": "modeling.dimensions",
+    "type": "when_not",
+    "prompt": "When would you not model an attribute as its own dimension?",
+    "criteria": [
+      "Names a low-cardinality flag better kept on the fact row",
+      "Says an attribute with no descriptive columns adds a join for no gain",
+      "Mentions a degenerate dimension such as an order number that lives on the fact"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.scd_type2",
+    "type": "explain",
+    "prompt": "A customer moves from the East region to the West region. Explain what a type 2 dimension does about that, and what a type 1 would have done instead.",
+    "criteria": [
+      "Says type 2 closes the old row and inserts a new one with a new validity window",
+      "States that type 1 overwrites, so history is lost",
+      "Names the consequence: with type 2, old orders still report against the East region"
+    ]
+  },
+  {
+    "concept_id": "modeling.scd_type2",
+    "type": "ordering",
+    "prompt": "Put the steps of applying a type 2 change in order.",
+    "items": [
+      "Insert a new row with the new attribute values and is_current = true",
+      "Detect that a tracked attribute changed for an existing natural key",
+      "Set valid_to on the existing current row and mark it is_current = false",
+      "Assign a new surrogate key to the new row"
+    ],
+    "correct_order": [1, 2, 3, 0]
+  },
+  {
+    "concept_id": "modeling.scd_type2",
+    "type": "mcq",
+    "prompt": "Which column set is the minimum for a workable type 2 dimension?",
+    "options": [
+      "natural key, attributes",
+      "surrogate key, natural key, attributes, valid_from, valid_to, current flag",
+      "surrogate key, attributes, updated_at",
+      "natural key, attributes, version number"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.scd_type2",
+    "type": "when_not",
+    "prompt": "When is overwriting the attribute — a type 1 change — the right call, even though you lose history?",
+    "criteria": [
+      "Names a correction of bad data, where the old value was never true",
+      "Says nobody wants to report against a typo that has been fixed",
+      "Notes that tracking every attribute as type 2 inflates the dimension for no analytical use"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.surrogate_keys",
+    "type": "explain",
+    "prompt": "Explain why a type 2 dimension cannot work with the natural key alone as its primary key.",
+    "criteria": [
+      "States that type 2 stores several rows for the same natural key over time",
+      "Says the natural key is therefore no longer unique in the table",
+      "States that the surrogate key identifies one version, which is what the fact must point at"
+    ]
+  },
+  {
+    "concept_id": "modeling.surrogate_keys",
+    "type": "mcq",
+    "prompt": "Besides supporting type 2, what is the main reason to use a surrogate key?",
+    "options": [
+      "Integers join faster than strings in every engine",
+      "It decouples the warehouse from source-system key changes, reuse, and format churn",
+      "It removes the need for a unique constraint",
+      "It makes the dimension table smaller"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.surrogate_keys",
+    "type": "critique",
+    "prompt": "A colleague says: \"Surrogate keys are pointless overhead — the source system already has a unique id, so just use that.\" Where does that break down?",
+    "criteria": [
+      "Concedes the point holds for a type 1 dimension with a stable source key",
+      "States that a type 2 dimension needs a key per version, which the source id cannot provide",
+      "Names source-side churn: reused ids, format changes, or a system migration",
+      "Notes that facts already loaded would have to be rewritten if the source key changed"
+    ]
+  },
+  {
+    "concept_id": "modeling.surrogate_keys",
+    "type": "tf_why",
+    "prompt": "True or false: the natural key should be dropped from the dimension once a surrogate key exists. Give the verdict, then your reasoning.",
+    "verdict": false,
+    "criteria": [
+      "States that the natural key is needed to match incoming source rows during loads",
+      "Says it is also what people recognize when debugging or reconciling",
+      "Notes the surrogate key is for joins, not for identifying the real-world entity"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.semantic_layer",
+    "type": "explain",
+    "prompt": "Explain what a semantic layer is for, using the situation where three dashboards each report a different revenue figure.",
+    "criteria": [
+      "Says a metric is defined once and reused rather than re-implemented per dashboard",
+      "States that the three figures differ because each embedded its own filters and joins",
+      "Names the outcome: a change to the definition propagates instead of being reapplied by hand"
+    ]
+  },
+  {
+    "concept_id": "modeling.semantic_layer",
+    "type": "to_stakeholder",
+    "prompt": "Finance and Marketing arrive at a meeting with revenue numbers 8% apart, both pulled from your warehouse. Explain to the room what is happening and what you propose.",
+    "criteria": [
+      "States that both numbers are probably right under different definitions",
+      "Names a specific candidate difference, such as refunds or the date used",
+      "Asks for a single owner of the definition rather than assigning blame",
+      "Ends with a concrete next step and who decides"
+    ]
+  },
+  {
+    "concept_id": "modeling.semantic_layer",
+    "type": "mcq",
+    "prompt": "What does a semantic layer most directly prevent?",
+    "options": [
+      "Slow queries",
+      "The same metric being defined differently in each tool that consumes it",
+      "Schema drift from upstream sources",
+      "Duplicate rows from a join"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.semantic_layer",
+    "type": "multi",
+    "prompt": "Which of these belong in a metric definition for the semantic layer to be worth having? Select all that apply.",
+    "options": [
+      "The numerator and what it excludes",
+      "The population the metric covers",
+      "The dashboard's colour scheme",
+      "The time grain and the date column used",
+      "The name of the person who requested it"
+    ],
+    "correct_indices": [0, 1, 3]
+  },
+
+  {
+    "concept_id": "modeling.fact_types",
+    "type": "explain",
+    "prompt": "Explain the difference between a transaction fact and a periodic snapshot fact, and why an account balance is not a transaction.",
+    "criteria": [
+      "Says a transaction fact records an event that happened at a point in time",
+      "Says a periodic snapshot records a state as measured at regular intervals",
+      "States that a balance is a state, so it is not additive across time the way a transaction is"
+    ]
+  },
+  {
+    "concept_id": "modeling.fact_types",
+    "type": "matching",
+    "prompt": "Match each requirement to the fact table type that fits.",
+    "left": [
+      "Every payment as it occurs",
+      "Inventory level at the close of each day",
+      "One row per order, with columns filled in as it moves through fulfilment"
+    ],
+    "right": [
+      "Accumulating snapshot",
+      "Transaction fact",
+      "Periodic snapshot"
+    ],
+    "pairs": [[0, 1], [1, 2], [2, 0]]
+  },
+  {
+    "concept_id": "modeling.fact_types",
+    "type": "mcq",
+    "prompt": "What is distinctive about an accumulating snapshot fact table?",
+    "options": [
+      "It is never updated once written",
+      "Its rows are revisited and updated as a process moves through its milestones",
+      "It contains only foreign keys",
+      "It is rebuilt from scratch every night"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.fact_types",
+    "type": "when_not",
+    "prompt": "When would you not build a periodic snapshot, even though someone asked for a daily metric?",
+    "criteria": [
+      "Names the case where the transaction fact can produce the daily figure by aggregation",
+      "Says a snapshot adds storage and a second thing to keep consistent",
+      "Notes the snapshot earns its place when the state cannot be reconstructed from events"
+    ]
+  },
+
+  {
+    "concept_id": "modeling.one_big_table",
+    "type": "explain",
+    "prompt": "Columnar engines made the one-big-table pattern viable. Explain what you give up by choosing it over a star schema.",
+    "criteria": [
+      "Concedes the performance argument: unused columns are not scanned",
+      "Names the loss of reuse, since each OBT is built for its own use case",
+      "States that dimension attributes are no longer defined in one shared place",
+      "Notes that a definition change now has to be applied in every table that copied it"
+    ]
+  },
+  {
+    "concept_id": "modeling.one_big_table",
+    "type": "push_back",
+    "prompt": "An analyst asks you to build them a wide flat table because joins are confusing, and says the star schema \"is the reason nobody uses the warehouse\". How do you respond?",
+    "criteria": [
+      "Takes the usability complaint seriously rather than defending the model",
+      "Offers the flat table as a served view over the star rather than a replacement for it",
+      "Names what would be lost if the star went away",
+      "Ends with something they get this week"
+    ]
+  },
+  {
+    "concept_id": "modeling.one_big_table",
+    "type": "mcq",
+    "prompt": "What made one-big-table designs practical in modern warehouses?",
+    "options": [
+      "Faster network hardware",
+      "Columnar storage, so wide tables cost nothing to read narrowly",
+      "The removal of join support",
+      "Cheaper memory in BI tools"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "modeling.one_big_table",
+    "type": "multi",
+    "prompt": "Which of these are genuine costs of a one-big-table design? Select all that apply.",
+    "options": [
+      "A dimension attribute is redefined per table rather than in one place",
+      "Queries must scan every column in the table",
+      "Rebuilding after a definition change touches every table that copied it",
+      "Reuse across teams drops, since each table is shaped for one use case",
+      "Window functions stop working"
+    ],
+    "correct_indices": [0, 2, 3]
+  }
+]

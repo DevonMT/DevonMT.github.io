@@ -1,0 +1,629 @@
+/* ============================================================================
+   Daily Drill — BI Console surface
+
+   The palette below MIRRORS src/styles/variables.css. It is duplicated because
+   public/ is served raw and cannot import from src/. scripts/check-theme.mjs
+   scans this file so the two cannot silently drift apart.
+
+   Design brief, specific to this app rather than the site:
+   - It opens straight into a question (SPEC §3), so there is no header moment.
+     Identity is carried by the grid and the palette in the periphery; nothing
+     competes with the prompt for first read.
+   - It is used at night, on a phone, when tired. Large targets, high contrast,
+     no hover-dependent affordances, no motion that demands attention.
+   - Feedback is never punitive (SPEC §3). A missed criterion is AMBER, never
+     danger red — red is reserved for destructive actions in settings. There is
+     no red X anywhere in the answer flow.
+   ========================================================================== */
+
+:root {
+  --bg:            #0a0e1a;
+  --bg-elevated:   #0e1424;
+  --surface:       #0d1322;
+  --border:        rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+
+  --text:       #f4f7fd;
+  --text-body:  #cdd5e8;
+  --text-muted: #9aa6c2;
+  --text-faint: #616d8c;
+  --text-dark:  #2a3450;
+
+  --ac:      #2dd4bf;
+  --ac-lite: #5fe6d4;
+  --ac-soft: #7ee0d0;
+  --amber:   #f0a868;
+  --amber-bg: rgba(240, 168, 104, 0.12);
+  --danger:  #f87171;
+
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#site {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
+    radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+    var(--bg);
+}
+
+/* Required on every BI Console surface. */
+#bg-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.shell {
+  position: relative; z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------------------------------------------------------------- rail */
+
+.rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 0 30px;
+}
+
+/* Discrete pips, never a percentage bar (SPEC §3): four things, and you can
+   see all four at once. */
+.pips { display: flex; gap: 10px; list-style: none; }
+
+.pips li {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-dark);
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.pips li[data-state="done"] { background: var(--ac); border-color: var(--ac); }
+.pips li[data-state="current"] {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac) 16%, transparent);
+}
+
+.icon-btn {
+  display: grid; place-items: center;
+  width: 38px; height: 38px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+.icon-btn:hover { color: var(--text-body); border-color: var(--border); background: rgba(255, 255, 255, 0.03); }
+
+/* ---------------------------------------------------------------- boot */
+
+.boot {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding-top: 12vh;
+}
+.boot-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ac);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+
+/* ---------------------------------------------------------------- question */
+
+main { flex: 1; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  margin-bottom: 14px;
+}
+
+.q-meta {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.q-meta .concept {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  color: var(--ac-soft);
+  background: color-mix(in srgb, var(--ac) 10%, transparent);
+}
+.chip.work { color: var(--amber); background: var(--amber-bg); }
+
+/* The prompt is the one thing on screen that matters. Display face, large,
+   short measure. */
+.prompt {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(21px, 4.4vw, 26px);
+  line-height: 1.38;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin-bottom: 26px;
+}
+
+/* ---------------------------------------------------------------- options */
+
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+
+.opt {
+  display: flex; align-items: flex-start; gap: 13px;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-elevated);
+  color: var(--text-body);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s, background-color 0.18s, transform 0.18s;
+}
+.opt:hover:not(:disabled) { border-color: color-mix(in srgb, var(--ac) 40%, transparent); }
+.opt:active:not(:disabled) { transform: translateY(1px); }
+.opt[aria-pressed="true"] {
+  border-color: var(--ac);
+  background: color-mix(in srgb, var(--ac) 8%, var(--bg-elevated));
+  color: var(--text);
+}
+
+/* the marker: circle for single-choice, square for multi */
+.opt .mark {
+  flex: 0 0 auto;
+  width: 19px; height: 19px;
+  margin-top: 2px;
+  border: 1.5px solid var(--text-dark);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  transition: border-color 0.18s, background-color 0.18s;
+}
+.opt[data-multi] .mark { border-radius: 5px; }
+.opt[aria-pressed="true"] .mark { border-color: var(--ac); background: var(--ac); }
+.opt[aria-pressed="true"] .mark::after {
+  content: '';
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--bg);
+}
+.opt[data-multi][aria-pressed="true"] .mark::after {
+  width: 9px; height: 5px; border-radius: 0;
+  border-left: 2px solid var(--bg);
+  border-bottom: 2px solid var(--bg);
+  background: none;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+/* Graded states — teal for hit, amber for missed. Never red.
+   These carry the whole message on a wrong answer ("the answer is marked
+   above"), so they are at full strength, not a hint. Dashed = the key you did
+   not pick; solid = the option you chose. */
+.opt[data-grade="hit"] { border-color: var(--ac); background: color-mix(in srgb, var(--ac) 12%, var(--bg-elevated)); }
+.opt[data-grade="missed"] { border-color: var(--amber); background: var(--amber-bg); }
+.opt[data-grade="missed"] .mark { border-color: var(--amber); background: var(--amber); }
+.opt[data-grade="key"] {
+  border-color: var(--ac);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--ac) 7%, var(--bg-elevated));
+  color: var(--text);
+}
+.opt[data-grade="key"] .mark { border-color: var(--ac); border-style: dashed; }
+.opt:disabled { cursor: default; }
+
+/* ---------------------------------------------------------------- code + lines */
+
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  color: var(--ac-soft);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.opt .inline-code, .crit .inline-code { font-size: 0.88em; }
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text-body);
+}
+
+.lines { list-style: none; margin-bottom: 26px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+
+.lines li { display: block; }
+
+.line {
+  display: flex; gap: 14px; width: 100%;
+  padding: 7px 16px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  text-align: left;
+  background: var(--surface);
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--text-body);
+  cursor: pointer;
+  white-space: pre;
+  overflow-x: auto;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.line:hover:not(:disabled) { background: var(--bg-elevated); }
+.line .ln { color: var(--text-dark); flex: 0 0 auto; user-select: none; }
+.line[aria-pressed="true"] { background: color-mix(in srgb, var(--ac) 9%, var(--surface)); border-left-color: var(--ac); }
+.line[data-grade="hit"] { background: color-mix(in srgb, var(--ac) 11%, var(--surface)); border-left-color: var(--ac); }
+.line[data-grade="missed"] { background: var(--amber-bg); border-left-color: var(--amber); }
+.line[data-grade="key"] { border-left-color: var(--amber); }
+.line:disabled { cursor: default; }
+
+/* ---------------------------------------------------------------- inputs */
+
+.field {
+  width: 100%;
+  padding: 13px 15px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.field::placeholder { color: var(--text-dark); }
+.field:focus-visible,
+textarea.answer:focus-visible {
+  outline: none;
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac) 15%, transparent);
+}
+
+textarea.answer {
+  width: 100%;
+  min-height: 168px;
+  padding: 16px 17px;
+  font-family: var(--font-body);
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  resize: vertical;
+  margin-bottom: 22px;
+}
+textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
+
+.blanks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; }
+
+/* ordering + matching */
+.ord { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.ord .opt { align-items: center; }
+.ord .badge {
+  flex: 0 0 auto;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 7px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+}
+.ord .opt[aria-pressed="true"] .badge { color: var(--bg); background: var(--ac); border-color: var(--ac); }
+
+.pairs { display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; }
+/* Both halves get real width: an `auto` select column starved the label and
+   wrapped "FULL OUTER JOIN" onto three lines. */
+.pair {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-elevated);
+}
+.pair > span { font-size: 15px; line-height: 1.35; }
+.pair[data-grade="hit"] { border-color: color-mix(in srgb, var(--ac) 50%, transparent); }
+.pair[data-grade="missed"] { border-color: color-mix(in srgb, var(--amber) 50%, transparent); }
+.pair select {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 9px 11px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+
+.tf { display: flex; gap: 12px; margin-bottom: 26px; }
+.tf .opt { flex: 1; justify-content: center; font-family: var(--font-mono); font-weight: 500; }
+
+/* ---------------------------------------------------------------- rubric */
+
+/* Stays on screen next to what you wrote (SPEC §3) — never a screen transition
+   that makes you hold the prompt in your head. */
+.rubric {
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  padding: 18px 18px 6px;
+  margin-bottom: 24px;
+}
+.rubric .eyebrow { color: var(--text-faint); margin-bottom: 12px; }
+
+.crit {
+  display: flex; align-items: flex-start; gap: 13px;
+  width: 100%;
+  padding: 11px 2px;
+  background: none; border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-body);
+  font-size: 15.5px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+.rubric .crit:last-of-type { border-bottom: none; }
+.crit .box {
+  flex: 0 0 auto;
+  width: 20px; height: 20px; margin-top: 1px;
+  border: 1.5px solid var(--text-dark);
+  border-radius: 6px;
+  display: grid; place-items: center;
+  transition: border-color 0.18s, background-color 0.18s;
+}
+.crit[aria-pressed="true"] { color: var(--text); }
+.crit[aria-pressed="true"] .box { border-color: var(--ac); background: var(--ac); }
+.crit[aria-pressed="true"] .box::after {
+  content: '';
+  width: 9px; height: 5px;
+  border-left: 2px solid var(--bg);
+  border-bottom: 2px solid var(--bg);
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+/* an unticked criterion after grading is the missing piece, stated plainly */
+.crit[data-grade="missed"] .box { border-color: var(--amber); border-style: dashed; }
+.crit[data-grade="missed"] { color: var(--amber); }
+.crit:disabled { cursor: default; }
+
+/* ---------------------------------------------------------------- feedback */
+
+.feedback {
+  border-left: 3px solid var(--ac);
+  padding: 2px 0 2px 16px;
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  font-size: 15.5px;
+}
+.feedback.partial { border-left-color: var(--amber); }
+.feedback strong { color: var(--text); font-weight: 500; }
+.feedback .why { display: block; margin-top: 6px; }
+
+.prior {
+  margin-bottom: 24px;
+  font-size: 15px;
+}
+.prior summary {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 6px 0;
+}
+.prior summary:hover { color: var(--text-muted); }
+.prior blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 14px;
+  margin-top: 10px;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+.prior time {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+/* ---------------------------------------------------------------- buttons */
+
+.actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.btn-primary, .btn-secondary {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  padding: 12px 20px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background-color 0.18s, border-color 0.18s, color 0.18s, opacity 0.18s;
+}
+.btn-primary { background: var(--ac); color: var(--bg); border: 1px solid var(--ac); }
+.btn-primary:hover:not(:disabled) { background: var(--ac-lite); border-color: var(--ac-lite); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-secondary { background: transparent; color: var(--text-body); border: 1px solid rgba(255, 255, 255, 0.14); }
+.btn-secondary:hover { border-color: color-mix(in srgb, var(--ac) 50%, transparent); color: var(--text); }
+.btn-secondary.sm { padding: 8px 14px; font-size: 13px; }
+.btn-secondary.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.btn-secondary.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--ac);
+  outline-offset: 2px;
+}
+
+.hint {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dark);
+  margin-top: 14px;
+}
+
+/* ---------------------------------------------------------------- done */
+
+/* A hard stop with a clear terminal screen — never an infinite feed, never a
+   "keep going?" nag (SPEC §3). The extra-reps button is quiet and secondary. */
+.done { padding-top: 8vh; }
+.done h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(30px, 7vw, 40px);
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.done p { color: var(--text-muted); margin-bottom: 30px; max-width: 46ch; }
+.done .actions { margin-bottom: 34px; }
+
+.stat { display: flex; align-items: baseline; gap: 10px; }
+.stat-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 42px;
+  letter-spacing: -0.03em;
+  color: var(--ac);
+}
+.stat-label { font-size: 14.5px; color: var(--text-muted); }
+
+.empty { padding-top: 10vh; color: var(--text-muted); }
+.empty h1 { font-family: var(--font-display); font-size: 28px; color: var(--text); margin-bottom: 12px; }
+.empty code { font-family: var(--font-mono); font-size: 13px; color: var(--ac-soft); background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 5px; }
+
+/* ---------------------------------------------------------------- settings */
+
+.sheet {
+  width: min(560px, calc(100vw - 32px));
+  max-height: 86dvh;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  color: var(--text-body);
+  overflow: auto;
+}
+.sheet::backdrop { background: rgba(5, 8, 15, 0.72); backdrop-filter: blur(3px); }
+
+.sheet-head {
+  position: sticky; top: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.sheet-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.sheet-body { padding: 20px; display: flex; flex-direction: column; gap: 26px; }
+.sheet-body .stat { margin-bottom: 2px; }
+.group { display: flex; flex-direction: column; gap: 12px; }
+.group .eyebrow { margin-bottom: 0; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.note { font-size: 13.5px; line-height: 1.55; color: var(--text-faint); }
+.note.inline { margin: 0; }
+.note.version { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dark); }
+
+.check { display: flex; gap: 11px; align-items: center; cursor: pointer; font-size: 15px; }
+.check input { width: 17px; height: 17px; accent-color: var(--ac); cursor: pointer; }
+
+.sheet textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  resize: vertical;
+}
+.sheet textarea:focus-visible { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac) 15%, transparent); }
+
+/* ---------------------------------------------------------------- responsive + motion */
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .shell { padding: 0 16px 48px; }
+  .rail { padding: 16px 0 24px; }
+  .opt { padding: 13px 14px; font-size: 15.5px; }
+  .pair { grid-template-columns: 1fr; align-items: stretch; }
+  .pair select { max-width: none; }
+  .tf { flex-direction: column; }
+  .actions .btn-primary { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

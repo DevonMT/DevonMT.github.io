@@ -1,0 +1,324 @@
+[
+  {
+    "concept_id": "perf.index_basics",
+    "type": "explain",
+    "prompt": "Explain what an index actually is, and why adding one to a column with only three distinct values usually does nothing for you.",
+    "criteria": [
+      "Describes an index as a separate sorted structure pointing back at rows",
+      "States the tradeoff: faster reads paid for with write cost and storage",
+      "Says a low-cardinality column matches too large a fraction of the table for the lookup to beat a scan"
+    ]
+  },
+  {
+    "concept_id": "perf.index_basics",
+    "type": "mcq",
+    "prompt": "You add five indexes to a heavily-written table. What is the most likely consequence?",
+    "options": [
+      "Reads and writes both get faster",
+      "Writes slow down, because every index must be maintained on each change",
+      "Nothing changes until the table is rebuilt",
+      "The table's storage shrinks through compression"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "perf.index_basics",
+    "type": "when_not",
+    "prompt": "When would you deliberately not add an index, even though a query is slow and the column is in the WHERE clause?",
+    "criteria": [
+      "Names a write-heavy table where maintenance cost outweighs the read gain",
+      "Mentions a low-selectivity predicate that returns most of the table anyway",
+      "Notes that a small table is scanned faster than it is looked up"
+    ]
+  },
+  {
+    "concept_id": "perf.index_basics",
+    "type": "matching",
+    "prompt": "Match each situation to what an index does for it.",
+    "left": [
+      "Point lookup on a unique id",
+      "Filter matching 80% of rows",
+      "Table with 200 rows",
+      "Column written on every update"
+    ],
+    "right": [
+      "Index is maintained on every write, costing more than it returns",
+      "Large win: the index goes straight to the row",
+      "Ignored by the planner in favour of a full scan",
+      "Planner prefers a scan; the index adds nothing"
+    ],
+    "pairs": [[0, 1], [1, 3], [2, 2], [3, 0]]
+  },
+
+  {
+    "concept_id": "perf.explain_plan",
+    "type": "explain",
+    "prompt": "You open an EXPLAIN plan for a slow query. Describe how you read it and what you look at first.",
+    "criteria": [
+      "Says the plan is read from the innermost or deepest node outward",
+      "States that the first thing to check is the gap between estimated and actual rows",
+      "Says a large estimate gap explains a bad join order or algorithm choice"
+    ]
+  },
+  {
+    "concept_id": "perf.explain_plan",
+    "type": "mcq",
+    "prompt": "A plan node shows an estimated 12 rows and an actual 3.1 million. What does that most likely mean?",
+    "options": [
+      "The query returned the wrong results",
+      "The optimizer's statistics are stale or its assumptions are wrong, so the plan below it is probably wrong too",
+      "The node ran 3.1 million times",
+      "The table needs an index on every column"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "perf.explain_plan",
+    "type": "ordering",
+    "prompt": "Put these steps of diagnosing a slow query in the order you would actually do them.",
+    "items": [
+      "Add or change an index and re-measure",
+      "Reproduce the slowness with a specific query and inputs",
+      "Read the plan for the largest estimate-versus-actual gap",
+      "Check whether the filter can eliminate partitions or use an existing index"
+    ],
+    "correct_order": [1, 2, 3, 0]
+  },
+  {
+    "concept_id": "perf.explain_plan",
+    "type": "breaks_first",
+    "prompt": "A query has run in four seconds every night for a year. Nothing about the SQL changed, and last night it took forty minutes. What do you look at, in order, and what is the most likely cause?",
+    "criteria": [
+      "Names data volume growth crossing a threshold that flips the plan",
+      "Mentions stale statistics after a large load as a common cause",
+      "Says to compare last night's plan against the usual one rather than rewriting the SQL first",
+      "Notes contention or a changed upstream schema as alternatives worth ruling out"
+    ]
+  },
+
+  {
+    "concept_id": "perf.partition_pruning",
+    "type": "explain",
+    "prompt": "Explain what partition pruning is and why a query that scans two years of data when you asked for one day is usually a pruning failure rather than a hardware problem.",
+    "criteria": [
+      "Says partitions let the engine skip whole files without opening them",
+      "States that pruning happens only when the filter is on the partition column",
+      "Names a cause: filtering on a derived or wrapped column so the engine cannot match partitions"
+    ]
+  },
+  {
+    "concept_id": "perf.partition_pruning",
+    "type": "spot_error",
+    "prompt": "The events table is partitioned by event_date. One line stops the engine pruning partitions. Which line, and why?",
+    "lines": [
+      "SELECT user_id, COUNT(*)",
+      "FROM events",
+      "WHERE DATE_TRUNC('day', event_date) = '2026-03-01'",
+      "GROUP BY user_id"
+    ],
+    "bad_line": 2,
+    "why": "Wrapping the partition column in DATE_TRUNC hides it from the pruning logic, so every partition is scanned; comparing event_date directly to a range would prune."
+  },
+  {
+    "concept_id": "perf.partition_pruning",
+    "type": "mcq",
+    "prompt": "Which filter lets an engine prune partitions on a table partitioned by `event_date`?",
+    "options": [
+      "WHERE YEAR(event_date) = 2026",
+      "WHERE event_date >= '2026-03-01' AND event_date < '2026-03-02'",
+      "WHERE CAST(event_date AS STRING) LIKE '2026-03%'",
+      "WHERE user_id = 42"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "perf.partition_pruning",
+    "type": "when_not",
+    "prompt": "When is partitioning a table the wrong move?",
+    "criteria": [
+      "Names the small-table case where partitions add metadata overhead for no gain",
+      "Mentions over-partitioning producing many tiny files that slow reads",
+      "Says partitioning on a column nobody filters by buys nothing"
+    ]
+  },
+
+  {
+    "concept_id": "perf.select_star",
+    "type": "explain",
+    "prompt": "In a columnar warehouse, explain why SELECT * is a cost problem and not just a style preference.",
+    "criteria": [
+      "States that columnar storage reads only the columns requested",
+      "Says selecting every column multiplies the bytes scanned and therefore the bill",
+      "Names the second hazard: a new or renamed upstream column silently changes what downstream receives"
+    ]
+  },
+  {
+    "concept_id": "perf.select_star",
+    "type": "tf_why",
+    "prompt": "True or false: in a row-store OLTP database, SELECT * costs roughly the same as naming the columns. Give the verdict, then your reasoning.",
+    "verdict": true,
+    "criteria": [
+      "States that a row store reads the whole row from disk either way",
+      "Says the saving in a row store is mostly network and serialization, not scan volume",
+      "Notes that the columnar case is different because columns are stored separately"
+    ]
+  },
+  {
+    "concept_id": "perf.select_star",
+    "type": "critique",
+    "prompt": "A colleague says: \"SELECT * in a view is fine, the optimizer prunes the unused columns anyway.\" Where does that reasoning break down?",
+    "criteria": [
+      "Concedes that column pruning through a view often does happen",
+      "States that the schema of the view still changes when the underlying table changes",
+      "Names a downstream breakage: a new column appears, or a positional consumer shifts"
+    ]
+  },
+  {
+    "concept_id": "perf.select_star",
+    "type": "mcq",
+    "prompt": "Which is the strongest argument against SELECT * in a committed transformation model?",
+    "options": [
+      "It makes the SQL longer to read",
+      "It scans more data and lets upstream schema changes flow through unnoticed",
+      "It prevents the use of a GROUP BY",
+      "It disables partition pruning"
+    ],
+    "correct_index": 1
+  },
+
+  {
+    "concept_id": "perf.cost_reasoning",
+    "type": "explain",
+    "prompt": "Before running a query against a warehouse that bills by bytes scanned, explain how you would estimate what it will cost.",
+    "criteria": [
+      "Says the estimate comes from partitions touched multiplied by the columns selected",
+      "States that a filter on the partition column is the main lever on bytes scanned",
+      "Mentions using a dry-run or EXPLAIN that reports estimated bytes before executing"
+    ]
+  },
+  {
+    "concept_id": "perf.cost_reasoning",
+    "type": "estimate",
+    "prompt": "A table holds 3 years of daily-partitioned events, 40 columns wide, about 2 GB per day. Your query selects 3 columns and filters to one month. Roughly how many bytes will it scan, and how did you get there?",
+    "criteria": [
+      "Scopes to one month of partitions rather than the full 3 years",
+      "Scales down by the fraction of columns selected rather than using full row width",
+      "Lands in the range of a few gigabytes and states the arithmetic",
+      "Names an assumption that would change the answer, such as uneven column sizes"
+    ]
+  },
+  {
+    "concept_id": "perf.cost_reasoning",
+    "type": "mcq",
+    "prompt": "A query costs too much on a bytes-scanned warehouse. Which change usually has the largest effect?",
+    "options": [
+      "Rewriting the subquery as a CTE",
+      "Adding a filter on the partition column",
+      "Replacing UNION with UNION ALL",
+      "Renaming the output columns"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "perf.cost_reasoning",
+    "type": "cloze",
+    "prompt": "Fill in the blank: in a warehouse that separates storage from compute, an idle warehouse still costs money for ______ but not for compute.",
+    "blanks": [{ "accept": ["storage", "Storage", "stored data", "data storage"] }]
+  },
+
+  {
+    "concept_id": "perf.sargability",
+    "type": "explain",
+    "prompt": "Explain why `WHERE UPPER(email) = 'A@B.COM'` cannot use an index on `email`, and what your options are.",
+    "criteria": [
+      "States that the index stores the raw column values, not the function's output",
+      "Says the engine must compute the function per row, forcing a scan",
+      "Names a fix: rewrite the predicate, or build a functional or computed-column index"
+    ]
+  },
+  {
+    "concept_id": "perf.sargability",
+    "type": "spot_error",
+    "prompt": "There is an index on orders.created_at. One line prevents it being used. Which line, and why?",
+    "lines": [
+      "SELECT order_id",
+      "FROM orders",
+      "WHERE DATE(created_at) = CURRENT_DATE",
+      "  AND status = 'open'"
+    ],
+    "bad_line": 2,
+    "why": "DATE() wraps the indexed column, so the index on created_at cannot be used; a half-open range on created_at would be sargable."
+  },
+  {
+    "concept_id": "perf.sargability",
+    "type": "mcq",
+    "prompt": "Which of these predicates is sargable against an index on `name`?",
+    "options": [
+      "WHERE name LIKE '%son'",
+      "WHERE name LIKE 'John%'",
+      "WHERE LOWER(name) = 'john'",
+      "WHERE SUBSTR(name, 1, 4) = 'John'"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "perf.sargability",
+    "type": "when_not",
+    "prompt": "When is it not worth rewriting a non-sargable predicate?",
+    "criteria": [
+      "Names the case where no index exists on that column anyway",
+      "Says a full scan is already the plan for a small or fully-filtered table",
+      "Mentions that a rewrite changing semantics is worse than a slower query"
+    ]
+  },
+
+  {
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "explain",
+    "prompt": "In a distributed engine, explain what a shuffle is and why one value in a join key can make a whole cluster wait.",
+    "criteria": [
+      "Says a shuffle redistributes rows across nodes so matching keys land together",
+      "States that all rows for one key go to one node",
+      "Says a dominant key gives that node far more work, and the job finishes when it does"
+    ]
+  },
+  {
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "breaks_first",
+    "prompt": "A distributed join has run fine for months. A bug starts writing NULL into the join key for 30% of rows. What breaks first?",
+    "criteria": [
+      "Says all the NULL-keyed rows hash to the same partition",
+      "Names one worker taking a disproportionate share of the data",
+      "Predicts a spill to disk or an out-of-memory failure on that worker",
+      "Notes the job may finish but take many times longer before it fails outright"
+    ]
+  },
+  {
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "mcq",
+    "prompt": "In a distributed engine, which join usually avoids a shuffle entirely?",
+    "options": [
+      "A join where one side is small enough to broadcast to every node",
+      "A join with more than three tables",
+      "A join whose keys are all NULL",
+      "A join wrapped in a CTE"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "matching",
+    "prompt": "Match each symptom to its most likely cause in a distributed job.",
+    "left": [
+      "99 tasks finish in 20 seconds, one runs for 40 minutes",
+      "Every task spills to disk partway through",
+      "The job is fast but the cluster bill is high"
+    ],
+    "right": [
+      "Memory per worker is too small for the shuffle partition size",
+      "Scanning far more columns or partitions than the query needs",
+      "Skew: one key holds a large share of the rows"
+    ],
+    "pairs": [[0, 2], [1, 0], [2, 1]]
+  }
+]

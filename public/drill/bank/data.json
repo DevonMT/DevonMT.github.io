@@ -1,0 +1,2425 @@
+[
+  {
+    "id": "q_modeling_additivity_breaks_first_001",
+    "concept_id": "modeling.additivity",
+    "type": "breaks_first",
+    "prompt": "A BI tool is configured to default every numeric column to SUM. Your fact table contains a `conversion_rate` column. What breaks first, and how does anyone find out?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the rate is summed across rows and produces a value above 100%",
+        "Notes that at a low grain the wrongness may look plausible rather than absurd",
+        "States the discovery usually comes from someone reconciling against another report",
+        "Names the fix: store the numerator and denominator and compute the rate at query time"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_additivity_explain_001",
+    "concept_id": "modeling.additivity",
+    "type": "explain",
+    "prompt": "Explain why summing an account balance across the twelve months of a year gives a meaningless number, and what to do instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a balance is a snapshot, so it is not additive across time",
+        "States that it remains additive across other dimensions such as accounts",
+        "Names the right treatment: take the period-end value, or an average, rather than a sum"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_additivity_matching_001",
+    "concept_id": "modeling.additivity",
+    "type": "matching",
+    "prompt": "Match each measure to its additivity.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Order revenue",
+        "Warehouse stock level",
+        "Click-through rate"
+      ],
+      "right": [
+        "Non-additive: must be recomputed from its numerator and denominator",
+        "Fully additive across every dimension",
+        "Semi-additive: sums across locations, not across time"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_additivity_mcq_001",
+    "concept_id": "modeling.additivity",
+    "type": "mcq",
+    "prompt": "Which measure is semi-additive?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Revenue in dollars",
+        "Inventory on hand",
+        "Conversion rate",
+        "Number of orders"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_denormalization_explain_001",
+    "concept_id": "modeling.denormalization",
+    "type": "explain",
+    "prompt": "You flatten a five-table join into one wide table to make a dashboard fast. Explain what you have taken on by doing that.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says read speed was bought with write complexity and storage",
+        "States that a value now lives in more than one place and can drift",
+        "Names the obligation: a rebuild path so the flattened table can be regenerated from the source"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_denormalization_mcq_001",
+    "concept_id": "modeling.denormalization",
+    "type": "mcq",
+    "prompt": "What most reliably makes a denormalized table safe to keep long-term?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Documenting it in a wiki",
+        "A deterministic rebuild from the normalized source, run on a schedule",
+        "Adding indexes to every column",
+        "Restricting write access to one person"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_denormalization_push_back_001",
+    "concept_id": "modeling.denormalization",
+    "type": "push_back",
+    "prompt": "A stakeholder asks you to denormalize six more marts this quarter because the first one made their dashboard fast. You have capacity for two. What do you cut, and how do you say so?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a basis for choosing which two, such as query volume or user count",
+        "States the cost being avoided rather than only the work being declined",
+        "Offers a concrete alternative for the other four, such as a shared conformed layer",
+        "Puts the decision back to them as a prioritization rather than a refusal"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_denormalization_tf_why_001",
+    "concept_id": "modeling.denormalization",
+    "type": "tf_why",
+    "prompt": "True or false: denormalization is a modeling mistake that a good warehouse design avoids. Give the verdict, then your reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that denormalization is a deliberate read-performance tradeoff, not an error",
+          "Says the presentation layer of a warehouse is denormalized on purpose",
+          "Names the condition that makes it safe: a rebuild path and one owner of the definition"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that denormalization is a deliberate read-performance tradeoff, not an error",
+        "Says the presentation layer of a warehouse is denormalized on purpose",
+        "Names the condition that makes it safe: a rebuild path and one owner of the definition"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_dimensions_explain_001",
+    "concept_id": "modeling.dimensions",
+    "type": "explain",
+    "prompt": "Explain what a conformed dimension is and why it turns into an organizational argument rather than a technical one.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a conformed dimension is shared with the same meaning across several fact tables",
+        "States that it is what lets two marts be compared or joined",
+        "Names the argument: agreeing one definition of the entity across teams that each have their own"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_dimensions_mcq_001",
+    "concept_id": "modeling.dimensions",
+    "type": "mcq",
+    "prompt": "Two marts each maintain their own customer table with different definitions of an active customer. What is the first consequence?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Storage costs double",
+        "The two marts cannot be compared, and each reports a different customer count",
+        "Queries against either mart get slower",
+        "Neither mart can use a surrogate key"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_dimensions_tf_why_001",
+    "concept_id": "modeling.dimensions",
+    "type": "tf_why",
+    "prompt": "True or false: a dimension table should hold only columns that are used for filtering or grouping today. Give the verdict, then your reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that dimensions are deliberately wide and descriptive",
+          "Says attributes nobody asked for yet are what make future questions answerable without a rebuild",
+          "Notes that dimension tables are small relative to facts, so the storage argument is weak"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that dimensions are deliberately wide and descriptive",
+        "Says attributes nobody asked for yet are what make future questions answerable without a rebuild",
+        "Notes that dimension tables are small relative to facts, so the storage argument is weak"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_dimensions_when_not_001",
+    "concept_id": "modeling.dimensions",
+    "type": "when_not",
+    "prompt": "When would you not model an attribute as its own dimension?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a low-cardinality flag better kept on the fact row",
+        "Says an attribute with no descriptive columns adds a join for no gain",
+        "Mentions a degenerate dimension such as an order number that lives on the fact"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_grain_cloze_001",
+    "concept_id": "modeling.fact_grain",
+    "type": "cloze",
+    "prompt": "Fill in the blank: a properly declared grain completes the sentence \"one ______ per ...\" as a full, specific statement before any DDL is written.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "row",
+            "Row",
+            "record"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_grain_critique_001",
+    "concept_id": "modeling.fact_grain",
+    "type": "critique",
+    "prompt": "A colleague proposes a fact table holding both order-level rows and item-level rows, with a `level` column to tell them apart. What is wrong with that?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the table now has two grains, so a plain SUM double-counts",
+        "Says every downstream query must remember to filter on the level column",
+        "Notes the failure is silent: forgetting the filter returns a plausible wrong number",
+        "Recommends two tables, or one grain with the other derived"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_grain_explain_001",
+    "concept_id": "modeling.fact_grain",
+    "type": "explain",
+    "prompt": "Explain what the grain of a fact table is, and why declaring it is the first thing you do rather than something you write down afterwards.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Completes the sentence form: one row per something specific",
+        "Says every measure and every dimension key must make sense at that grain",
+        "Names the failure: mixing grains makes sums double-count and nobody can tell by looking"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_grain_mcq_001",
+    "concept_id": "modeling.fact_grain",
+    "type": "mcq",
+    "prompt": "Which is a properly declared grain?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "One row per sales fact",
+        "One row per order line item per day",
+        "Orders and their items",
+        "One row, aggregated as needed"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_types_explain_001",
+    "concept_id": "modeling.fact_types",
+    "type": "explain",
+    "prompt": "Explain the difference between a transaction fact and a periodic snapshot fact, and why an account balance is not a transaction.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a transaction fact records an event that happened at a point in time",
+        "Says a periodic snapshot records a state as measured at regular intervals",
+        "States that a balance is a state, so it is not additive across time the way a transaction is"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_types_matching_001",
+    "concept_id": "modeling.fact_types",
+    "type": "matching",
+    "prompt": "Match each requirement to the fact table type that fits.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Every payment as it occurs",
+        "Inventory level at the close of each day",
+        "One row per order, with columns filled in as it moves through fulfilment"
+      ],
+      "right": [
+        "Accumulating snapshot",
+        "Transaction fact",
+        "Periodic snapshot"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_types_mcq_001",
+    "concept_id": "modeling.fact_types",
+    "type": "mcq",
+    "prompt": "What is distinctive about an accumulating snapshot fact table?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It is never updated once written",
+        "Its rows are revisited and updated as a process moves through its milestones",
+        "It contains only foreign keys",
+        "It is rebuilt from scratch every night"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_fact_types_when_not_001",
+    "concept_id": "modeling.fact_types",
+    "type": "when_not",
+    "prompt": "When would you not build a periodic snapshot, even though someone asked for a daily metric?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the case where the transaction fact can produce the daily figure by aggregation",
+        "Says a snapshot adds storage and a second thing to keep consistent",
+        "Notes the snapshot earns its place when the state cannot be reconstructed from events"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_normalization_cloze_001",
+    "concept_id": "modeling.normalization",
+    "type": "cloze",
+    "prompt": "Fill in the blank: normalization aims to store each fact ______ time(s), so an update cannot leave two copies disagreeing.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "one",
+            "1",
+            "once",
+            "a single",
+            "exactly one"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_normalization_explain_001",
+    "concept_id": "modeling.normalization",
+    "type": "explain",
+    "prompt": "Explain what normalization is buying you, using an update anomaly as the example.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States the principle: one fact stored in exactly one place",
+        "Gives a concrete anomaly, such as a customer address repeated on every order row",
+        "Says the anomaly is that an update touching only some copies leaves the data contradicting itself"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_normalization_mcq_001",
+    "concept_id": "modeling.normalization",
+    "type": "mcq",
+    "prompt": "A table stores order_id, product_id, and supplier_name, where supplier_name depends only on product_id. What is the problem?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Nothing; the table is fine as long as order_id is unique",
+        "A non-key attribute depends on part of the key, so supplier_name is duplicated and can drift",
+        "The table has too few columns to be useful",
+        "supplier_name should be an integer"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_normalization_when_not_001",
+    "concept_id": "modeling.normalization",
+    "type": "when_not",
+    "prompt": "When is chasing a higher normal form the wrong priority?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names an analytical read pattern where the joins cost more than the duplication saves",
+        "Says a warehouse presentation layer optimizes for query simplicity rather than update safety",
+        "Notes that data written once and never updated cannot suffer update anomalies"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_one_big_table_explain_001",
+    "concept_id": "modeling.one_big_table",
+    "type": "explain",
+    "prompt": "Columnar engines made the one-big-table pattern viable. Explain what you give up by choosing it over a star schema.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Concedes the performance argument: unused columns are not scanned",
+        "Names the loss of reuse, since each OBT is built for its own use case",
+        "States that dimension attributes are no longer defined in one shared place",
+        "Notes that a definition change now has to be applied in every table that copied it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_one_big_table_mcq_001",
+    "concept_id": "modeling.one_big_table",
+    "type": "mcq",
+    "prompt": "What made one-big-table designs practical in modern warehouses?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Faster network hardware",
+        "Columnar storage, so wide tables cost nothing to read narrowly",
+        "The removal of join support",
+        "Cheaper memory in BI tools"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_one_big_table_multi_001",
+    "concept_id": "modeling.one_big_table",
+    "type": "multi",
+    "prompt": "Which of these are genuine costs of a one-big-table design? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A dimension attribute is redefined per table rather than in one place",
+        "Queries must scan every column in the table",
+        "Rebuilding after a definition change touches every table that copied it",
+        "Reuse across teams drops, since each table is shaped for one use case",
+        "Window functions stop working"
+      ],
+      "correct": [
+        0,
+        2,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_one_big_table_push_back_001",
+    "concept_id": "modeling.one_big_table",
+    "type": "push_back",
+    "prompt": "An analyst asks you to build them a wide flat table because joins are confusing, and says the star schema \"is the reason nobody uses the warehouse\". How do you respond?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Takes the usability complaint seriously rather than defending the model",
+        "Offers the flat table as a served view over the star rather than a replacement for it",
+        "Names what would be lost if the star went away",
+        "Ends with something they get this week"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_scd_type2_explain_001",
+    "concept_id": "modeling.scd_type2",
+    "type": "explain",
+    "prompt": "A customer moves from the East region to the West region. Explain what a type 2 dimension does about that, and what a type 1 would have done instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says type 2 closes the old row and inserts a new one with a new validity window",
+        "States that type 1 overwrites, so history is lost",
+        "Names the consequence: with type 2, old orders still report against the East region"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_scd_type2_mcq_001",
+    "concept_id": "modeling.scd_type2",
+    "type": "mcq",
+    "prompt": "Which column set is the minimum for a workable type 2 dimension?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "natural key, attributes",
+        "surrogate key, natural key, attributes, valid_from, valid_to, current flag",
+        "surrogate key, attributes, updated_at",
+        "natural key, attributes, version number"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_scd_type2_ordering_001",
+    "concept_id": "modeling.scd_type2",
+    "type": "ordering",
+    "prompt": "Put the steps of applying a type 2 change in order.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Insert a new row with the new attribute values and is_current = true",
+        "Detect that a tracked attribute changed for an existing natural key",
+        "Set valid_to on the existing current row and mark it is_current = false",
+        "Assign a new surrogate key to the new row"
+      ],
+      "correct_order": [
+        1,
+        2,
+        3,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_scd_type2_when_not_001",
+    "concept_id": "modeling.scd_type2",
+    "type": "when_not",
+    "prompt": "When is overwriting the attribute — a type 1 change — the right call, even though you lose history?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a correction of bad data, where the old value was never true",
+        "Says nobody wants to report against a typo that has been fixed",
+        "Notes that tracking every attribute as type 2 inflates the dimension for no analytical use"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_semantic_layer_explain_001",
+    "concept_id": "modeling.semantic_layer",
+    "type": "explain",
+    "prompt": "Explain what a semantic layer is for, using the situation where three dashboards each report a different revenue figure.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a metric is defined once and reused rather than re-implemented per dashboard",
+        "States that the three figures differ because each embedded its own filters and joins",
+        "Names the outcome: a change to the definition propagates instead of being reapplied by hand"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_semantic_layer_mcq_001",
+    "concept_id": "modeling.semantic_layer",
+    "type": "mcq",
+    "prompt": "What does a semantic layer most directly prevent?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Slow queries",
+        "The same metric being defined differently in each tool that consumes it",
+        "Schema drift from upstream sources",
+        "Duplicate rows from a join"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_semantic_layer_multi_001",
+    "concept_id": "modeling.semantic_layer",
+    "type": "multi",
+    "prompt": "Which of these belong in a metric definition for the semantic layer to be worth having? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The numerator and what it excludes",
+        "The population the metric covers",
+        "The dashboard's colour scheme",
+        "The time grain and the date column used",
+        "The name of the person who requested it"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_semantic_layer_to_stakeholder_001",
+    "concept_id": "modeling.semantic_layer",
+    "type": "to_stakeholder",
+    "prompt": "Finance and Marketing arrive at a meeting with revenue numbers 8% apart, both pulled from your warehouse. Explain to the room what is happening and what you propose.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that both numbers are probably right under different definitions",
+        "Names a specific candidate difference, such as refunds or the date used",
+        "Asks for a single owner of the definition rather than assigning blame",
+        "Ends with a concrete next step and who decides"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_star_schema_explain_001",
+    "concept_id": "modeling.star_schema",
+    "type": "explain",
+    "prompt": "Explain a star schema to someone who has only ever seen normalized application tables, and say why BI tools like it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that facts hold the measurements and dimensions hold the descriptions",
+        "Says every dimension is one join away from the fact, so the join path is obvious",
+        "Names the benefit: a tool or a person can pick a measure and a filter without knowing the schema"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_star_schema_matching_001",
+    "concept_id": "modeling.star_schema",
+    "type": "matching",
+    "prompt": "Sort each of these into the role it plays in a star schema.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "order_amount",
+        "customer_name",
+        "order_date_key",
+        "product_category"
+      ],
+      "right": [
+        "Dimension attribute describing a product",
+        "Measure stored in the fact table",
+        "Dimension attribute describing a customer",
+        "Foreign key from the fact to a dimension"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_star_schema_mcq_001",
+    "concept_id": "modeling.star_schema",
+    "type": "mcq",
+    "prompt": "What most distinguishes a fact table from a dimension table?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Fact tables are always larger",
+        "Fact tables hold measurements at a stated grain; dimensions hold the attributes you filter and group by",
+        "Dimension tables cannot have foreign keys",
+        "Fact tables must be denormalized"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_star_schema_to_stakeholder_001",
+    "concept_id": "modeling.star_schema",
+    "type": "to_stakeholder",
+    "prompt": "A department head asks why the rebuild is taking a month when \"the data is already in the database\". Explain what a star schema gives them, without naming a single technical term.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Frames the benefit in terms of questions they can answer themselves",
+        "Names the cost of the current state in their language, such as every question needing a request",
+        "Gives a concrete before-and-after example from their own reporting",
+        "Avoids schema and join vocabulary entirely"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_surrogate_keys_critique_001",
+    "concept_id": "modeling.surrogate_keys",
+    "type": "critique",
+    "prompt": "A colleague says: \"Surrogate keys are pointless overhead — the source system already has a unique id, so just use that.\" Where does that break down?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Concedes the point holds for a type 1 dimension with a stable source key",
+        "States that a type 2 dimension needs a key per version, which the source id cannot provide",
+        "Names source-side churn: reused ids, format changes, or a system migration",
+        "Notes that facts already loaded would have to be rewritten if the source key changed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_surrogate_keys_explain_001",
+    "concept_id": "modeling.surrogate_keys",
+    "type": "explain",
+    "prompt": "Explain why a type 2 dimension cannot work with the natural key alone as its primary key.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that type 2 stores several rows for the same natural key over time",
+        "Says the natural key is therefore no longer unique in the table",
+        "States that the surrogate key identifies one version, which is what the fact must point at"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_surrogate_keys_mcq_001",
+    "concept_id": "modeling.surrogate_keys",
+    "type": "mcq",
+    "prompt": "Besides supporting type 2, what is the main reason to use a surrogate key?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Integers join faster than strings in every engine",
+        "It decouples the warehouse from source-system key changes, reuse, and format churn",
+        "It removes the need for a unique constraint",
+        "It makes the dimension table smaller"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_modeling_surrogate_keys_tf_why_001",
+    "concept_id": "modeling.surrogate_keys",
+    "type": "tf_why",
+    "prompt": "True or false: the natural key should be dropped from the dimension once a surrogate key exists. Give the verdict, then your reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that the natural key is needed to match incoming source rows during loads",
+          "Says it is also what people recognize when debugging or reconciling",
+          "Notes the surrogate key is for joins, not for identifying the real-world entity"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the natural key is needed to match incoming source rows during loads",
+        "Says it is also what people recognize when debugging or reconciling",
+        "Notes the surrogate key is for joins, not for identifying the real-world entity"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_cost_reasoning_cloze_001",
+    "concept_id": "perf.cost_reasoning",
+    "type": "cloze",
+    "prompt": "Fill in the blank: in a warehouse that separates storage from compute, an idle warehouse still costs money for ______ but not for compute.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "storage",
+            "Storage",
+            "stored data",
+            "data storage"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_cost_reasoning_estimate_001",
+    "concept_id": "perf.cost_reasoning",
+    "type": "estimate",
+    "prompt": "A table holds 3 years of daily-partitioned events, 40 columns wide, about 2 GB per day. Your query selects 3 columns and filters to one month. Roughly how many bytes will it scan, and how did you get there?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Scopes to one month of partitions rather than the full 3 years",
+        "Scales down by the fraction of columns selected rather than using full row width",
+        "Lands in the range of a few gigabytes and states the arithmetic",
+        "Names an assumption that would change the answer, such as uneven column sizes"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_cost_reasoning_explain_001",
+    "concept_id": "perf.cost_reasoning",
+    "type": "explain",
+    "prompt": "Before running a query against a warehouse that bills by bytes scanned, explain how you would estimate what it will cost.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the estimate comes from partitions touched multiplied by the columns selected",
+        "States that a filter on the partition column is the main lever on bytes scanned",
+        "Mentions using a dry-run or EXPLAIN that reports estimated bytes before executing"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_cost_reasoning_mcq_001",
+    "concept_id": "perf.cost_reasoning",
+    "type": "mcq",
+    "prompt": "A query costs too much on a bytes-scanned warehouse. Which change usually has the largest effect?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Rewriting the subquery as a CTE",
+        "Adding a filter on the partition column",
+        "Replacing UNION with UNION ALL",
+        "Renaming the output columns"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_explain_plan_breaks_first_001",
+    "concept_id": "perf.explain_plan",
+    "type": "breaks_first",
+    "prompt": "A query has run in four seconds every night for a year. Nothing about the SQL changed, and last night it took forty minutes. What do you look at, in order, and what is the most likely cause?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names data volume growth crossing a threshold that flips the plan",
+        "Mentions stale statistics after a large load as a common cause",
+        "Says to compare last night's plan against the usual one rather than rewriting the SQL first",
+        "Notes contention or a changed upstream schema as alternatives worth ruling out"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_explain_plan_explain_001",
+    "concept_id": "perf.explain_plan",
+    "type": "explain",
+    "prompt": "You open an EXPLAIN plan for a slow query. Describe how you read it and what you look at first.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the plan is read from the innermost or deepest node outward",
+        "States that the first thing to check is the gap between estimated and actual rows",
+        "Says a large estimate gap explains a bad join order or algorithm choice"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_explain_plan_mcq_001",
+    "concept_id": "perf.explain_plan",
+    "type": "mcq",
+    "prompt": "A plan node shows an estimated 12 rows and an actual 3.1 million. What does that most likely mean?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The query returned the wrong results",
+        "The optimizer's statistics are stale or its assumptions are wrong, so the plan below it is probably wrong too",
+        "The node ran 3.1 million times",
+        "The table needs an index on every column"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_explain_plan_ordering_001",
+    "concept_id": "perf.explain_plan",
+    "type": "ordering",
+    "prompt": "Put these steps of diagnosing a slow query in the order you would actually do them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Add or change an index and re-measure",
+        "Reproduce the slowness with a specific query and inputs",
+        "Read the plan for the largest estimate-versus-actual gap",
+        "Check whether the filter can eliminate partitions or use an existing index"
+      ],
+      "correct_order": [
+        1,
+        2,
+        3,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_index_basics_explain_001",
+    "concept_id": "perf.index_basics",
+    "type": "explain",
+    "prompt": "Explain what an index actually is, and why adding one to a column with only three distinct values usually does nothing for you.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Describes an index as a separate sorted structure pointing back at rows",
+        "States the tradeoff: faster reads paid for with write cost and storage",
+        "Says a low-cardinality column matches too large a fraction of the table for the lookup to beat a scan"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_index_basics_matching_001",
+    "concept_id": "perf.index_basics",
+    "type": "matching",
+    "prompt": "Match each situation to what an index does for it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Point lookup on a unique id",
+        "Filter matching 80% of rows",
+        "Table with 200 rows",
+        "Column written on every update"
+      ],
+      "right": [
+        "Index is maintained on every write, costing more than it returns",
+        "Large win: the index goes straight to the row",
+        "Ignored by the planner in favour of a full scan",
+        "Planner prefers a scan; the index adds nothing"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_index_basics_mcq_001",
+    "concept_id": "perf.index_basics",
+    "type": "mcq",
+    "prompt": "You add five indexes to a heavily-written table. What is the most likely consequence?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Reads and writes both get faster",
+        "Writes slow down, because every index must be maintained on each change",
+        "Nothing changes until the table is rebuilt",
+        "The table's storage shrinks through compression"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_index_basics_when_not_001",
+    "concept_id": "perf.index_basics",
+    "type": "when_not",
+    "prompt": "When would you deliberately not add an index, even though a query is slow and the column is in the WHERE clause?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a write-heavy table where maintenance cost outweighs the read gain",
+        "Mentions a low-selectivity predicate that returns most of the table anyway",
+        "Notes that a small table is scanned faster than it is looked up"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_partition_pruning_explain_001",
+    "concept_id": "perf.partition_pruning",
+    "type": "explain",
+    "prompt": "Explain what partition pruning is and why a query that scans two years of data when you asked for one day is usually a pruning failure rather than a hardware problem.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says partitions let the engine skip whole files without opening them",
+        "States that pruning happens only when the filter is on the partition column",
+        "Names a cause: filtering on a derived or wrapped column so the engine cannot match partitions"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_partition_pruning_mcq_001",
+    "concept_id": "perf.partition_pruning",
+    "type": "mcq",
+    "prompt": "Which filter lets an engine prune partitions on a table partitioned by `event_date`?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "WHERE YEAR(event_date) = 2026",
+        "WHERE event_date >= '2026-03-01' AND event_date < '2026-03-02'",
+        "WHERE CAST(event_date AS STRING) LIKE '2026-03%'",
+        "WHERE user_id = 42"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_partition_pruning_spot_error_001",
+    "concept_id": "perf.partition_pruning",
+    "type": "spot_error",
+    "prompt": "The events table is partitioned by event_date. One line stops the engine pruning partitions. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT user_id, COUNT(*)",
+        "FROM events",
+        "WHERE DATE_TRUNC('day', event_date) = '2026-03-01'",
+        "GROUP BY user_id"
+      ],
+      "bad_line": 2,
+      "why": "Wrapping the partition column in DATE_TRUNC hides it from the pruning logic, so every partition is scanned; comparing event_date directly to a range would prune."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_partition_pruning_when_not_001",
+    "concept_id": "perf.partition_pruning",
+    "type": "when_not",
+    "prompt": "When is partitioning a table the wrong move?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the small-table case where partitions add metadata overhead for no gain",
+        "Mentions over-partitioning producing many tiny files that slow reads",
+        "Says partitioning on a column nobody filters by buys nothing"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_sargability_explain_001",
+    "concept_id": "perf.sargability",
+    "type": "explain",
+    "prompt": "Explain why `WHERE UPPER(email) = 'A@B.COM'` cannot use an index on `email`, and what your options are.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the index stores the raw column values, not the function's output",
+        "Says the engine must compute the function per row, forcing a scan",
+        "Names a fix: rewrite the predicate, or build a functional or computed-column index"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_sargability_mcq_001",
+    "concept_id": "perf.sargability",
+    "type": "mcq",
+    "prompt": "Which of these predicates is sargable against an index on `name`?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "WHERE name LIKE '%son'",
+        "WHERE name LIKE 'John%'",
+        "WHERE LOWER(name) = 'john'",
+        "WHERE SUBSTR(name, 1, 4) = 'John'"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_sargability_spot_error_001",
+    "concept_id": "perf.sargability",
+    "type": "spot_error",
+    "prompt": "There is an index on orders.created_at. One line prevents it being used. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT order_id",
+        "FROM orders",
+        "WHERE DATE(created_at) = CURRENT_DATE",
+        "  AND status = 'open'"
+      ],
+      "bad_line": 2,
+      "why": "DATE() wraps the indexed column, so the index on created_at cannot be used; a half-open range on created_at would be sargable."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_sargability_when_not_001",
+    "concept_id": "perf.sargability",
+    "type": "when_not",
+    "prompt": "When is it not worth rewriting a non-sargable predicate?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the case where no index exists on that column anyway",
+        "Says a full scan is already the plan for a small or fully-filtered table",
+        "Mentions that a rewrite changing semantics is worse than a slower query"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_select_star_critique_001",
+    "concept_id": "perf.select_star",
+    "type": "critique",
+    "prompt": "A colleague says: \"SELECT * in a view is fine, the optimizer prunes the unused columns anyway.\" Where does that reasoning break down?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Concedes that column pruning through a view often does happen",
+        "States that the schema of the view still changes when the underlying table changes",
+        "Names a downstream breakage: a new column appears, or a positional consumer shifts"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_select_star_explain_001",
+    "concept_id": "perf.select_star",
+    "type": "explain",
+    "prompt": "In a columnar warehouse, explain why SELECT * is a cost problem and not just a style preference.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that columnar storage reads only the columns requested",
+        "Says selecting every column multiplies the bytes scanned and therefore the bill",
+        "Names the second hazard: a new or renamed upstream column silently changes what downstream receives"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_select_star_mcq_001",
+    "concept_id": "perf.select_star",
+    "type": "mcq",
+    "prompt": "Which is the strongest argument against SELECT * in a committed transformation model?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It makes the SQL longer to read",
+        "It scans more data and lets upstream schema changes flow through unnoticed",
+        "It prevents the use of a GROUP BY",
+        "It disables partition pruning"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_select_star_tf_why_001",
+    "concept_id": "perf.select_star",
+    "type": "tf_why",
+    "prompt": "True or false: in a row-store OLTP database, SELECT * costs roughly the same as naming the columns. Give the verdict, then your reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": true,
+      "rubric": {
+        "criteria": [
+          "States that a row store reads the whole row from disk either way",
+          "Says the saving in a row store is mostly network and serialization, not scan volume",
+          "Notes that the columnar case is different because columns are stored separately"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that a row store reads the whole row from disk either way",
+        "Says the saving in a row store is mostly network and serialization, not scan volume",
+        "Notes that the columnar case is different because columns are stored separately"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_shuffle_and_skew_breaks_first_001",
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "breaks_first",
+    "prompt": "A distributed join has run fine for months. A bug starts writing NULL into the join key for 30% of rows. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says all the NULL-keyed rows hash to the same partition",
+        "Names one worker taking a disproportionate share of the data",
+        "Predicts a spill to disk or an out-of-memory failure on that worker",
+        "Notes the job may finish but take many times longer before it fails outright"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_shuffle_and_skew_explain_001",
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "explain",
+    "prompt": "In a distributed engine, explain what a shuffle is and why one value in a join key can make a whole cluster wait.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a shuffle redistributes rows across nodes so matching keys land together",
+        "States that all rows for one key go to one node",
+        "Says a dominant key gives that node far more work, and the job finishes when it does"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_shuffle_and_skew_matching_001",
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "matching",
+    "prompt": "Match each symptom to its most likely cause in a distributed job.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "99 tasks finish in 20 seconds, one runs for 40 minutes",
+        "Every task spills to disk partway through",
+        "The job is fast but the cluster bill is high"
+      ],
+      "right": [
+        "Memory per worker is too small for the shuffle partition size",
+        "Scanning far more columns or partitions than the query needs",
+        "Skew: one key holds a large share of the rows"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_perf_shuffle_and_skew_mcq_001",
+    "concept_id": "perf.shuffle_and_skew",
+    "type": "mcq",
+    "prompt": "In a distributed engine, which join usually avoids a shuffle entirely?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A join where one side is small enough to broadcast to every node",
+        "A join with more than three tables",
+        "A join whose keys are all NULL",
+        "A join wrapped in a CTE"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_conditional_aggregation_critique_001",
+    "concept_id": "sql.conditional_aggregation",
+    "type": "critique",
+    "prompt": "A colleague writes `COUNT(CASE WHEN status = 'shipped' THEN 1 ELSE 0 END)` to count shipped orders and gets the total row count instead. Explain their mistake.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that COUNT counts non-NULL values, and 0 is not NULL",
+        "Says every row therefore contributes to the count",
+        "Gives the fix: drop the ELSE, or switch COUNT to SUM"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_conditional_aggregation_explain_001",
+    "concept_id": "sql.conditional_aggregation",
+    "type": "explain",
+    "prompt": "Explain how `SUM(CASE WHEN status = 'shipped' THEN 1 ELSE 0 END)` works and why you would write it instead of a second query with a WHERE clause.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the CASE turns each row into 1 or 0 and SUM counts the ones",
+        "States that it gives a filtered count in the same pass as other aggregates",
+        "Notes that it avoids a second scan or a join between two aggregate queries"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_conditional_aggregation_predict_output_001",
+    "concept_id": "sql.conditional_aggregation",
+    "type": "predict_output",
+    "prompt": "The table has four rows with status values 'shipped', 'shipped', 'held', 'held'. What does `SUM(CASE WHEN status = 'shipped' THEN 1 ELSE 0 END)` return?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "2",
+        "two"
+      ],
+      "explain": "Two rows match and contribute 1 each; the other two contribute 0."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_conditional_aggregation_spot_error_001",
+    "concept_id": "sql.conditional_aggregation",
+    "type": "spot_error",
+    "prompt": "This query should return the count of shipped orders per region. One line contains a bug. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT region,",
+        "       SUM(CASE WHEN status = 'shipped' THEN 1 END) AS shipped,",
+        "       AVG(CASE WHEN status = 'shipped' THEN amount ELSE 0 END) AS avg_shipped",
+        "FROM orders",
+        "GROUP BY region"
+      ],
+      "bad_line": 2,
+      "why": "The ELSE 0 makes non-shipped orders count as zero-value rows in the AVG, dragging the average down; it should be ELSE NULL so those rows are skipped."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_cte_vs_subquery_explain_001",
+    "concept_id": "sql.cte_vs_subquery",
+    "type": "explain",
+    "prompt": "You refactor a nested subquery into a CTE and the query gets slower. Explain how that is possible when the logic is identical.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that whether a CTE is inlined or materialized is up to the engine",
+        "Says a materialized CTE can block predicate pushdown or index use",
+        "Notes that readability, not performance, is the reliable reason to use a CTE"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_cte_vs_subquery_mcq_001",
+    "concept_id": "sql.cte_vs_subquery",
+    "type": "mcq",
+    "prompt": "What is the most reliable reason to rewrite a deeply nested subquery as a chain of CTEs?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It always executes faster",
+        "It lets each step be named and read top to bottom",
+        "It guarantees each step is computed only once",
+        "It removes the need for a GROUP BY"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_cte_vs_subquery_tf_why_001",
+    "concept_id": "sql.cte_vs_subquery",
+    "type": "tf_why",
+    "prompt": "True or false: a CTE referenced three times in the same query is guaranteed to be computed only once. Give the verdict, then your reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that the guarantee depends on the engine, not on the SQL standard",
+          "Says an inlining engine may evaluate the CTE once per reference",
+          "Names a way to force it, such as a temp table or an explicit materialization hint"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the guarantee depends on the engine, not on the SQL standard",
+        "Says an inlining engine may evaluate the CTE once per reference",
+        "Names a way to force it, such as a temp table or an explicit materialization hint"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_cte_vs_subquery_when_not_001",
+    "concept_id": "sql.cte_vs_subquery",
+    "type": "when_not",
+    "prompt": "When would you leave a subquery inline instead of promoting it to a CTE?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the case of a small scalar or EXISTS check used once",
+        "Says a CTE adds a name and a reading hop that buys nothing there",
+        "Mentions that materialization can hurt when the engine would otherwise push a filter down"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_date_boundaries_breaks_first_001",
+    "concept_id": "sql.date_boundaries",
+    "type": "breaks_first",
+    "prompt": "A pipeline stores timestamps in the server's local time and a report groups them by day. What breaks first, and when?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the daylight-saving transition as the first thing to break",
+        "Says one day gains or loses an hour, so a daily count shifts",
+        "Notes that comparing against a UTC source produces a boundary mismatch",
+        "States the fix: store UTC and convert only for display"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_date_boundaries_explain_001",
+    "concept_id": "sql.date_boundaries",
+    "type": "explain",
+    "prompt": "Explain why `WHERE created_at BETWEEN '2026-01-01' AND '2026-01-31'` quietly loses data when created_at is a timestamp, and what you would write instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the bare date is read as midnight at the start of the day",
+        "Says everything after 00:00:00 on the 31st is excluded",
+        "Gives the half-open fix: >= '2026-01-01' AND < '2026-02-01'"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_date_boundaries_mcq_001",
+    "concept_id": "sql.date_boundaries",
+    "type": "mcq",
+    "prompt": "Which predicate is safe on a timestamp column and can still use an index on it?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "WHERE DATE(created_at) = '2026-01-15'",
+        "WHERE created_at >= '2026-01-15' AND created_at < '2026-01-16'",
+        "WHERE CAST(created_at AS DATE) BETWEEN '2026-01-15' AND '2026-01-15'",
+        "WHERE TO_CHAR(created_at, 'YYYY-MM-DD') = '2026-01-15'"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_date_boundaries_spot_error_001",
+    "concept_id": "sql.date_boundaries",
+    "type": "spot_error",
+    "prompt": "This query should count January signups. One line will produce a wrong count. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT COUNT(*)",
+        "FROM users",
+        "WHERE created_at >= '2026-01-01'",
+        "  AND created_at <= '2026-01-31'"
+      ],
+      "bad_line": 3,
+      "why": "The closed upper bound resolves to midnight on the 31st, so signups during that final day are excluded; it should be < '2026-02-01'."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_execution_order_critique_001",
+    "concept_id": "sql.execution_order",
+    "type": "critique",
+    "prompt": "A colleague says: \"WHERE and HAVING do the same thing, HAVING is just the one you use when there's a GROUP BY.\" What is wrong with that?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that WHERE filters rows before aggregation and HAVING filters groups after",
+        "Points out HAVING can reference aggregates while WHERE cannot",
+        "Notes that moving a condition between them can change the result, not just the syntax"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_execution_order_explain_001",
+    "concept_id": "sql.execution_order",
+    "type": "explain",
+    "prompt": "You write `SELECT revenue / nights AS rate FROM stays WHERE rate > 100` and the database rejects it with \"column rate does not exist\" — even though `rate` is right there in the SELECT. Explain what is going on.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that WHERE is evaluated before SELECT",
+        "Says the alias does not exist yet at the time WHERE runs",
+        "Names a fix: repeat the expression, or wrap it in a subquery or CTE"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_execution_order_mcq_001",
+    "concept_id": "sql.execution_order",
+    "type": "mcq",
+    "prompt": "Which clause can reference a column alias defined in the SELECT list?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "WHERE",
+        "GROUP BY",
+        "ORDER BY",
+        "HAVING"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_execution_order_ordering_001",
+    "concept_id": "sql.execution_order",
+    "type": "ordering",
+    "prompt": "Put these SQL clauses in the order the database logically evaluates them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "SELECT",
+        "FROM / JOIN",
+        "ORDER BY",
+        "WHERE",
+        "GROUP BY",
+        "HAVING"
+      ],
+      "correct_order": [
+        1,
+        3,
+        4,
+        5,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_group_by_grain_cloze_001",
+    "concept_id": "sql.group_by_grain",
+    "type": "cloze",
+    "prompt": "Fill in the blank: to filter on the result of an aggregate such as SUM(amount) > 1000, you use the ______ clause rather than WHERE.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "HAVING",
+            "having",
+            "the HAVING clause",
+            "HAVING clause"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_group_by_grain_explain_001",
+    "concept_id": "sql.group_by_grain",
+    "type": "explain",
+    "prompt": "Someone hands you a query with `GROUP BY customer_id, order_date`. Without reading anything else, what do you know about the shape of its output?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the output has one row per distinct combination of customer and date",
+        "States that the GROUP BY list defines the grain of the result",
+        "Notes that every other selected column must be aggregated or in that list"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_group_by_grain_mcq_001",
+    "concept_id": "sql.group_by_grain",
+    "type": "mcq",
+    "prompt": "A query groups by `region` and selects `region, city, SUM(sales)`. Assuming strict SQL, what happens?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It runs, returning an arbitrary city per region",
+        "It errors, because city is neither grouped nor aggregated",
+        "It runs, returning one row per city",
+        "It errors, because SUM cannot appear alongside a text column"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_group_by_grain_when_not_001",
+    "concept_id": "sql.group_by_grain",
+    "type": "when_not",
+    "prompt": "When is GROUP BY the wrong tool, even though you want an aggregate value?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the case where you need the aggregate alongside the original rows",
+        "Says a window function computes per row without collapsing the grain",
+        "Gives a concrete example such as showing each order next to its customer total"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_fanout_breaks_first_001",
+    "concept_id": "sql.join_fanout",
+    "type": "breaks_first",
+    "prompt": "A dashboard query joins four tables and has had a DISTINCT bolted onto the SELECT to make the numbers look right. What breaks first, and what does it look like when it does?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says DISTINCT hides duplicate rows but does not undo a duplicated SUM or COUNT",
+        "Names a case where two legitimately identical rows get collapsed and a count goes too low",
+        "Mentions the cost of the sort or hash that DISTINCT forces on a large result",
+        "Says the underlying grain problem stays invisible until someone reconciles against another source"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_fanout_explain_001",
+    "concept_id": "sql.join_fanout",
+    "type": "explain",
+    "prompt": "You join orders to order_items and the total revenue in your report doubles. Nothing about the source data changed. Explain what happened and how you would confirm it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the join key is not unique on the order_items side",
+        "Says each order row is duplicated once per matching item row",
+        "Names a check: compare row counts before and after, or count distinct order ids",
+        "Says the order-level amount is now summed multiple times"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_fanout_mcq_001",
+    "concept_id": "sql.join_fanout",
+    "type": "mcq",
+    "prompt": "Which check most directly tells you whether a join has multiplied rows?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Compare the row count before and after the join",
+        "Check that no column in the result is NULL",
+        "Run EXPLAIN and look at the join algorithm",
+        "Confirm both tables have a primary key defined"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_fanout_spot_error_001",
+    "concept_id": "sql.join_fanout",
+    "type": "spot_error",
+    "prompt": "This query is supposed to report total order revenue per customer. One line makes the totals too high. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT c.customer_id,",
+        "       SUM(o.order_total) AS revenue",
+        "FROM customers c",
+        "JOIN orders o ON o.customer_id = c.customer_id",
+        "JOIN order_items i ON i.order_id = o.order_id",
+        "GROUP BY c.customer_id"
+      ],
+      "bad_line": 4,
+      "why": "Joining order_items duplicates each order row once per item, so order_total is summed once per item instead of once per order."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_types_explain_001",
+    "concept_id": "sql.join_types",
+    "type": "explain",
+    "prompt": "You have a customers table and an orders table. Explain the difference between an inner join and a left join here, in terms of which rows come out and what the order columns look like.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says an inner join keeps only customers that have at least one matching order",
+        "Says a left join keeps every customer regardless of matches",
+        "States that unmatched rows get NULL in the columns from the orders side"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_types_matching_001",
+    "concept_id": "sql.join_types",
+    "type": "matching",
+    "prompt": "Match each join to what it keeps from the two inputs.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "INNER JOIN",
+        "LEFT JOIN",
+        "FULL OUTER JOIN",
+        "CROSS JOIN"
+      ],
+      "right": [
+        "Every row from the left input, plus matches from the right",
+        "Every combination of rows from both inputs, with no join condition",
+        "Only rows that matched on both sides",
+        "Every row from both inputs, matched where possible"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_types_mcq_001",
+    "concept_id": "sql.join_types",
+    "type": "mcq",
+    "prompt": "A LEFT JOIN from customers to orders returns 500 rows. You add `WHERE orders.status = 'shipped'` to the query. What happens to customers who have no orders at all?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "They stay, with NULL in the order columns",
+        "They are dropped, because NULL = 'shipped' is not true",
+        "They stay, but only if another customer shares their id",
+        "The query errors, because you cannot filter a nullable joined column"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_join_types_when_not_001",
+    "concept_id": "sql.join_types",
+    "type": "when_not",
+    "prompt": "When would you deliberately not use a LEFT JOIN, and reach for an inner join or an EXISTS instead?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where rows without a match are genuinely not wanted in the output",
+        "Mentions that EXISTS avoids row multiplication when you only need a yes or no",
+        "Notes that a left join whose right side is later filtered behaves as an inner join anyway"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_null_semantics_critique_001",
+    "concept_id": "sql.null_semantics",
+    "type": "critique",
+    "prompt": "A colleague says: \"NOT IN and NOT EXISTS are interchangeable, NOT IN just reads better.\" Why is that a dangerous belief?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a NULL anywhere in the NOT IN list makes the whole predicate unknown",
+        "Says the query then returns zero rows rather than an error",
+        "Notes that NOT EXISTS is unaffected by NULLs in the subquery",
+        "Mentions that the failure is silent, so it survives review"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_null_semantics_explain_001",
+    "concept_id": "sql.null_semantics",
+    "type": "explain",
+    "prompt": "Explain why `WHERE status != 'cancelled'` silently drops rows where status is NULL, and what you would write instead if you want those rows.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that comparing anything to NULL yields unknown, not true or false",
+        "Says WHERE keeps only rows where the condition is true, so unknown is filtered out",
+        "Gives a fix such as adding OR status IS NULL, or using COALESCE"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_null_semantics_mcq_001",
+    "concept_id": "sql.null_semantics",
+    "type": "mcq",
+    "prompt": "Which expression is true when `x` is NULL?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "x = NULL",
+        "x != NULL",
+        "x IS NULL",
+        "NOT (x = NULL)"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_null_semantics_predict_output_001",
+    "concept_id": "sql.null_semantics",
+    "type": "predict_output",
+    "prompt": "The table `t` has one column `n` with the values 1, 2 and NULL. What does `SELECT COUNT(*), COUNT(n) FROM t` return?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "3, 2",
+        "3 and 2",
+        "3,2",
+        "count(*) = 3, count(n) = 2",
+        "3 2"
+      ],
+      "explain": "COUNT(*) counts rows, so it returns 3. COUNT(n) counts non-NULL values of n, so it returns 2."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_basics_explain_001",
+    "concept_id": "sql.window.basics",
+    "type": "explain",
+    "prompt": "In one or two sentences, explain what a window function does that a GROUP BY aggregate cannot.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a window computes a value per row without collapsing rows",
+        "Says the original row detail survives alongside the aggregate",
+        "Gives an example such as each order shown next to its customer total"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_basics_matching_001",
+    "concept_id": "sql.window.basics",
+    "type": "matching",
+    "prompt": "Match each requirement to the tool that fits it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "One row per region with total sales",
+        "Every order shown next to its region's total",
+        "Each order's rank within its region",
+        "Regions whose total sales exceed 1M"
+      ],
+      "right": [
+        "GROUP BY with HAVING",
+        "GROUP BY",
+        "RANK() with PARTITION BY",
+        "SUM() OVER (PARTITION BY region)"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_basics_mcq_001",
+    "concept_id": "sql.window.basics",
+    "type": "mcq",
+    "prompt": "A table has 1,000 rows. How many rows does `SELECT id, SUM(amount) OVER () FROM t` return?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "1",
+        "1,000",
+        "One per distinct amount",
+        "It errors without a GROUP BY"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_basics_to_stakeholder_001",
+    "concept_id": "sql.window.basics",
+    "type": "to_stakeholder",
+    "prompt": "A manager asks why the report you rebuilt now shows both the individual transactions and the running category total on the same screen, when the old one made them open two tabs. Explain what changed, without using the phrase \"window function\".",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the total is now calculated alongside each row rather than in a separate summary",
+        "Names the benefit to the reader: no switching between two views to compare",
+        "Avoids implementation jargon and stays in the language of the report"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_frame_clause_cloze_001",
+    "concept_id": "sql.window.frame_clause",
+    "type": "cloze",
+    "prompt": "Fill in the blank: to define a window frame covering every row from the start of the partition through the current row, you write BETWEEN ______ AND CURRENT ROW.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "UNBOUNDED PRECEDING",
+            "unbounded preceding",
+            "UNBOUNDED_PRECEDING"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_frame_clause_critique_001",
+    "concept_id": "sql.window.frame_clause",
+    "type": "critique",
+    "prompt": "A colleague says: \"If I add ORDER BY inside OVER() and don't write a frame, there is no frame — it just orders the rows.\" What is wrong with that?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that adding ORDER BY introduces a default frame",
+        "Names the default as RANGE from the start of the partition to the current row and its peers",
+        "Says this turns a total into a running total, which surprises people who expected the partition sum"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_frame_clause_explain_001",
+    "concept_id": "sql.window.frame_clause",
+    "type": "explain",
+    "prompt": "Explain what changes when you write ROWS BETWEEN instead of RANGE BETWEEN in a window frame.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that ROWS counts physical rows while RANGE works on values",
+        "Identifies ties as the practical consequence: RANGE includes every peer row",
+        "Gives a case where the two produce different numbers"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_frame_clause_mcq_001",
+    "concept_id": "sql.window.frame_clause",
+    "type": "mcq",
+    "prompt": "Three rows share the same ORDER BY value. Under the default frame with ORDER BY present, what does a running SUM return for the first of those three rows?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Only its own value",
+        "The total including all three tied rows",
+        "NULL, because the frame is ambiguous",
+        "Its own value plus the next row only"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_partition_by_explain_001",
+    "concept_id": "sql.window.partition_by",
+    "type": "explain",
+    "prompt": "Explain what PARTITION BY does to a window function, and how it differs from GROUP BY given they both name a grouping column.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that PARTITION BY restarts the window calculation for each group",
+        "Says the row count of the output is unchanged, unlike GROUP BY",
+        "Notes that both express the same grouping intent at different output grains"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_partition_by_mcq_001",
+    "concept_id": "sql.window.partition_by",
+    "type": "mcq",
+    "prompt": "You want each employee's salary shown next to the average salary of their department. Which is right?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "AVG(salary) with GROUP BY department",
+        "AVG(salary) OVER (PARTITION BY department)",
+        "AVG(salary) OVER (ORDER BY department)",
+        "AVG(salary) with HAVING department IS NOT NULL"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_partition_by_predict_output_001",
+    "concept_id": "sql.window.partition_by",
+    "type": "predict_output",
+    "prompt": "A table has 3 rows for region 'east' and 2 for 'west'. How many rows does `SELECT region, COUNT(*) OVER (PARTITION BY region) FROM t` return?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "5",
+        "five",
+        "5 rows"
+      ],
+      "explain": "A window function returns one row per input row; PARTITION BY only changes what each row's value is computed over."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_partition_by_when_not_001",
+    "concept_id": "sql.window.partition_by",
+    "type": "when_not",
+    "prompt": "You could compute a per-group total either with PARTITION BY or with a GROUP BY subquery joined back. When would you not reach for the window function?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where the grouped result is itself the wanted output",
+        "Mentions that a large partition can be more expensive than a pre-aggregated join",
+        "Says the joined aggregate can be reused across several queries or models"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_rank_family_explain_001",
+    "concept_id": "sql.window.rank_family",
+    "type": "explain",
+    "prompt": "Explain the difference between ROW_NUMBER, RANK and DENSE_RANK when two rows tie, and say which one you reach for when deduplicating.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says ROW_NUMBER always gives distinct sequential numbers, breaking ties arbitrarily",
+        "Says RANK gives ties the same number and leaves a gap after them",
+        "Says DENSE_RANK gives ties the same number with no gap",
+        "States that deduplication wants ROW_NUMBER because it guarantees exactly one row per key"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_rank_family_matching_001",
+    "concept_id": "sql.window.rank_family",
+    "type": "matching",
+    "prompt": "Three rows have scores 10, 10 and 9, ordered descending. Match each function to the numbers it assigns.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "ROW_NUMBER()",
+        "RANK()",
+        "DENSE_RANK()"
+      ],
+      "right": [
+        "1, 1, 2",
+        "1, 2, 3",
+        "1, 1, 3"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_rank_family_predict_output_001",
+    "concept_id": "sql.window.rank_family",
+    "type": "predict_output",
+    "prompt": "Scores are 10, 10, 9 ordered descending. What does RANK() assign to the row scoring 9?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "3",
+        "three"
+      ],
+      "explain": "RANK leaves a gap after a tie: the two tied rows are both 1, so the next rank is 3, not 2."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_sql_window_rank_family_when_not_001",
+    "concept_id": "sql.window.rank_family",
+    "type": "when_not",
+    "prompt": "You are deduplicating to the latest row per key with ROW_NUMBER ordered by updated_at DESC. When does that not give you a deterministic answer, and what do you do about it?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the case where two rows share the same updated_at value",
+        "Says the tie is broken arbitrarily and can change between runs",
+        "Gives a fix: add a second ORDER BY column such as an id as a tiebreak"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-03"
+  }
+]
