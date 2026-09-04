@@ -36,6 +36,35 @@
         <p>Loading tonight's questions…</p>
       </div>
     </main>
+
+    <!-- Shown once per device, only when no key is stored. The key doubles as
+         the sync credential, so nothing secret ships in this page. -->
+    <section id="gate" class="gate" hidden>
+      <div class="gate-card">
+        <div class="gate-titlebar">
+          <span class="dot-accent"></span><span class="dot-dim"></span><span class="dot-dim"></span>
+          <span class="gate-label">// access required · daily drill</span>
+        </div>
+        <div class="gate-body">
+          <p class="gate-intro">Enter your access key to sync this device. Your answers stay yours; the key is the same one the other private apps use.</p>
+          <form id="gate-form" autocomplete="off">
+            <label class="gate-field">
+              <span>Sync endpoint</span>
+              <input id="gate-endpoint" class="field" type="url" placeholder="https://daily-drill-sync.workers.dev" required>
+            </label>
+            <label class="gate-field">
+              <span>Access key</span>
+              <input id="gate-key" class="field" type="password" placeholder="Access key" aria-label="Access key" required>
+            </label>
+            <div class="actions">
+              <button type="submit" id="gate-submit" class="btn-primary">Unlock</button>
+              <button type="button" id="gate-skip" class="btn-secondary">Drill without syncing</button>
+            </div>
+          </form>
+          <p id="gate-error" class="gate-error" role="alert" hidden></p>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -56,6 +85,15 @@
         <input type="file" id="file-import" accept="application/json" hidden>
       </div>
       <p class="note">Progress lives in this browser only. Export is the backup; moving between machines means exporting here and importing there. Import replaces what is stored — it does not merge.</p>
+    </section>
+
+    <section class="group">
+      <div class="eyebrow">// sync</div>
+      <p class="note" id="sync-status">—</p>
+      <div class="row">
+        <button id="btn-sync" class="btn-secondary">Sync now</button>
+        <button id="btn-forget" class="btn-secondary danger">Forget key</button>
+      </div>
     </section>
 
     <section class="group">

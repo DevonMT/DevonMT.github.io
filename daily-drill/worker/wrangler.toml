@@ -1,0 +1,20 @@
+name = "daily-drill-sync"
+main = "src/index.js"
+compatibility_date = "2026-09-04"
+
+# Origins allowed to call this Worker. The drill is served from the custom
+# domain; localhost is here so the dev server can exercise sync too.
+[vars]
+ALLOWED_ORIGINS = "https://devontroedel.com,http://localhost:4321"
+
+# The attempt log. One key, one small JSON blob.
+# Create with:  npx wrangler kv namespace create DRILL
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "DRILL"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# DRILL_KEY is a secret, never a var - set it with:
+#   npx wrangler secret put DRILL_KEY
+# Use the same access key the other private apps use, so one key unlocks
+# everything on a given device.

@@ -11,6 +11,7 @@ import {
   SESSION_SIZE, toDay,
 } from './srs.js';
 import * as store from './store.js';
+import * as sync from './sync.js';
 
 const CATALOG_VERSION = '2026-09-03';
 const DOMAINS = ['data', 'software', 'build', 'ops', 'comms'];
@@ -82,6 +83,19 @@ async function boot() {
     if (state.catalog_version !== CATALOG_VERSION) {
       state = { ...state, catalog_version: CATALOG_VERSION };
     }
+
+    // A device with no key sees the gate once; it can also be declined, because
+    // the app is fully usable without sync.
+    if (!sync.getKey() || !sync.getEndpoint()) {
+      if (!state.settings.sync_declined) return showGate();
+    } else {
+      // Pull before planning so a session done on another device is already
+      // reflected and its questions are not asked again. Short timeout: offline
+      // this fails fast and the session starts anyway.
+      const res = await sync.reconcile(state);
+      if (res.ok) { state = res.state; persist(); }
+      else if (res.reason === 'unauthorized') return showGate('That key was rejected. Enter it again.');
+    }
     startSession();
   } catch (err) {
     console.error(err);
@@ -102,6 +116,69 @@ function startSession({ bonus = false } = {}) {
   if (!queue.length) return renderEmpty();
   renderPips();
   renderQuestion();
+}
+
+// ---------------------------------------------------------------- gate
+
+function showGate(errorMessage) {
+  const gate = document.getElementById('gate');
+  const form = document.getElementById('gate-form');
+  const endpointInput = document.getElementById('gate-endpoint');
+  const keyInput = document.getElementById('gate-key');
+  const submit = document.getElementById('gate-submit');
+  const error = document.getElementById('gate-error');
+
+  document.getElementById('app').hidden = true;
+  gate.hidden = false;
+  endpointInput.value = sync.getEndpoint() ?? '';
+  if (errorMessage) { error.textContent = errorMessage; error.hidden = false; }
+  setTimeout(() => (endpointInput.value ? keyInput : endpointInput).focus(), 50);
+
+  document.getElementById('gate-skip').addEventListener('click', () => {
+    // Declining is remembered, so the gate is asked once and never nags.
+    state = { ...state, settings: { ...state.settings, sync_declined: true } };
+    persist();
+    dismissGate();
+    startSession();
+  }, { once: true });
+
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const endpoint = endpointInput.value.trim();
+    const key = keyInput.value.trim();
+    if (!endpoint || !key) return;
+
+    error.hidden = true;
+    submit.disabled = true;
+    submit.textContent = 'Checking…';
+    const check = await sync.checkKey(endpoint, key);
+    submit.disabled = false;
+    submit.textContent = 'Unlock';
+
+    if (!check.ok) { error.textContent = check.reason; error.hidden = false; keyInput.select(); return; }
+
+    sync.setEndpoint(endpoint);
+    sync.setKey(key);
+    state = { ...state, settings: { ...state.settings, sync_declined: false } };
+    const res = await sync.reconcile(state);
+    if (res.ok) state = res.state;
+    persist();
+    dismissGate();
+    startSession();
+  });
+}
+
+function dismissGate() {
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+}
+
+/** Push after a session. Fire-and-forget: a drill is never held up by sync. */
+function syncInBackground() {
+  if (!sync.syncConfigured()) return;
+  sync.reconcile(state).then(res => {
+    if (res.ok) { state = res.state; persist(); }
+  });
 }
 
 // ---------------------------------------------------------------- chrome
@@ -505,6 +582,7 @@ function freeTextControl() {
 function renderDone() {
   clear(el);
   renderPipsAllDone();
+  syncInBackground();
   const active = daysActive(state.session_dates, today);
   el.append(h('div', { class: 'done' },
     h('h1', { text: bonusRound ? 'That is the extra round.' : 'Done for tonight.' }),
@@ -532,6 +610,9 @@ document.getElementById('settings-open').addEventListener('click', () => {
   document.getElementById('opt-work-lane').checked = state.settings.show_work_lane;
   document.getElementById('capture-count').textContent =
     state.captures.length ? `${state.captures.length} waiting to be sorted` : '';
+  document.getElementById('sync-status').textContent = sync.syncConfigured()
+    ? `Syncing with ${new URL(sync.getEndpoint()).host}. ${state.attempts.length} attempts held.`
+    : 'Not syncing on this device. Progress stays in this browser only.';
   document.getElementById('storage-note').textContent = store.storageAvailable
     ? `catalog ${state.catalog_version ?? '—'} · ${state.attempts.length} attempts stored`
     : 'This browser is blocking local storage, so tonight will not be saved.';
@@ -543,6 +624,34 @@ document.getElementById('opt-work-lane').addEventListener('change', ev => {
   state = { ...state, settings: { ...state.settings, show_work_lane: ev.target.checked } };
   persist();
   location.reload();
+});
+
+document.getElementById('btn-sync').addEventListener('click', async ev => {
+  const btn = ev.target;
+  const status = document.getElementById('sync-status');
+  if (!sync.syncConfigured()) { dlg.close(); return showGate(); }
+  btn.disabled = true;
+  const before = state.attempts.length;
+  const res = await sync.reconcile(state);
+  btn.disabled = false;
+  if (!res.ok) {
+    status.textContent = res.reason === 'unauthorized'
+      ? 'That key was rejected — re-enter it to sync again.'
+      : `Sync failed: ${res.message}. Your progress here is untouched.`;
+    return;
+  }
+  state = res.state;
+  persist();
+  const gained = state.attempts.length - before;
+  status.textContent = gained
+    ? `Synced. ${gained} attempt${gained === 1 ? '' : 's'} arrived from another device.`
+    : 'Synced. Everything was already up to date.';
+});
+
+document.getElementById('btn-forget').addEventListener('click', () => {
+  if (!confirm('Forget the sync key on this device? Your progress here stays, but it will stop syncing.')) return;
+  try { localStorage.removeItem(sync.KEY_NAME); } catch { /* private mode */ }
+  document.getElementById('sync-status').textContent = 'Key forgotten. This device no longer syncs.';
 });
 
 document.getElementById('btn-export').addEventListener('click', () => {
