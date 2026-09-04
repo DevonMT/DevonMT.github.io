@@ -1,0 +1,291 @@
+[
+  {
+    "concept_id": "comms.answer_first",
+    "type": "to_stakeholder",
+    "prompt": "A director messages you at 4:55pm: \"Is the churn number in tomorrow's deck wrong?\" It is — a filter dropped trial accounts and overstated churn by about three points. Write the reply you send.",
+    "criteria": [
+      "Opens with the verdict — the number is wrong — in the first sentence",
+      "Gives the size or direction of the error before explaining the cause",
+      "Puts the filter problem after the answer, not as a preamble to it",
+      "Ends with what happens next and when a corrected figure arrives"
+    ]
+  },
+  {
+    "concept_id": "comms.answer_first",
+    "type": "critique",
+    "prompt": "A teammate opens an update with: \"Over three weeks I pulled the event logs, reconciled them against billing, found duplicate charges, removed them, and re-ran the model.\" The actual news is that the revenue forecast dropped eight percent. Critique that opening.",
+    "criteria": [
+      "Names that the eight percent drop arrives last instead of first",
+      "Says a reader may stop or be interrupted before reaching the news",
+      "Proposes a first line that leads with the forecast change",
+      "Keeps the reconciliation detail in the message rather than deleting it"
+    ]
+  },
+  {
+    "concept_id": "comms.answer_first",
+    "type": "ordering",
+    "prompt": "You have four pieces of a short update and thirty seconds of someone's attention. Put them in the order that survives being cut off halfway through.",
+    "items": [
+      "How the estimate was produced, step by step",
+      "The answer: the pipeline can be ready by the 14th",
+      "The caveat you would raise only if asked",
+      "The two constraints that drive that date"
+    ],
+    "correct_order": [1, 3, 0, 2]
+  },
+  {
+    "concept_id": "comms.answer_first",
+    "type": "mcq",
+    "prompt": "The same finding can go into a memo the reader scrolls at their own pace, or into a live meeting where you may be interrupted at any moment. Where does putting the conclusion first matter more, and for what reason?",
+    "options": [
+      "The meeting, because an interruption can arrive before you ever reach the conclusion",
+      "The meeting, because opening with the conclusion shortens the meeting",
+      "The memo, because the conclusion needs supporting sections stacked beneath it",
+      "Neither, because order changes how it feels but not what is understood"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "comms.audience_calibration",
+    "type": "explain",
+    "prompt": "The result of a pipeline migration has to go to the engineer who will maintain it and to the executive who funded it. Explain what you change between the two versions and what stays identical.",
+    "criteria": [
+      "Names something the engineer already knows that the executive does not",
+      "States what each of the two will do with the information",
+      "Keeps the underlying finding and numbers the same in both versions",
+      "Names the executive's real worry — cost, risk, or timing — rather than assuming interest in mechanics"
+    ]
+  },
+  {
+    "concept_id": "comms.audience_calibration",
+    "type": "when_not",
+    "prompt": "Adjusting a message to its audience can slide into telling people what they want to hear. Where is the line, and how do you know when you have crossed it?",
+    "criteria": [
+      "Separates changing the framing from changing the conclusion",
+      "Gives a case where an unwelcome finding has to survive the translation",
+      "Names what stays fixed no matter who is in the room",
+      "Offers a check for whether the message has been softened past the evidence"
+    ]
+  },
+  {
+    "concept_id": "comms.audience_calibration",
+    "type": "matching",
+    "prompt": "Match each reader of the same pipeline write-up to the thing they are actually worried about.",
+    "left": [
+      "A finance partner reviewing your forecast",
+      "The on-call engineer inheriting the pipeline",
+      "A support lead whose team fields the complaints",
+      "An executive deciding whether to fund another quarter"
+    ],
+    "right": [
+      "What pages them at 3am, and how to make it stop",
+      "Whether the last quarter of spend produced anything",
+      "How many customers notice, and what to tell them",
+      "Whether the range is defensible enough to put in a budget"
+    ],
+    "pairs": [[0, 3], [1, 0], [2, 2], [3, 1]]
+  },
+  {
+    "concept_id": "comms.audience_calibration",
+    "type": "multi",
+    "prompt": "Before writing up a result, which questions actually tell you how to pitch it?",
+    "options": [
+      "What will this person do with the answer once they have it?",
+      "What do they already know, so I am not re-explaining it?",
+      "What are they afraid is going wrong?",
+      "Which part of the work was the hardest to build?",
+      "Which chart style will look best on the slide?"
+    ],
+    "correct_indices": [0, 1, 2]
+  },
+  {
+    "concept_id": "comms.closing_the_loop",
+    "type": "to_stakeholder",
+    "prompt": "Six weeks ago someone reported that a report double-counted refunds. The fix went live this morning and nobody has asked about it since. Write the note you send them.",
+    "criteria": [
+      "States in the first line that the fix is live",
+      "Says what the numbers show now that they did not before",
+      "Tells them whether figures they saved earlier have changed",
+      "Gives one concrete thing to look at or a way to reply"
+    ]
+  },
+  {
+    "concept_id": "comms.closing_the_loop",
+    "type": "push_back",
+    "prompt": "A colleague tells you that announcing your own finished work is self-promotion, and that the work should speak for itself. Argue against that.",
+    "criteria": [
+      "Names who is left without information when nothing is announced",
+      "Points out that nobody outside the work can see that it finished",
+      "Separates reporting an outcome from claiming credit for it",
+      "Describes a low-cost form the announcement can take"
+    ]
+  },
+  {
+    "concept_id": "comms.closing_the_loop",
+    "type": "tf_why",
+    "prompt": "True or false: if the person who requested a change has not chased it in a month, the change stopped mattering to them, so there is no need to tell them it shipped.",
+    "verdict": false,
+    "criteria": [
+      "Says silence usually means they routed around the gap instead",
+      "Notes they may still be running a workaround built on the old behaviour",
+      "States the cost of sending the note as near zero either way",
+      "Points out the requester has no way to learn it shipped unless told"
+    ]
+  },
+  {
+    "concept_id": "comms.closing_the_loop",
+    "type": "mcq",
+    "prompt": "A fix you shipped changes a metric definition that three other teams quote in their own reporting. Beyond replying to the person who reported it, what does closing the loop require?",
+    "options": [
+      "Nothing further — the person who reported it can pass the word along",
+      "Telling the teams who quote that metric what changed and from which date",
+      "Rebuilding every historical report yourself before saying anything to anyone",
+      "Waiting for someone to notice the discrepancy and then explaining the change"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "comms.explaining_tradeoffs",
+    "type": "critique",
+    "prompt": "A proposal reads, in full: \"We should move the nightly refresh to hourly. Dashboards will be much fresher.\" Critique it as a recommendation.",
+    "criteria": [
+      "Names that nothing is given up anywhere in the proposal",
+      "Identifies a specific cost such as compute spend, source load, or on-call burden",
+      "Argues the missing cost makes the proposal less credible rather than more persuasive",
+      "Sketches a version that states the cost in the same breath as the benefit"
+    ]
+  },
+  {
+    "concept_id": "comms.explaining_tradeoffs",
+    "type": "estimate",
+    "prompt": "You want to cache an expensive join to cut a report's runtime, at the price of numbers that can be up to an hour stale. Put a number on what that hour of staleness costs, and show how you got there.",
+    "criteria": [
+      "Gives a range instead of a single point figure",
+      "Names who is looking at the report during that stale hour",
+      "States the assumption the estimate rests on",
+      "Says what evidence would narrow the range"
+    ]
+  },
+  {
+    "concept_id": "comms.explaining_tradeoffs",
+    "type": "multi",
+    "prompt": "Which of these sentences actually name a tradeoff, rather than only advertising an upside?",
+    "options": [
+      "Query cost drops by roughly half, and the figures can lag by up to an hour.",
+      "This is the strongest option on the table.",
+      "We get a same-day refresh; in exchange the team takes on a second on-call rotation.",
+      "It is faster, cheaper, and simpler than what we run today.",
+      "The model gets more accurate on new accounts and less accurate on the long tail."
+    ],
+    "correct_indices": [0, 2, 4]
+  },
+  {
+    "concept_id": "comms.explaining_tradeoffs",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a proposal that lists only upsides invites the reader to go hunting for the ______ you left out, while naming it yourself makes the proposal more ______.",
+    "blanks": [
+      { "accept": ["cost", "costs", "downside", "downsides", "catch", "drawback", "tradeoff", "trade-off"] },
+      { "accept": ["credible", "believable", "trustworthy", "convincing", "persuasive"] }
+    ]
+  },
+  {
+    "concept_id": "comms.recommend_dont_present",
+    "type": "push_back",
+    "prompt": "Your manager asks for \"a neutral summary of the three options, no recommendation — leadership will decide.\" You have a clear view on which option is right. How do you respond?",
+    "criteria": [
+      "Names what the decision-makers lose without the view of the person closest to the data",
+      "Offers a form that still honours the request, such as options plus a stated lean",
+      "Says the recommendation can be labelled as one input, not as the decision",
+      "Avoids both silent compliance and a flat refusal to write it"
+    ]
+  },
+  {
+    "concept_id": "comms.recommend_dont_present",
+    "type": "breaks_first",
+    "prompt": "You start ending every analysis with a firm recommendation instead of a menu of options. What breaks first, and who is the first to say something?",
+    "criteria": [
+      "Names being wrong in public as the first thing that breaks",
+      "Gives a case where the decision-maker held context you did not",
+      "Says to attach the assumption or condition that would make the call falsifiable",
+      "Identifies who pushes back first and on what grounds"
+    ]
+  },
+  {
+    "concept_id": "comms.recommend_dont_present",
+    "type": "mcq",
+    "prompt": "You send three options with pros and cons for each and no view of your own. What most often happens next?",
+    "options": [
+      "The reader picks the same option you would have picked anyway",
+      "The decision stalls, or comes back to you asking which one you would choose",
+      "The reader values the neutrality and reaches a decision faster",
+      "The three options get merged into a fourth approach nobody costed"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "comms.recommend_dont_present",
+    "type": "ordering",
+    "prompt": "Arrange the four parts of a one-page memo whose job is to get a decision made, not to survey the field.",
+    "items": [
+      "The alternatives you considered and why you set them aside",
+      "The recommendation, in one sentence",
+      "What would make you change your mind",
+      "The two reasons it beats the next-best option"
+    ],
+    "correct_order": [1, 3, 0, 2]
+  },
+  {
+    "concept_id": "comms.request_intake",
+    "type": "explain",
+    "prompt": "Someone drops into your channel with \"can you send me last quarter's active users?\" Before you write a line of SQL, what do you ask back, and what rework does each question prevent?",
+    "criteria": [
+      "Asks what decision or artefact the number feeds",
+      "Asks when it is needed by",
+      "Asks about grain — active users counted per what",
+      "Pins down what counts as active before querying",
+      "Ties at least one question to specific rework it heads off"
+    ]
+  },
+  {
+    "concept_id": "comms.request_intake",
+    "type": "critique",
+    "prompt": "A request lands as \"need a churn number for the board deck by Thursday.\" A teammate replies \"on it\" and opens a query editor. Critique that response.",
+    "criteria": [
+      "Names churn as undefined in the request as written",
+      "Points out the grain — accounts, seats, or revenue — was never specified",
+      "Notes that a board deck implies a comparison period nobody has agreed",
+      "States what the rework costs if the guess turns out wrong on Thursday"
+    ]
+  },
+  {
+    "concept_id": "comms.request_intake",
+    "type": "matching",
+    "prompt": "Match each intake question to the specific rework it prevents.",
+    "left": [
+      "What decision does this feed?",
+      "When do you need it?",
+      "Counted per customer, per account, or per seat?",
+      "What counts as active?"
+    ],
+    "right": [
+      "Stops the number being rebuilt later at a different grain",
+      "Stops a two-week build for a conversation happening tomorrow",
+      "Stops two teams quoting different figures for the same word",
+      "Stops a precise answer to a question nobody was asking"
+    ],
+    "pairs": [[0, 3], [1, 1], [2, 0], [3, 2]]
+  },
+  {
+    "concept_id": "comms.request_intake",
+    "type": "multi",
+    "prompt": "A stakeholder asks for \"revenue by region for the last year.\" Which follow-ups are worth asking before you start building?",
+    "options": [
+      "Bookings or recognised revenue?",
+      "Region by billing address or by sales territory?",
+      "Calendar year, or the trailing twelve months?",
+      "Would you prefer a bar chart or a line chart?",
+      "Should I write it as a CTE or a subquery?"
+    ],
+    "correct_indices": [0, 1, 2]
+  }
+]
