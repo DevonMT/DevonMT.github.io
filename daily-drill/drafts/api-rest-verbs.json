@@ -1,0 +1,30 @@
+[
+  {
+    "concept_id": "api.rest_verbs",
+    "type": "explain",
+    "prompt": "A teammate says the difference between PUT and POST is that PUT is for updates and POST is for creates. Where does that rule of thumb break down?",
+    "criteria": [
+      "States that PUT is defined by being idempotent, not by updating",
+      "Says a PUT can create a resource when the client chooses the identifier",
+      "Names the consequence: a retried POST can create a second resource"
+    ]
+  },
+  {
+    "concept_id": "api.rest_verbs",
+    "type": "tf_why",
+    "prompt": "True or false: sending the same DELETE request twice is a bug the client should avoid. Give the verdict, then your reasoning.",
+    "verdict": false,
+    "criteria": [
+      "States that DELETE is idempotent, so the repeat is harmless",
+      "Says the second call leaves the resource in the same absent state",
+      "Notes that the status code may differ even though the effect does not"
+    ]
+  },
+  {
+    "concept_id": "api.rest_verbs",
+    "type": "mcq",
+    "prompt": "Which verb is safe, meaning it is not expected to change server state at all?",
+    "options": ["GET", "POST", "PATCH", "DELETE"],
+    "correct_index": 0
+  }
+]
