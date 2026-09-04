@@ -1,5 +1,265 @@
 [
   {
+    "id": "q_analytics_correlation_causation_mcq_001",
+    "concept_id": "analytics.correlation_causation",
+    "type": "mcq",
+    "prompt": "A dashboard shows that accounts whose support tickets are closed within an hour renew at a higher rate. Which finding, if true, would most weaken the claim that fast responses cause renewals?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Accounts with simple questions both get answered fast and renew because the product fits them",
+        "The correlation coefficient is 0.42 rather than 0.9",
+        "Close times are recorded to the minute rather than the second",
+        "The renewal rate is reported as a percentage rather than in dollars"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_correlation_causation_multi_001",
+    "concept_id": "analytics.correlation_causation",
+    "type": "multi",
+    "prompt": "Teams using a new planning tool ship features faster than teams that do not. Which of these observations would each, on its own, undercut reading that as cause and effect?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The tool was rolled out first to teams that were already hitting their dates",
+        "Teams that ship fast tend to adopt new tooling sooner than teams that do not",
+        "Both adoption and shipping speed rose after a hiring wave added senior engineers",
+        "The comparison covers 40 teams rather than 12",
+        "Shipping speed is reported weekly rather than daily"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_correlation_causation_push_back_001",
+    "concept_id": "analytics.correlation_causation",
+    "type": "push_back",
+    "prompt": "Someone tells you the sample is two million users, so the correlation is far too strong to be a fluke and the causal question is settled. Write your reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that sample size rules out chance, not a shared third cause",
+        "Names a specific variable that could drive both measures at once",
+        "Says what evidence would settle it, such as an experiment or a natural cutoff",
+        "Concedes that the association itself is real and worth acting on as a signal"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_correlation_causation_to_stakeholder_001",
+    "concept_id": "analytics.correlation_causation",
+    "type": "to_stakeholder",
+    "prompt": "A marketing lead brings you a chart showing that customers who install the mobile app spend 40% more per year, and wants budget to push everyone onto the app. Write the two or three sentences you would say in that meeting.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a confounder such as already-heavy buyers being the ones who install",
+        "Raises the possibility that high spend leads to installing, not the reverse",
+        "Ends on a concrete next step such as a randomized rollout or holdout group",
+        "Keeps the budget request alive rather than only objecting to the chart"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_distributions_critique_001",
+    "concept_id": "analytics.distributions",
+    "type": "critique",
+    "prompt": "A colleague reports \"average revenue per customer is $2,400, up from $2,100\" as evidence that the customer base is getting healthier. Pick that conclusion apart.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that a handful of large accounts can move the mean on their own",
+        "Asks for the median or a breakdown by percentile band",
+        "Names the case where small customers churned out and the mean rose because of it",
+        "Says the typical customer may be no better off than before"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_distributions_explain_001",
+    "concept_id": "analytics.distributions",
+    "type": "explain",
+    "prompt": "Page load time on a site has a mean of 1.2 seconds and a p95 of 9 seconds. Explain what the mean is hiding, and say which number you would put in front of the engineering team.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a long right tail sits behind the low mean",
+        "Names p95 or another percentile as the number to report",
+        "Says a sizable group of users can be very slow while the mean stays low",
+        "Ties the choice of number to a decision, such as where to spend effort"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_distributions_predict_output_001",
+    "concept_id": "analytics.distributions",
+    "type": "predict_output",
+    "prompt": "Five salaries, in thousands, are recorded as `[40, 42, 45, 48, 500]`. The script runs `mean = sum(salaries) / len(salaries)` and `mid = sorted(salaries)[len(salaries) // 2]`, then prints `mean, mid`. What does it print?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "135.0 45",
+        "135 45",
+        "135.0, 45",
+        "135, 45"
+      ],
+      "explain": "The single 500 pulls the mean to 135.0 — above every other value in the set — while the median stays at 45, where four of the five people actually are."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_distributions_tf_why_001",
+    "concept_id": "analytics.distributions",
+    "type": "tf_why",
+    "prompt": "True or false: if a dataset's mean and median are close together, it has no long tail worth worrying about.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that mean and median agree whenever the shape is symmetric",
+          "Names a distribution with heavy tails on both sides as the counterexample",
+          "Says the comparison detects skew rather than tail weight",
+          "Names a percentile or a histogram as what would actually reveal the tail"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that mean and median agree whenever the shape is symmetric",
+        "Names a distribution with heavy tails on both sides as the counterexample",
+        "Says the comparison detects skew rather than tail weight",
+        "Names a percentile or a histogram as what would actually reveal the tail"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_metric_definition_breaks_first_001",
+    "concept_id": "analytics.metric_definition",
+    "type": "breaks_first",
+    "prompt": "Two dashboards both report \"active users\" and disagree by about 12% every single month, never by the same amount twice. Where do you look first, and what do you expect to find?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the activity window as a candidate, such as 28 days versus calendar month",
+        "Names the population, such as internal or test accounts appearing in one side",
+        "Treats the gap as a difference of definition rather than a pipeline failure",
+        "Describes a check that pins down which definition each dashboard uses"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_metric_definition_matching_001",
+    "concept_id": "analytics.metric_definition",
+    "type": "matching",
+    "prompt": "Two reports of the same metric disagree. Match each symptom to the part of the definition that is out of step.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "One side closes the day at midnight UTC, the other at midnight local time",
+        "One side counts only paid signups, the other counts every signup",
+        "Staff and load-test accounts appear on one side and not the other",
+        "One side divides by unique visitors, the other by sessions"
+      ],
+      "right": [
+        "Time window",
+        "Exclusions",
+        "Numerator",
+        "Denominator"
+      ],
+      "pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_metric_definition_mcq_001",
+    "concept_id": "analytics.metric_definition",
+    "type": "mcq",
+    "prompt": "Finance reports 4,812 new subscriptions for March; the product dashboard reports 4,655. Both queries have been read line by line and neither contains a mistake. What is the most likely explanation?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Rounding differences between the two reporting tools",
+        "The two use different rules for what counts as new, such as trials or reactivations",
+        "Random variation between two counts of the same table",
+        "One of the reports expresses the count in a different currency"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_metric_definition_push_back_001",
+    "concept_id": "analytics.metric_definition",
+    "type": "push_back",
+    "prompt": "A product manager says \"conversion rate is conversion rate, stop overthinking it and just give me the number.\" Write what you say back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names two definitions that yield different numbers, such as per visit versus per visitor",
+        "States which numerator and denominator you are going to use",
+        "Gives a number now instead of blocking on the definition debate",
+        "Asks what decision the number is going to feed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
     "id": "q_modeling_additivity_breaks_first_001",
     "concept_id": "modeling.additivity",
     "type": "breaks_first",

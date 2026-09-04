@@ -61,5 +61,277 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_api_status_codes_explain_001",
+    "concept_id": "api.status_codes",
+    "type": "explain",
+    "prompt": "Your nightly extract logged a run of 401s at 2am and a run of 503s at 4am against the same vendor API. Explain how your response to each batch should differ.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that 401 means the request was not authenticated, such as an expired token",
+        "Says the 401 batch needs a change on your side before any retry can succeed",
+        "States that 503 points at trouble on the provider's side and is worth retrying",
+        "Mentions backoff or a delay before retrying the 503 batch"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_api_status_codes_matching_001",
+    "concept_id": "api.status_codes",
+    "type": "matching",
+    "prompt": "Match each situation to the status code the server should return.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "The access token in the header expired an hour ago",
+        "A signed-in user requests another customer's record",
+        "The client fired 300 requests in ten seconds",
+        "The provider's own database is unreachable"
+      ],
+      "right": [
+        "403",
+        "429",
+        "401",
+        "500"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_api_status_codes_tf_why_001",
+    "concept_id": "api.status_codes",
+    "type": "tf_why",
+    "prompt": "True or false: a 403 response is the server's way of telling the client that signing in again will fix the problem.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that 403 means the caller is known but not permitted",
+          "Names 401 as the code that signals a missing or expired credential",
+          "Says a fresh token does not grant a permission the account lacks",
+          "Says the fix is a change of role or scope rather than a new login"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that 403 means the caller is known but not permitted",
+        "Names 401 as the code that signals a missing or expired credential",
+        "Says a fresh token does not grant a permission the account lacks",
+        "Says the fix is a change of role or scope rather than a new login"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_api_status_codes_when_not_001",
+    "concept_id": "api.status_codes",
+    "type": "when_not",
+    "prompt": "Retry-on-failure is standard in any API client. Name a response you should not retry, and say what you would do instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a 4xx such as 400, 403 or 404 as pointless to retry unchanged",
+        "States that the request itself is what has to change",
+        "Contrasts with 429 or 5xx, where waiting and retrying can succeed",
+        "Mentions that hammering a rejected request can get the client throttled or blocked"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_data_structure_choice_breaks_first_001",
+    "concept_id": "code.data_structure_choice",
+    "type": "breaks_first",
+    "prompt": "A script checks each of 50,000 incoming ids against a list of 80,000 ids already on file, and takes 20 minutes. Volume is about to triple on both sides. What breaks first, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Identifies the membership test as scanning the list from the start each time",
+        "States that the work grows as the product of the two sizes",
+        "Names converting the lookup collection to a set as the fix",
+        "Says the fix turns each check into roughly one hash lookup"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_data_structure_choice_estimate_001",
+    "concept_id": "code.data_structure_choice",
+    "type": "estimate",
+    "prompt": "A loop runs one `value in known_values` check per row: 200,000 rows against 100,000 stored values, most of which do not match. Estimate how many element comparisons that is, and what the figure becomes if `known_values` is a set.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Lands on an order of magnitude around ten billion comparisons",
+        "Shows the reasoning as rows multiplied by the length of the list",
+        "States the set version costs about one hash lookup per row, so roughly 200,000",
+        "Gives a range or an order of magnitude rather than a false exact number"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_data_structure_choice_mcq_001",
+    "concept_id": "code.data_structure_choice",
+    "type": "mcq",
+    "prompt": "You need to preserve the order in which items first arrived and also run tens of thousands of membership tests against them. Which structure fits both needs?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A list, appending each new item",
+        "A set, adding each new item",
+        "A dict whose keys are the items and whose values are ignored",
+        "A list kept sorted, searched with `bisect`"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_data_structure_choice_spot_error_001",
+    "concept_id": "code.data_structure_choice",
+    "type": "spot_error",
+    "prompt": "This function de-duplicates a few hundred thousand rows by id and is far slower than it should be. One line is the reason. Which one, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "seen = []",
+        "out = []",
+        "for row in rows:",
+        "    if row[\"id\"] not in seen:",
+        "        seen.append(row[\"id\"])",
+        "        out.append(row)",
+        "return out"
+      ],
+      "bad_line": 0,
+      "why": "`seen` is a list, so `not in` scans every id collected so far on every row, making the loop quadratic. Declaring `seen = set()` turns each check into a single hash lookup and leaves the rest of the function unchanged."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_hash_maps_cloze_001",
+    "concept_id": "code.hash_maps",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a hash join builds its hash table on the ______ of the two inputs, then ______ that table with rows from the other one.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "smaller",
+            "smaller side",
+            "smaller input",
+            "small side",
+            "build side"
+          ]
+        },
+        {
+          "accept": [
+            "probes",
+            "probe",
+            "probes it",
+            "looks up",
+            "hashes"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_hash_maps_critique_001",
+    "concept_id": "code.hash_maps",
+    "type": "critique",
+    "prompt": "A teammate describes a hash join as \"the engine sorts both tables and then walks down them together.\" Say what is wrong with that description and give a better one.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that sorting and walking in step describes a merge join instead",
+        "Says a hash join builds an in-memory hash table on one input",
+        "Describes probing that table with rows streamed from the other input",
+        "Names the build side fitting in memory as the condition for it to stay fast"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_hash_maps_explain_001",
+    "concept_id": "code.hash_maps",
+    "type": "explain",
+    "prompt": "A dictionary finds a key in about the same time whether it holds 100 entries or 10 million. Explain the machinery that makes that possible.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the key is hashed into a number that selects a bucket",
+        "Says the lookup jumps to that bucket instead of scanning entries",
+        "Mentions collisions and that keys landing in one bucket are compared directly",
+        "Notes the flat cost holds only while collisions stay rare"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_code_hash_maps_mcq_001",
+    "concept_id": "code.hash_maps",
+    "type": "mcq",
+    "prompt": "Two different keys hash to the same bucket in a dictionary. What does the dictionary do?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Stores both, and compares the full keys when either is looked up",
+        "Overwrites the first entry with the second",
+        "Raises an error and asks for a different key",
+        "Rehashes every key in the structure before continuing"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
   }
 ]
