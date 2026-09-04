@@ -9,12 +9,20 @@
     "lint:theme": "node scripts/check-theme.mjs",
     "build": "node scripts/check-theme.mjs && astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "node --test daily-drill/*.test.mjs",
+    "drill:import": "node daily-drill/import-drafts.mjs",
+    "drill:generate": "node daily-drill/generate-bank.mjs",
+    "drill:validate": "node daily-drill/validate-catalog.cjs public/drill/catalog/concepts.json"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",
     "@astrojs/sitemap": "3.2.1",
     "astro": "^4.15.0",
     "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.123.0",
+    "zod": "^4.5.4"
   }
 }
