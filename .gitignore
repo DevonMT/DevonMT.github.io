@@ -27,3 +27,6 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 Thumbs.db
+
+# daily drill: transient authoring briefing
+daily-drill/.briefing.json
