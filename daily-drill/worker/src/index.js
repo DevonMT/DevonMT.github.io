@@ -49,9 +49,12 @@ function secretsMatch(a, b) {
 function corsHeaders(request, env) {
   const origin = request.headers.get('Origin') ?? '';
   const allowed = (env.ALLOWED_ORIGINS ?? '').split(',').map(s => s.trim()).filter(Boolean);
+  // Echo the caller's origin only when it is allowed. Echoing a *different*
+  // allowed origin on rejection still blocks the browser, but it reads as a
+  // successful match in curl and hides configuration mistakes.
   const ok = allowed.includes(origin);
   return {
-    'Access-Control-Allow-Origin': ok ? origin : allowed[0] ?? 'null',
+    'Access-Control-Allow-Origin': ok ? origin : 'null',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, x-api-secret',
     'Access-Control-Max-Age': '86400',
