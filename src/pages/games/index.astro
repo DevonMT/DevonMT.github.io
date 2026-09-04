@@ -4,6 +4,15 @@ import SiteNav from '../../components/SiteNav.astro';
 import Gate from '../../components/Gate.astro';
 ---
 
+<script>
+  // This page now lives on the hub at games.devondoes.dev, served same-origin
+  // with its API behind Cloudflare Access. The copy built for devontroedel.com
+  // ('key' mode) is kept only so one source builds both; it forwards there.
+  import { AUTH_MODE } from '../../lib/privateClient';
+  if (AUTH_MODE !== 'access') location.replace('https://games.devondoes.dev/games/');
+</script>
+
+
 <BaseLayout
   title="Games — Devon Troedel"
   description="Private games dashboard."
@@ -887,8 +896,10 @@ import Gate from '../../components/Gate.astro';
 
 <script>
   // ---- Config ----
-  const API_BASE = 'https://games-backend-production-d763.up.railway.app';
-  const KEY_NAME = 'devon_key';
+  // Imported, not redeclared. This page used to hardcode its own API base and
+  // key name, which silently drifted from src/lib/privateClient.ts — it kept
+  // calling the dead Railway host after everything else had moved.
+  import { API_BASE, KEY_NAME, AUTH_MODE, getKey } from '../../lib/privateClient';
 
   // ---- DOM refs ----
   const dashEl      = document.getElementById('dashboard')!;
@@ -968,8 +979,6 @@ import Gate from '../../components/Gate.astro';
   document.querySelectorAll<HTMLInputElement>('.taste-chip input').forEach((el) => el.addEventListener('change', savePrefs));
 
   // ---- Helpers ----
-  function getKey(): string | null { return localStorage.getItem(KEY_NAME); }
-
   function fmtDate(d: Date): string { return d.toISOString().slice(0, 10); }
 
   function relativeTime(iso: string | null | undefined): string {
@@ -997,18 +1006,24 @@ import Gate from '../../components/Gate.astro';
   }
 
   async function api(path: string, init: RequestInit = {}): Promise<any> {
-    const key = getKey();
-    if (!key) throw new Error('No access key');
+    let auth: Record<string, string> = {};
+    if (AUTH_MODE === 'key') {
+      const key = getKey();
+      if (!key) throw new Error('No access key');
+      auth = { 'x-api-secret': key };
+    }
     const res = await fetch(`${API_BASE}${path}`, {
       ...init,
+      // same-origin so the Cloudflare Access cookie is sent in 'access' mode
+      credentials: 'same-origin',
       headers: {
-        'x-api-secret': key,
+        ...auth,
         'Content-Type': 'application/json',
         ...(init.headers || {}),
       },
     });
     if (res.status === 401) {
-      localStorage.removeItem(KEY_NAME);
+      if (AUTH_MODE === 'key') localStorage.removeItem(KEY_NAME);
       document.dispatchEvent(new CustomEvent('gate:challenge', { detail: 'Access key rejected. Please try again.' }));
       throw new Error('Unauthorized');
     }

@@ -111,7 +111,7 @@ const { label, table, intro = 'Enter the access key to unlock.' } = Astro.props;
 </style>
 
 <script>
-  import { API_BASE, KEY_NAME } from '../lib/privateClient';
+  import { API_BASE, KEY_NAME, AUTH_MODE } from '../lib/privateClient';
 
   const gate   = document.getElementById('gate')!;
   const form   = document.getElementById('gate-form') as HTMLFormElement;
@@ -169,7 +169,11 @@ const { label, table, intro = 'Enter the access key to unlock.' } = Astro.props;
   // A later data call can ask the gate to re-challenge (e.g. on a 401).
   document.addEventListener('gate:challenge', (e) => challenge((e as CustomEvent).detail));
 
-  // Boot: skip straight past the gate if a key is already saved on this device.
-  if (localStorage.getItem(KEY_NAME)) authed();
+  // Boot.
+  // In 'access' mode Cloudflare Access already authenticated this request
+  // before it reached the origin, and the API is same-origin so the cookie
+  // covers it too — there is no key to collect, so the gate never shows.
+  if (AUTH_MODE === 'access') authed();
+  else if (localStorage.getItem(KEY_NAME)) authed();
   else challenge();
 </script>
