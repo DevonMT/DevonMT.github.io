@@ -78,10 +78,11 @@ claude -p "$PROMPT" \
 [ -s "$DRAFT" ] || fail "no draft written (see /tmp/drill-run.json)"
 node -e "JSON.parse(require('fs').readFileSync('$DRAFT','utf8'))" || fail "draft is not valid JSON"
 
-# 3. Validate, de-duplicate and import. import-drafts exits non-zero if ANY
-#    draft is rejected, so nothing lands from a batch with a bad question in it.
+# 3. Validate, de-duplicate and import. Good drafts land; rejected ones are
+#    logged and their concepts simply reappear in tomorrow's briefing. Only a
+#    batch where NOTHING was accepted is treated as a failure.
 log "importing"
-node daily-drill/import-drafts.mjs "$DRAFT" || fail "import rejected the batch"
+node daily-drill/import-drafts.mjs "$DRAFT" || fail "no questions accepted from this batch"
 
 # 4. The bank is committed content; treat a test failure as a blocker.
 log "testing"

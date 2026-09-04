@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "id": "q_api_rest_verbs_explain_001",
+    "concept_id": "api.rest_verbs",
+    "type": "explain",
+    "prompt": "A teammate says the difference between PUT and POST is that PUT is for updates and POST is for creates. Where does that rule of thumb break down?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that PUT is defined by being idempotent, not by updating",
+        "Says a PUT can create a resource when the client chooses the identifier",
+        "Names the consequence: a retried POST can create a second resource"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_api_rest_verbs_mcq_001",
+    "concept_id": "api.rest_verbs",
+    "type": "mcq",
+    "prompt": "Which verb is safe, meaning it is not expected to change server state at all?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_api_rest_verbs_tf_why_001",
+    "concept_id": "api.rest_verbs",
+    "type": "tf_why",
+    "prompt": "True or false: sending the same DELETE request twice is a bug the client should avoid. Give the verdict, then your reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that DELETE is idempotent, so the repeat is harmless",
+          "Says the second call leaves the resource in the same absent state",
+          "Notes that the status code may differ even though the effect does not"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that DELETE is idempotent, so the repeat is harmless",
+        "Says the second call leaves the resource in the same absent state",
+        "Notes that the status code may differ even though the effect does not"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-04"
+  }
+]

@@ -56,6 +56,15 @@ correctly, thoroughly, appropriate, solid, demonstrates. If a criterion needs
 one of them, it is not concrete enough yet — rewrite it as the specific thing
 that must be said.
 
+**Each criterion must be at least 15 characters.** A criterion short enough to
+fail that is never checkable anyway — "Says it is true" tells you nothing about
+what you were supposed to say. Write the actual claim: "States that a PUT can be
+repeated without changing the result".
+
+`tf_why` carries a full rubric too. Its criteria grade the *reasoning*, not the
+verdict — the verdict is already graded by `verdict`. Do not write criteria like
+"Answers true"; write what the explanation had to contain.
+
 For the **comms** domain, rubrics grade *structure*, not technical correctness:
 did it name the tradeoff, did it name the audience's real concern, did it land
 on a recommendation, did it give a range rather than a false point estimate.

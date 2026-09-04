@@ -26,7 +26,8 @@ const BANK_DIR = path.join(ROOT, 'public/drill/bank');
 
 const files = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const dryRun = process.argv.includes('--dry-run');
-if (!files.length) { console.error('usage: import-drafts.mjs <draft.json> [...] [--dry-run]'); process.exit(1); }
+const strict = process.argv.includes('--strict');
+if (!files.length) { console.error('usage: import-drafts.mjs <draft.json> [...] [--dry-run] [--strict]'); process.exit(1); }
 
 const readJson = p => JSON.parse(fs.readFileSync(p, 'utf8'));
 const catalog = readJson(CATALOG);
@@ -107,10 +108,20 @@ if (warnings.length) {
   for (const w of warnings) console.log(`  ! ${w}`);
 }
 
+// Questions are independent rows, so one bad draft does not spoil the batch:
+// the good ones land and the rejects are reported. A concept left short simply
+// comes back in the next briefing. Pass --strict for all-or-nothing, which is
+// what you want when re-running a hand-authored file you intend to fix.
+// --dry-run means "write nothing", not "always succeed": it reports the same
+// exit code the real run would, so it works as a check before committing.
 if (dryRun) {
-  console.log(`\ndry run: ${accepted} would be accepted, ${problems.length} rejected. Nothing written.`);
-} else if (problems.length) {
-  console.log(`\nnothing written - fix the ${problems.length} rejected draft(s) first.`);
+  console.log(`\ndry run: ${accepted} would be accepted, ${problems.length} rejected, ${duplicates.length} duplicate. Nothing written.`);
+  process.exit((strict && problems.length) || !accepted ? 1 : 0);
+} else if (strict && problems.length) {
+  console.log(`\n--strict: nothing written; fix the ${problems.length} rejected draft(s) first.`);
+  process.exit(1);
+} else if (!accepted) {
+  console.log(`\nnothing accepted (${problems.length} rejected, ${duplicates.length} duplicate).`);
   process.exit(1);
 } else {
   fs.mkdirSync(BANK_DIR, { recursive: true });
@@ -119,5 +130,6 @@ if (dryRun) {
     fs.writeFileSync(path.join(BANK_DIR, `${domain}.json`), JSON.stringify(rows, null, 2) + '\n');
     console.log(`wrote public/drill/bank/${domain}.json (${rows.length} questions, ${new Set(rows.map(r => r.concept_id)).size} concepts)`);
   }
-  console.log(`\naccepted ${accepted}`);
+  const skipped = problems.length + duplicates.length;
+  console.log(`\naccepted ${accepted}${skipped ? ` (${problems.length} rejected, ${duplicates.length} duplicate — those concepts return in the next briefing)` : ''}`);
 }
