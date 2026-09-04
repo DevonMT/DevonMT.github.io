@@ -2,6 +2,14 @@ name = "daily-drill-sync"
 main = "src/index.js"
 compatibility_date = "2026-09-04"
 
+# Deployed to a route on the zone rather than a workers.dev subdomain: a fresh
+# Cloudflare account has no workers.dev subdomain, and a route is a better
+# endpoint anyway. Wrangler creates the proxied DNS record for this hostname
+# on deploy - it touches only `sync`, not the apex or any other subdomain.
+[[routes]]
+pattern = "sync.devondoes.dev"
+custom_domain = true
+
 # Origins allowed to call this Worker. The drill is served from the custom
 # domain; localhost is here so the dev server can exercise sync too.
 [vars]
