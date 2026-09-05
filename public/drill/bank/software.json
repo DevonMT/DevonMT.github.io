@@ -333,5 +333,254 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_craft_config_vs_code_explain_001",
+    "concept_id": "craft.config_vs_code",
+    "type": "explain",
+    "prompt": "A service reads its database host from an environment variable, and the fallback baked into the source is the production host. Explain what this design does the first time someone runs the service locally without setting anything.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that an unset variable silently points at production",
+        "Says the failure is silent rather than an error at startup",
+        "Names failing fast on a missing required setting as the fix",
+        "Separates harmless defaults from environment-specific values"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_craft_config_vs_code_predict_output_001",
+    "concept_id": "craft.config_vs_code",
+    "type": "predict_output",
+    "prompt": "A container starts with only `DB_PORT=5433` present in its environment, and runs this:\n\n`DB_HOST = os.environ.get(\"DB_HOST\", \"prod-db.internal\")`\n`DB_PORT = os.environ.get(\"DB_PORT\", \"5432\")`\n`print(f\"{DB_HOST}:{DB_PORT}\")`\n\nWhat does it print?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "prod-db.internal:5433"
+      ],
+      "explain": "DB_PORT was supplied, so the override wins. DB_HOST was not, so the hard-coded fallback takes over — and the fallback is production. The process comes up connected to the production host with a staging port, and nothing in the output announces that a default was used."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_craft_config_vs_code_push_back_001",
+    "concept_id": "craft.config_vs_code",
+    "type": "push_back",
+    "prompt": "A teammate wants to add `if env == \"prod\"` inside the query builder so production reads from a different schema name. They point out it is a two-line change. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the environment is now baked into the built artifact",
+        "Says the production branch is never exercised outside production",
+        "Proposes the schema name as an injected setting instead",
+        "Grants something the teammate's version does get right"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_craft_config_vs_code_tf_why_001",
+    "concept_id": "craft.config_vs_code",
+    "type": "tf_why",
+    "prompt": "True or false: committing a `config.prod.json` holding the production API key still counts as separating config from code, because the value is not written into any source file.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that a committed file ships with the artifact whatever its extension",
+          "Names the secret being readable by everyone with repository access",
+          "Says the artifact is now bound to a single environment",
+          "Names environment variables or a secret store as the alternative"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that a committed file ships with the artifact whatever its extension",
+        "Names the secret being readable by everyone with repository access",
+        "Says the artifact is now bound to a single environment",
+        "Names environment variables or a secret store as the alternative"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_debug_method_critique_001",
+    "concept_id": "debug.method",
+    "type": "critique",
+    "prompt": "A nightly job failed. A colleague immediately reruns it with more memory, a smaller batch size, and a retry wrapper, all in one push. It passes. Critique what they did.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says three simultaneous changes leave the cause unidentified",
+        "Raises that the rerun may have passed for an unrelated reason",
+        "Notes the actual error text was never read",
+        "Names changing one thing per run as the alternative"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_debug_method_multi_001",
+    "concept_id": "debug.method",
+    "type": "multi",
+    "prompt": "A failure shows up in production and never on your machine. Which of these move you toward the cause?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Shrink the input until it is the smallest one that still fails",
+        "Bisect the commits between the last deploy known to work and now",
+        "Add a retry so the failure stops paging anyone",
+        "Diff the production settings against the ones you run locally",
+        "Rewrite the module in a tidier style and see whether it goes away"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_debug_method_ordering_001",
+    "concept_id": "debug.method",
+    "type": "ordering",
+    "prompt": "Put these steps into the sequence that gets to a cause with the fewest wasted runs.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Change one thing and run it again",
+        "Read the full error text and the line it names",
+        "Keep the change only if it accounts for the original error",
+        "Get the failure to happen on demand",
+        "Write down a single hypothesis the reproduction could kill"
+      ],
+      "correct_order": [
+        1,
+        3,
+        4,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_debug_method_to_stakeholder_001",
+    "concept_id": "debug.method",
+    "type": "to_stakeholder",
+    "prompt": "A report showed wrong numbers yesterday and correct ones today, and nobody deployed anything in between. Your stakeholder asks whether they can trust tomorrow's numbers. Write the reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States plainly that the cause is not yet known",
+        "Says what has and has not been reproduced so far",
+        "Commits to a date for the next update rather than an open promise",
+        "Says what the stakeholder should do with the report meanwhile"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_git_object_model_breaks_first_001",
+    "concept_id": "git.object_model",
+    "type": "breaks_first",
+    "prompt": "You run `git reset --hard HEAD~3` on a local branch carrying three unpushed commits and some edits you had not staged. What breaks first, and what is still retrievable?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the three commit objects still sit in the repository",
+        "Says it was the branch pointer that moved, not the commits",
+        "Names the reflog as the route back to the old commit id",
+        "Identifies the unstaged edits as the part actually gone"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_git_object_model_cloze_001",
+    "concept_id": "git.object_model",
+    "type": "cloze",
+    "prompt": "A commit records a complete ______ of the tree as it stood at that moment, together with a link to its ______, which is what strings history into a chain rather than a pile of patches.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "snapshot",
+            "snapshot of the tree"
+          ]
+        },
+        {
+          "accept": [
+            "parent",
+            "parent commit",
+            "parents"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_git_object_model_explain_001",
+    "concept_id": "git.object_model",
+    "type": "explain",
+    "prompt": "Someone asks why creating a branch is instant even on a repository with ten years of history behind it. Answer using what a branch actually is.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a branch is a name holding one commit id",
+        "Says no files or history are copied to create it",
+        "Contrasts it with the mental model of a duplicated working copy",
+        "Notes that committing advances the pointer to the new commit"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_git_object_model_mcq_001",
+    "concept_id": "git.object_model",
+    "type": "mcq",
+    "prompt": "Two branch names currently point at the same commit. You check out the first one and commit once. Where does the second branch point now?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "At the same commit it pointed at before",
+        "At the new commit, since the two branches shared a starting point",
+        "Nowhere — it is dropped once another branch moves past it",
+        "At the new commit, but through its own separate copy of the history"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
   }
 ]
