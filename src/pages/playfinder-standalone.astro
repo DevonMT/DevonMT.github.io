@@ -1,0 +1,80 @@
+---
+/**
+ * The standalone Playfinder build, served at playfinder.devondoes.dev.
+ *
+ * Same app component as /games/discover, different chrome: the personal site's
+ * nav is replaced with a link back to the hub, because on devondoes.dev those
+ * links (/about, /blog, /projects) go nowhere.
+ *
+ * This page is not linked from the site. It exists to be built and copied to
+ * the playfinder container, so it carries noindex — two URLs serving identical
+ * content otherwise compete with each other in search.
+ */
+import '../styles/global.css';
+import PlayfinderApp from '../components/PlayfinderApp.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playfinder — games matched to your taste</title>
+    <meta
+      name="description"
+      content="Build a quick taste profile and get game recommendations, or score any game against your preferences. No account needed."
+    />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0a0e1a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Playfinder — games matched to your taste" />
+    <meta
+      property="og:description"
+      content="Build a quick taste profile and get game recommendations, powered by Claude."
+    />
+  </head>
+  <body>
+    <div id="site">
+      <div id="bg-grid" aria-hidden="true"></div>
+
+      <nav class="hub-nav">
+        <a class="hub-mark" href="https://devondoes.dev/">devondoes.dev</a>
+        <span class="hub-sep">/</span>
+        <span class="hub-here">playfinder</span>
+      </nav>
+
+      <PlayfinderApp />
+
+    </div><!-- #site -->
+  </body>
+</html>
+
+<style>
+  /* Minimal chrome. The app below brings its own styles; this is only the
+     thin line at the top that says where you are and how to get back. */
+  .hub-nav {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 24px 0;
+    font-size: 14px;
+  }
+  .hub-mark {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: inherit;
+  }
+  .hub-mark:hover {
+    text-decoration: underline;
+  }
+  .hub-sep,
+  .hub-here {
+    opacity: 0.55;
+  }
+</style>
