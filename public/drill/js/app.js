@@ -123,13 +123,11 @@ function startSession({ bonus = false } = {}) {
 function showGate(errorMessage) {
   const gate = document.getElementById('gate');
   const form = document.getElementById('gate-form');
-  const endpointInput = document.getElementById('gate-endpoint');
   const submit = document.getElementById('gate-submit');
   const error = document.getElementById('gate-error');
 
   document.getElementById('app').hidden = true;
   gate.hidden = false;
-  endpointInput.value = sync.getEndpoint() ?? '';
   if (errorMessage) { error.textContent = errorMessage; error.hidden = false; }
   setTimeout(() => submit.focus(), 50);
 
@@ -143,13 +141,10 @@ function showGate(errorMessage) {
 
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
-    const endpoint = endpointInput.value.trim();
-    if (!endpoint) return;
-
     error.hidden = true;
     submit.disabled = true;
     submit.textContent = 'Checking…';
-    const check = await sync.checkSession(endpoint);
+    const check = await sync.checkSession(sync.getEndpoint());
     submit.disabled = false;
     submit.textContent = 'Connect';
 
@@ -164,7 +159,6 @@ function showGate(errorMessage) {
       return;
     }
 
-    sync.setEndpoint(endpoint);
     sync.enableSync();
     state = { ...state, settings: { ...state.settings, sync_declined: false } };
     const res = await sync.reconcile(state);
