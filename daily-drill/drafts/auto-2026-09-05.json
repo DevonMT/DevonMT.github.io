@@ -1,0 +1,281 @@
+[
+  {
+    "concept_id": "comms.status_updates",
+    "type": "critique",
+    "prompt": "A teammate's weekly update reads in full: \"Still deep in the pipeline refactor. Lots of moving parts, more complex than expected. Will keep everyone posted.\" Critique it as the person who has to decide whether to move a launch date.",
+    "criteria": [
+      "Points out that no finished piece of work is named",
+      "Notes there is no next step with a date attached",
+      "Says whether anything is blocked is left unanswered",
+      "Names the reader's actual question: does the date still hold"
+    ]
+  },
+  {
+    "concept_id": "comms.status_updates",
+    "type": "push_back",
+    "prompt": "Your manager asks you to drop the short Friday note and send one detailed summary at the end of each month instead, because the weekly ones are \"a lot of email\". Write your reply.",
+    "criteria": [
+      "Names cadence rather than length as the thing being given up",
+      "States that a month is too late for a blocker to surface",
+      "Grants something real about the manager's objection",
+      "Ends on a specific alternative rather than only an objection"
+    ]
+  },
+  {
+    "concept_id": "comms.status_updates",
+    "type": "mcq",
+    "prompt": "You spent the whole week waiting on access to a source system and nothing else moved. What belongs in this week's update?",
+    "options": [
+      "Nothing — skip the update, since there is no progress to report",
+      "The blocker, who can clear it, and what slips if it is not cleared",
+      "A detailed plan for the work you will start once access arrives",
+      "A one-line note that it was a quiet week"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "comms.status_updates",
+    "type": "matching",
+    "prompt": "Sort each line from a weekly update into the section a reader expects to find it under.",
+    "left": [
+      "The backfill finished Tuesday and the monthly totals reconcile",
+      "I pick up the deduplication logic on Monday",
+      "Sitting on a credential request with the platform team since Wednesday"
+    ],
+    "right": ["Done", "Next", "Blocked"],
+    "pairs": [[0, 0], [1, 1], [2, 2]]
+  },
+
+  {
+    "concept_id": "container.image_vs_container",
+    "type": "explain",
+    "prompt": "A colleague shells into a running container, edits a config file, and announces \"I changed the image.\" Explain why that sentence is wrong.",
+    "criteria": [
+      "States that the edit landed in the container's writable layer",
+      "Says the image itself is fixed once it has been built",
+      "Notes the edit disappears when the container is replaced",
+      "Names rebuilding from the Dockerfile as the way to change an image"
+    ]
+  },
+  {
+    "concept_id": "container.image_vs_container",
+    "type": "breaks_first",
+    "prompt": "A production bug gets fixed by shelling into the running container and patching the file in place. It works, the alert clears, and everyone goes home. What breaks first?",
+    "criteria": [
+      "Says the fix is gone at the next restart or redeploy",
+      "Notes that the running container no longer matches its image",
+      "Points out that other replicas never received the patch",
+      "Names the source repository as now out of step with production"
+    ]
+  },
+  {
+    "concept_id": "container.image_vs_container",
+    "type": "mcq",
+    "prompt": "You run `docker run` three times against the same tag, and all three processes are still up. How many images and how many containers now exist?",
+    "options": [
+      "One image, one container",
+      "Three images, three containers",
+      "One image, three containers",
+      "Three images, one container"
+    ],
+    "correct_index": 2
+  },
+  {
+    "concept_id": "container.image_vs_container",
+    "type": "multi",
+    "prompt": "Which of these hold true about how an image relates to a container?",
+    "options": [
+      "Many containers can run from a single image at the same time",
+      "Removing a container also removes the image it was started from",
+      "A container puts a writable layer on top of the image's read-only layers",
+      "Two containers started from one image begin with identical file contents",
+      "Each container has to be built from an image of its own"
+    ],
+    "correct_indices": [0, 2, 3]
+  },
+
+  {
+    "concept_id": "container.volumes",
+    "type": "critique",
+    "prompt": "A colleague's local Postgres setup declares no volumes at all. They insist it is fine — they start it every morning and last week's rows are always still there. Critique their reasoning.",
+    "criteria": [
+      "States that the rows are sitting in the container's writable layer",
+      "Distinguishes stopping a container from removing one",
+      "Names a concrete event that wipes it, such as a down or an image bump",
+      "Recommends a named volume mounted at the data directory"
+    ]
+  },
+  {
+    "concept_id": "container.volumes",
+    "type": "when_not",
+    "prompt": "Mounting a host directory straight into a container is the usual first move. Name a situation where you would not do it, and say what you would reach for instead.",
+    "criteria": [
+      "Names a specific situation rather than a general worry",
+      "Gives a reason tied to permissions, host paths, or portability",
+      "Names named volumes or a managed store as the replacement",
+      "Concedes at least one case where a host mount is the right tool"
+    ]
+  },
+  {
+    "concept_id": "container.volumes",
+    "type": "cloze",
+    "prompt": "Everything a container writes goes into its own layer, which is discarded the moment the container is ______. To keep database files past that, you mount a ______ over the directory the database writes to.",
+    "blanks": [
+      { "accept": ["removed", "deleted", "destroyed", "rm'd"] },
+      { "accept": ["volume", "named volume", "docker volume"] }
+    ]
+  },
+  {
+    "concept_id": "container.volumes",
+    "type": "spot_error",
+    "prompt": "This Compose file is meant to keep the database's data across a `docker compose down`. It runs without error, and the volume shows up in `docker volume ls`, but the data is gone after a down and up. Find the line at fault.",
+    "lines": [
+      "services:",
+      "  db:",
+      "    image: postgres:16",
+      "    environment:",
+      "      POSTGRES_PASSWORD: local",
+      "    volumes:",
+      "      - pgdata:/var/lib/postgres/data",
+      "volumes:",
+      "  pgdata:"
+    ],
+    "bad_line": 6,
+    "why": "Postgres writes to /var/lib/postgresql/data, not /var/lib/postgres/data. The volume mounts one path off, so it stays empty while the real data files land in the container's writable layer and vanish with the container."
+  },
+
+  {
+    "concept_id": "craft.config_vs_code",
+    "type": "explain",
+    "prompt": "A service reads its database host from an environment variable, and the fallback baked into the source is the production host. Explain what this design does the first time someone runs the service locally without setting anything.",
+    "criteria": [
+      "States that an unset variable silently points at production",
+      "Says the failure is silent rather than an error at startup",
+      "Names failing fast on a missing required setting as the fix",
+      "Separates harmless defaults from environment-specific values"
+    ]
+  },
+  {
+    "concept_id": "craft.config_vs_code",
+    "type": "push_back",
+    "prompt": "A teammate wants to add `if env == \"prod\"` inside the query builder so production reads from a different schema name. They point out it is a two-line change. Push back.",
+    "criteria": [
+      "States that the environment is now baked into the built artifact",
+      "Says the production branch is never exercised outside production",
+      "Proposes the schema name as an injected setting instead",
+      "Grants something the teammate's version does get right"
+    ]
+  },
+  {
+    "concept_id": "craft.config_vs_code",
+    "type": "predict_output",
+    "prompt": "A container starts with only `DB_PORT=5433` present in its environment, and runs this:\n\n`DB_HOST = os.environ.get(\"DB_HOST\", \"prod-db.internal\")`\n`DB_PORT = os.environ.get(\"DB_PORT\", \"5432\")`\n`print(f\"{DB_HOST}:{DB_PORT}\")`\n\nWhat does it print?",
+    "accept": ["prod-db.internal:5433"],
+    "explain": "DB_PORT was supplied, so the override wins. DB_HOST was not, so the hard-coded fallback takes over — and the fallback is production. The process comes up connected to the production host with a staging port, and nothing in the output announces that a default was used."
+  },
+  {
+    "concept_id": "craft.config_vs_code",
+    "type": "tf_why",
+    "prompt": "True or false: committing a `config.prod.json` holding the production API key still counts as separating config from code, because the value is not written into any source file.",
+    "verdict": false,
+    "criteria": [
+      "States that a committed file ships with the artifact whatever its extension",
+      "Names the secret being readable by everyone with repository access",
+      "Says the artifact is now bound to a single environment",
+      "Names environment variables or a secret store as the alternative"
+    ]
+  },
+
+  {
+    "concept_id": "debug.method",
+    "type": "critique",
+    "prompt": "A nightly job failed. A colleague immediately reruns it with more memory, a smaller batch size, and a retry wrapper, all in one push. It passes. Critique what they did.",
+    "criteria": [
+      "Says three simultaneous changes leave the cause unidentified",
+      "Raises that the rerun may have passed for an unrelated reason",
+      "Notes the actual error text was never read",
+      "Names changing one thing per run as the alternative"
+    ]
+  },
+  {
+    "concept_id": "debug.method",
+    "type": "to_stakeholder",
+    "prompt": "A report showed wrong numbers yesterday and correct ones today, and nobody deployed anything in between. Your stakeholder asks whether they can trust tomorrow's numbers. Write the reply.",
+    "criteria": [
+      "States plainly that the cause is not yet known",
+      "Says what has and has not been reproduced so far",
+      "Commits to a date for the next update rather than an open promise",
+      "Says what the stakeholder should do with the report meanwhile"
+    ]
+  },
+  {
+    "concept_id": "debug.method",
+    "type": "ordering",
+    "prompt": "Put these steps into the sequence that gets to a cause with the fewest wasted runs.",
+    "items": [
+      "Change one thing and run it again",
+      "Read the full error text and the line it names",
+      "Keep the change only if it accounts for the original error",
+      "Get the failure to happen on demand",
+      "Write down a single hypothesis the reproduction could kill"
+    ],
+    "correct_order": [1, 3, 4, 0, 2]
+  },
+  {
+    "concept_id": "debug.method",
+    "type": "multi",
+    "prompt": "A failure shows up in production and never on your machine. Which of these move you toward the cause?",
+    "options": [
+      "Shrink the input until it is the smallest one that still fails",
+      "Bisect the commits between the last deploy known to work and now",
+      "Add a retry so the failure stops paging anyone",
+      "Diff the production settings against the ones you run locally",
+      "Rewrite the module in a tidier style and see whether it goes away"
+    ],
+    "correct_indices": [0, 1, 3]
+  },
+
+  {
+    "concept_id": "git.object_model",
+    "type": "explain",
+    "prompt": "Someone asks why creating a branch is instant even on a repository with ten years of history behind it. Answer using what a branch actually is.",
+    "criteria": [
+      "States that a branch is a name holding one commit id",
+      "Says no files or history are copied to create it",
+      "Contrasts it with the mental model of a duplicated working copy",
+      "Notes that committing advances the pointer to the new commit"
+    ]
+  },
+  {
+    "concept_id": "git.object_model",
+    "type": "breaks_first",
+    "prompt": "You run `git reset --hard HEAD~3` on a local branch carrying three unpushed commits and some edits you had not staged. What breaks first, and what is still retrievable?",
+    "criteria": [
+      "States that the three commit objects still sit in the repository",
+      "Says it was the branch pointer that moved, not the commits",
+      "Names the reflog as the route back to the old commit id",
+      "Identifies the unstaged edits as the part actually gone"
+    ]
+  },
+  {
+    "concept_id": "git.object_model",
+    "type": "cloze",
+    "prompt": "A commit records a complete ______ of the tree as it stood at that moment, together with a link to its ______, which is what strings history into a chain rather than a pile of patches.",
+    "blanks": [
+      { "accept": ["snapshot", "snapshot of the tree"] },
+      { "accept": ["parent", "parent commit", "parents"] }
+    ]
+  },
+  {
+    "concept_id": "git.object_model",
+    "type": "mcq",
+    "prompt": "Two branch names currently point at the same commit. You check out the first one and commit once. Where does the second branch point now?",
+    "options": [
+      "At the same commit it pointed at before",
+      "At the new commit, since the two branches shared a starting point",
+      "Nowhere — it is dropped once another branch moves past it",
+      "At the new commit, but through its own separate copy of the history"
+    ],
+    "correct_index": 0
+  }
+]

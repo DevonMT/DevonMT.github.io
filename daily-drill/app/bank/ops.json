@@ -1,1 +1,171 @@
-[]
+[
+  {
+    "id": "q_container_image_vs_container_breaks_first_001",
+    "concept_id": "container.image_vs_container",
+    "type": "breaks_first",
+    "prompt": "A production bug gets fixed by shelling into the running container and patching the file in place. It works, the alert clears, and everyone goes home. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the fix is gone at the next restart or redeploy",
+        "Notes that the running container no longer matches its image",
+        "Points out that other replicas never received the patch",
+        "Names the source repository as now out of step with production"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_image_vs_container_explain_001",
+    "concept_id": "container.image_vs_container",
+    "type": "explain",
+    "prompt": "A colleague shells into a running container, edits a config file, and announces \"I changed the image.\" Explain why that sentence is wrong.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the edit landed in the container's writable layer",
+        "Says the image itself is fixed once it has been built",
+        "Notes the edit disappears when the container is replaced",
+        "Names rebuilding from the Dockerfile as the way to change an image"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_image_vs_container_mcq_001",
+    "concept_id": "container.image_vs_container",
+    "type": "mcq",
+    "prompt": "You run `docker run` three times against the same tag, and all three processes are still up. How many images and how many containers now exist?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "One image, one container",
+        "Three images, three containers",
+        "One image, three containers",
+        "Three images, one container"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_image_vs_container_multi_001",
+    "concept_id": "container.image_vs_container",
+    "type": "multi",
+    "prompt": "Which of these hold true about how an image relates to a container?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Many containers can run from a single image at the same time",
+        "Removing a container also removes the image it was started from",
+        "A container puts a writable layer on top of the image's read-only layers",
+        "Two containers started from one image begin with identical file contents",
+        "Each container has to be built from an image of its own"
+      ],
+      "correct": [
+        0,
+        2,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_volumes_cloze_001",
+    "concept_id": "container.volumes",
+    "type": "cloze",
+    "prompt": "Everything a container writes goes into its own layer, which is discarded the moment the container is ______. To keep database files past that, you mount a ______ over the directory the database writes to.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "removed",
+            "deleted",
+            "destroyed",
+            "rm'd"
+          ]
+        },
+        {
+          "accept": [
+            "volume",
+            "named volume",
+            "docker volume"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_volumes_critique_001",
+    "concept_id": "container.volumes",
+    "type": "critique",
+    "prompt": "A colleague's local Postgres setup declares no volumes at all. They insist it is fine — they start it every morning and last week's rows are always still there. Critique their reasoning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the rows are sitting in the container's writable layer",
+        "Distinguishes stopping a container from removing one",
+        "Names a concrete event that wipes it, such as a down or an image bump",
+        "Recommends a named volume mounted at the data directory"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_volumes_spot_error_001",
+    "concept_id": "container.volumes",
+    "type": "spot_error",
+    "prompt": "This Compose file is meant to keep the database's data across a `docker compose down`. It runs without error, and the volume shows up in `docker volume ls`, but the data is gone after a down and up. Find the line at fault.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "services:",
+        "  db:",
+        "    image: postgres:16",
+        "    environment:",
+        "      POSTGRES_PASSWORD: local",
+        "    volumes:",
+        "      - pgdata:/var/lib/postgres/data",
+        "volumes:",
+        "  pgdata:"
+      ],
+      "bad_line": 6,
+      "why": "Postgres writes to /var/lib/postgresql/data, not /var/lib/postgres/data. The volume mounts one path off, so it stays empty while the real data files land in the container's writable layer and vanish with the container."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_volumes_when_not_001",
+    "concept_id": "container.volumes",
+    "type": "when_not",
+    "prompt": "Mounting a host directory straight into a container is the usual first move. Name a situation where you would not do it, and say what you would reach for instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a specific situation rather than a general worry",
+        "Gives a reason tied to permissions, host paths, or portability",
+        "Names named volumes or a managed store as the replacement",
+        "Concedes at least one case where a host mount is the right tool"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  }
+]
