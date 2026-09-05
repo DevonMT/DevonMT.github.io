@@ -84,9 +84,9 @@ async function boot() {
       state = { ...state, catalog_version: CATALOG_VERSION };
     }
 
-    // A device with no key sees the gate once; it can also be declined, because
-    // the app is fully usable without sync.
-    if (!sync.getKey() || !sync.getEndpoint()) {
+    // A device that has not turned sync on sees the gate once; it can also be
+    // declined, because the app is fully usable without sync.
+    if (!sync.syncConfigured()) {
       if (!state.settings.sync_declined) return showGate();
     } else {
       // Pull before planning so a session done on another device is already
@@ -124,7 +124,6 @@ function showGate(errorMessage) {
   const gate = document.getElementById('gate');
   const form = document.getElementById('gate-form');
   const endpointInput = document.getElementById('gate-endpoint');
-  const keyInput = document.getElementById('gate-key');
   const submit = document.getElementById('gate-submit');
   const error = document.getElementById('gate-error');
 
@@ -132,7 +131,7 @@ function showGate(errorMessage) {
   gate.hidden = false;
   endpointInput.value = sync.getEndpoint() ?? '';
   if (errorMessage) { error.textContent = errorMessage; error.hidden = false; }
-  setTimeout(() => (endpointInput.value ? keyInput : endpointInput).focus(), 50);
+  setTimeout(() => submit.focus(), 50);
 
   document.getElementById('gate-skip').addEventListener('click', () => {
     // Declining is remembered, so the gate is asked once and never nags.
@@ -145,20 +144,28 @@ function showGate(errorMessage) {
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
     const endpoint = endpointInput.value.trim();
-    const key = keyInput.value.trim();
-    if (!endpoint || !key) return;
+    if (!endpoint) return;
 
     error.hidden = true;
     submit.disabled = true;
     submit.textContent = 'Checking…';
-    const check = await sync.checkKey(endpoint, key);
+    const check = await sync.checkSession(endpoint);
     submit.disabled = false;
-    submit.textContent = 'Unlock';
+    submit.textContent = 'Connect';
 
-    if (!check.ok) { error.textContent = check.reason; error.hidden = false; keyInput.select(); return; }
+    if (!check.ok) {
+      error.textContent = check.reason;
+      error.hidden = false;
+      // Not signed in is the one failure the user can fix from here, so offer
+      // the door rather than only naming the problem.
+      if (check.code === 'signin') {
+        document.getElementById('gate-signin').hidden = false;
+      }
+      return;
+    }
 
     sync.setEndpoint(endpoint);
-    sync.setKey(key);
+    sync.enableSync();
     state = { ...state, settings: { ...state.settings, sync_declined: false } };
     const res = await sync.reconcile(state);
     if (res.ok) state = res.state;
@@ -611,7 +618,7 @@ document.getElementById('settings-open').addEventListener('click', () => {
   document.getElementById('capture-count').textContent =
     state.captures.length ? `${state.captures.length} waiting to be sorted` : '';
   document.getElementById('sync-status').textContent = sync.syncConfigured()
-    ? `Syncing with ${new URL(sync.getEndpoint()).host}. ${state.attempts.length} attempts held.`
+    ? `Syncing with ${new URL(sync.getEndpoint()).host} as your signed-in account. ${state.attempts.length} attempts held.`
     : 'Not syncing on this device. Progress stays in this browser only.';
   document.getElementById('storage-note').textContent = store.storageAvailable
     ? `catalog ${state.catalog_version ?? '—'} · ${state.attempts.length} attempts stored`
@@ -635,8 +642,9 @@ document.getElementById('btn-sync').addEventListener('click', async ev => {
   const res = await sync.reconcile(state);
   btn.disabled = false;
   if (!res.ok) {
-    status.textContent = res.reason === 'unauthorized'
-      ? 'That key was rejected — re-enter it to sync again.'
+    status.textContent =
+      res.reason === 'signin'   ? 'You are signed out. Sign in at id.devondoes.dev, then sync again.'
+      : res.reason === 'noaccess' ? 'Your account has no access to the drill yet. Ask Devon for it.'
       : `Sync failed: ${res.message}. Your progress here is untouched.`;
     return;
   }
@@ -649,9 +657,9 @@ document.getElementById('btn-sync').addEventListener('click', async ev => {
 });
 
 document.getElementById('btn-forget').addEventListener('click', () => {
-  if (!confirm('Forget the sync key on this device? Your progress here stays, but it will stop syncing.')) return;
-  try { localStorage.removeItem(sync.KEY_NAME); } catch { /* private mode */ }
-  document.getElementById('sync-status').textContent = 'Key forgotten. This device no longer syncs.';
+  if (!confirm('Stop syncing on this device? Your progress here stays, but it will stop syncing.')) return;
+  sync.disableSync();
+  document.getElementById('sync-status').textContent = 'This device no longer syncs.';
 });
 
 document.getElementById('btn-export').addEventListener('click', () => {
