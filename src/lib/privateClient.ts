@@ -21,7 +21,11 @@ export const AUTH_MODE: 'key' | 'access' =
 export const API_BASE =
   AUTH_MODE === 'access'
     ? '' // same-origin: /learn, /releases, ... are served by this very host
-    : (import.meta.env.PUBLIC_API_BASE ?? 'https://games-backend-production-d763.up.railway.app');
+    // Dead-fallback note: the Railway backend this used to name no longer
+    // exists. In 'key' mode the pages redirect to the hub before any request
+    // is made, so this value is never used — it points at the hub so that if
+    // it ever IS used, it reaches something real.
+    : (import.meta.env.PUBLIC_API_BASE ?? 'https://games.devondoes.dev');
 
 export const KEY_NAME = 'devon_key';
 
