@@ -13,7 +13,7 @@ question should push toward **producing** an explanation or a judgment, not
 recognising an answer. The reader is a data engineer / BI analyst who wants to
 talk fluently about their work.
 
-Each concept in `public/drill/catalog/concepts.json` carries a `notes` field
+Each concept in `daily-drill/app/catalog/concepts.json` carries a `notes` field
 saying what knowing that concept actually means. **The notes field is the
 instruction.** Test what the notes describe, not some adjacent fact.
 

@@ -9,7 +9,7 @@
  */
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeAttempts } from '../public/drill/js/srs.js';
+import { mergeAttempts } from '../daily-drill/app/js/srs.js';
 
 // --- a minimal localStorage + fetch, so the browser modules load under node ---
 
@@ -21,15 +21,21 @@ globalThis.localStorage = {
 };
 globalThis.window = globalThis;
 
-/** Stands in for the Worker, applying the same union rule it applies. */
+/** Stands in for the platform, applying the same union rule it applies. */
 const server = { attempts: [], session_dates: [] };
-let lastAuth = null;
+/** Whether the caller is signed in. The real server decides this from a cookie. */
+let signedIn = true;
+let noAccess = false;
+let lastCredentials = null;
 let failNext = null;
 
 globalThis.fetch = async (url, init = {}) => {
-  lastAuth = init.headers?.['x-api-secret'] ?? null;
+  // The session cookie only travels if the request asks for it, so this is the
+  // single most important thing to assert about every call.
+  lastCredentials = init.credentials ?? null;
   if (failNext) { const f = failNext; failNext = null; throw new Error(f); }
-  if (lastAuth !== 'right-key') return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 });
+  if (!signedIn) return new Response(JSON.stringify({ error: 'not signed in' }), { status: 401 });
+  if (noAccess) return new Response(JSON.stringify({ error: 'no access' }), { status: 403 });
 
   const path = new URL(url).pathname;
   if (path === '/health') return new Response(JSON.stringify({ ok: true }), { status: 200 });
@@ -45,8 +51,8 @@ globalThis.fetch = async (url, init = {}) => {
   return new Response(JSON.stringify({ error: 'not found' }), { status: 404 });
 };
 
-const sync = await import('../public/drill/js/sync.js');
-const { emptyState } = await import('../public/drill/js/store.js');
+const sync = await import('../daily-drill/app/js/sync.js');
+const { emptyState } = await import('../daily-drill/app/js/store.js');
 
 const attempt = (id, concept_id, created_at, extra = {}) => ({
   id, concept_id, question_id: `${concept_id}_q`, score: 1, created_at,
@@ -60,24 +66,42 @@ beforeEach(() => {
   server.attempts = [];
   server.session_dates = [];
   failNext = null;
+  signedIn = true;
+  noAccess = false;
+  lastCredentials = null;
   sync.setEndpoint('https://sync.example.com');
-  sync.setKey('right-key');
+  sync.enableSync();
 });
 
-test('sync is not configured until both endpoint and key exist', () => {
+test('sync is off until this device opts in', () => {
   store.clear();
-  assert.equal(sync.syncConfigured(), false);
-  sync.setEndpoint('https://sync.example.com');
-  assert.equal(sync.syncConfigured(), false, 'endpoint alone is not enough');
-  sync.setKey('right-key');
+  assert.equal(sync.syncConfigured(), false, 'a fresh device does not sync');
+  sync.enableSync();
   assert.equal(sync.syncConfigured(), true);
+  sync.disableSync();
+  assert.equal(sync.syncConfigured(), false, 'and it can be turned back off');
 });
 
-test('checkKey accepts the right key and rejects a wrong one', async () => {
-  assert.deepEqual(await sync.checkKey('https://sync.example.com', 'right-key'), { ok: true });
-  const bad = await sync.checkKey('https://sync.example.com', 'wrong-key');
-  assert.equal(bad.ok, false);
-  assert.match(bad.reason, /rejected/);
+test('every call carries the session cookie', async () => {
+  await sync.reconcile(device([attempt('a1', 'sql.join_types', '2026-09-01T20:00:00Z')]));
+  assert.equal(lastCredentials, 'include',
+    'without credentials the cookie is not sent and every call is a 401');
+});
+
+test('checkSession passes when signed in and explains itself when not', async () => {
+  assert.deepEqual(await sync.checkSession('https://sync.example.com'), { ok: true });
+
+  signedIn = false;
+  const out = await sync.checkSession('https://sync.example.com');
+  assert.equal(out.ok, false);
+  assert.equal(out.code, 'signin');
+
+  // Signed in but ungranted is a different problem with a different fix, and
+  // collapsing the two sends people to the wrong place.
+  signedIn = true; noAccess = true;
+  const denied = await sync.checkSession('https://sync.example.com');
+  assert.equal(denied.ok, false);
+  assert.equal(denied.code, 'noaccess');
 });
 
 test('a trailing slash on the endpoint does not produce a double slash', async () => {
@@ -132,12 +156,21 @@ test('work-scoped attempts never leave the device', async () => {
   assert.deepEqual(server.attempts.map(a => a.id), ['pub'], 'the work-lane rep stayed local');
 });
 
-test('a wrong key reports unauthorized without touching local state', async () => {
-  sync.setKey('wrong-key');
+test('being signed out reports it without touching local state', async () => {
+  signedIn = false;
   const d = device([attempt('a1', 'sql.join_types', '2026-09-01T20:00:00Z')]);
   const res = await sync.reconcile(d);
   assert.equal(res.ok, false);
-  assert.equal(res.reason, 'unauthorized');
+  assert.equal(res.reason, 'signin');
+  assert.deepEqual(res.state.attempts.map(a => a.id), ['a1'], 'local work is returned untouched');
+});
+
+test('having no grant reports it without touching local state', async () => {
+  noAccess = true;
+  const d = device([attempt('a1', 'sql.join_types', '2026-09-01T20:00:00Z')]);
+  const res = await sync.reconcile(d);
+  assert.equal(res.ok, false);
+  assert.equal(res.reason, 'noaccess');
   assert.deepEqual(res.state.attempts.map(a => a.id), ['a1'], 'local work is returned untouched');
 });
 

@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { migrate, mergeState, syncPayload, parseImport, emptyState, STATE_VERSION } from '../public/drill/js/store.js';
+import { migrate, mergeState, syncPayload, parseImport, emptyState, STATE_VERSION } from '../daily-drill/app/js/store.js';
 
 const at = (id, concept_id, created_at, extra = {}) => ({
   id, concept_id, question_id: `${concept_id}_q`, score: 1, created_at,

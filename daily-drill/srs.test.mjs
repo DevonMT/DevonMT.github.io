@@ -16,7 +16,7 @@ import {
   applyForgetting, applyReturnPath,
   pickQuestion, rememberSeen, planSession, daysActive, isFreeText, FREE_TEXT_PER_SESSION,
   deriveState, mergeAttempts, seededRandom,
-} from '../public/drill/js/srs.js';
+} from '../daily-drill/app/js/srs.js';
 
 // ---------------------------------------------------------------- days
 

@@ -67,7 +67,7 @@ test('the real bank contains no duplicates', async () => {
   const { readFileSync, existsSync } = await import('node:fs');
   const rows = [];
   for (const d of ['data', 'software', 'build', 'ops', 'comms']) {
-    const p = new URL(`../public/drill/bank/${d}.json`, import.meta.url);
+    const p = new URL(`../daily-drill/app/bank/${d}.json`, import.meta.url);
     if (existsSync(p)) rows.push(...JSON.parse(readFileSync(p, 'utf8')));
   }
   const collisions = [];

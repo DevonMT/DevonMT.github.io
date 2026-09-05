@@ -20,8 +20,8 @@ import { FREE_TYPES, STATIC_TYPES, isFree } from './bank-schema.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..');
-const CATALOG = path.join(ROOT, 'public/drill/catalog/concepts.json');
-const BANK_DIR = path.join(ROOT, 'public/drill/bank');
+const CATALOG = path.join(ROOT, 'daily-drill/app/catalog/concepts.json');
+const BANK_DIR = path.join(ROOT, 'daily-drill/app/bank');
 
 /**
  * A concept is "done" at this many questions, with the free/static mix below.
