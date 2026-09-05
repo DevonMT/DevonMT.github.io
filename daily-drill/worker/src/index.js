@@ -14,7 +14,7 @@
  * so the client and the server can never disagree about what a merge means.
  */
 
-import { mergeAttempts } from '../../../public/drill/js/srs.js';
+import { mergeAttempts } from '../../app/js/srs.js';
 
 const MAX_BODY_BYTES = 4 * 1024 * 1024;   // ~5 years of attempts, generously
 const STATE_KEY = 'drill:state';

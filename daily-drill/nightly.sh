@@ -120,16 +120,16 @@ ADDED=$(node -e "process.stdout.write(String(require('./$DRAFT').length))")
 
 if [ "$DRY" = "1" ]; then
   log "DRY RUN: $ADDED question(s) authored, validated, imported and tested"
-  git --no-pager diff --stat public/drill/bank | tail -3
+  git --no-pager diff --stat daily-drill/app/bank | tail -3
   # Leave no trace: imported-but-uncommitted questions would make the tree dirty
   # and the next real run would refuse to start.
-  git checkout -- public/drill/bank
+  git checkout -- daily-drill/app/bank
   rm -f "$DRAFT"
   log "DRY RUN: working tree restored, nothing committed or pushed"
   exit 0
 fi
 
-git add public/drill/bank "$DRAFT"
+git add daily-drill/app/bank "$DRAFT"
 git commit --quiet -m "Add $ADDED drilled questions ($(date +%F))
 
 Authored by the nightly routine from daily-drill/AUTHORING.md.

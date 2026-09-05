@@ -5,7 +5,7 @@
  * A DESKTOP script. It is not shipped to the browser and is not a runtime
  * dependency of the app (SPEC.md §12) - it reads the concept catalog, asks
  * Claude for questions across the types in §5, validates them hard, and
- * commits them to public/drill/bank/<domain>.json.
+ * commits them to daily-drill/app/bank/<domain>.json.
  *
  * Nothing here runs at drill time. Questions are generated once and committed
  * so the same prompt recurs identically and the app works offline (§6, §10).
@@ -26,8 +26,8 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..');
-const CATALOG = path.join(ROOT, 'public/drill/catalog/concepts.json');
-const BANK_DIR = path.join(ROOT, 'public/drill/bank');
+const CATALOG = path.join(ROOT, 'daily-drill/app/catalog/concepts.json');
+const BANK_DIR = path.join(ROOT, 'daily-drill/app/bank');
 
 const MODEL = 'claude-opus-5';
 const RUBRIC_VERSION = 1;
@@ -382,7 +382,7 @@ async function main() {
     console.log(`\n--- dry run: request 1 of ${batches.length} ---\n`);
     console.log(userPrompt(batches[0], args.perConcept, allowedTypes));
     console.log(`\n(system prompt: ${SYSTEM.length} chars, cached across requests)`);
-    console.log(`\nwould write: ${domains.map(d => `public/drill/bank/${d}.json`).join(', ')}`);
+    console.log(`\nwould write: ${domains.map(d => `daily-drill/app/bank/${d}.json`).join(', ')}`);
     return;
   }
 
@@ -443,7 +443,7 @@ async function main() {
   console.log(`\naccepted ${accepted}, rejected ${rejected}`);
   console.log(`tokens: ${usage.input} in, ${usage.output} out, ${usage.cache_write} cache write, ${usage.cache_read} cache read`);
   console.log(`cost: $${cost.toFixed(2)}`);
-  for (const d of domains) console.log(`wrote public/drill/bank/${d}.json (${banks[d].length} questions)`);
+  for (const d of domains) console.log(`wrote daily-drill/app/bank/${d}.json (${banks[d].length} questions)`);
 }
 
 // exported for daily-drill/generate-bank.test.mjs; only run when invoked directly

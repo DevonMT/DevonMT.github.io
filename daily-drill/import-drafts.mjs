@@ -21,8 +21,8 @@ import { validate, toRow, nextId, FREE_TYPES, findDuplicate } from './bank-schem
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..');
-const CATALOG = path.join(ROOT, 'public/drill/catalog/concepts.json');
-const BANK_DIR = path.join(ROOT, 'public/drill/bank');
+const CATALOG = path.join(ROOT, 'daily-drill/app/catalog/concepts.json');
+const BANK_DIR = path.join(ROOT, 'daily-drill/app/bank');
 
 const files = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const dryRun = process.argv.includes('--dry-run');
@@ -128,7 +128,7 @@ if (dryRun) {
   for (const [domain, rows] of Object.entries(banks)) {
     rows.sort((a, b) => (a.concept_id.localeCompare(b.concept_id) || a.id.localeCompare(b.id)));
     fs.writeFileSync(path.join(BANK_DIR, `${domain}.json`), JSON.stringify(rows, null, 2) + '\n');
-    console.log(`wrote public/drill/bank/${domain}.json (${rows.length} questions, ${new Set(rows.map(r => r.concept_id)).size} concepts)`);
+    console.log(`wrote daily-drill/app/bank/${domain}.json (${rows.length} questions, ${new Set(rows.map(r => r.concept_id)).size} concepts)`);
   }
   const skipped = problems.length + duplicates.length;
   console.log(`\naccepted ${accepted}${skipped ? ` (${problems.length} rejected, ${duplicates.length} duplicate — those concepts return in the next briefing)` : ''}`);

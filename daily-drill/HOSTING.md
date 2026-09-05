@@ -1,3 +1,12 @@
+> **Status: done.** The drill is live at https://drill.devondoes.dev, served by
+> Cloudflare Pages from `daily-drill/app/` — always-on, and deliberately not
+> through the tunnel, exactly as this note argued. Sync runs on the platform
+> instead of the Worker, authenticated by the devondoes.dev session rather than
+> a shared key, so there is nothing to type on a new device. The old path
+> `devontroedel.com/drill` is now a redirect page.
+>
+> What follows is the original handoff note, kept for the reasoning.
+
 # Hosting the drill — a handoff note
 
 For whoever moves Daily Drill onto `devondoes.dev`. It covers what the app
@@ -6,7 +15,7 @@ architecture rather than to the app.
 
 ## What it is
 
-`public/drill/` is a **self-contained static bundle**: 13 files, no build step,
+`daily-drill/app/` is a **self-contained static bundle**: 13 files, no build step,
 no server, no framework, no runtime dependency. Every reference inside it is
 relative, so it can be served from a domain root, a subdirectory, or a Pages
 project without a single change.

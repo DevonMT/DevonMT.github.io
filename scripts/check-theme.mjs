@@ -18,7 +18,7 @@ import { join, relative, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
-// public/drill ships its own copy of the palette (it is served raw and cannot
+// daily-drill/app ships its own copy of the palette (it is served raw and cannot
 // import from src/), which is exactly the duplication that caused the original
 // drift — so it is scanned too.
 const SCAN_DIRS = [join(ROOT, 'src'), join(ROOT, 'public', 'drill')];

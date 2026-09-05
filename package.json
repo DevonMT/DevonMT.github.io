@@ -13,7 +13,7 @@
     "test": "node --test daily-drill/*.test.mjs",
     "drill:import": "node daily-drill/import-drafts.mjs",
     "drill:generate": "node daily-drill/generate-bank.mjs",
-    "drill:validate": "node daily-drill/validate-catalog.cjs public/drill/catalog/concepts.json",
+    "drill:validate": "node daily-drill/validate-catalog.cjs daily-drill/app/catalog/concepts.json",
     "drill:next": "node daily-drill/next-concepts.mjs"
   },
   "dependencies": {
