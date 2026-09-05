@@ -540,5 +540,96 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_comms_status_updates_critique_001",
+    "concept_id": "comms.status_updates",
+    "type": "critique",
+    "prompt": "A teammate's weekly update reads in full: \"Still deep in the pipeline refactor. Lots of moving parts, more complex than expected. Will keep everyone posted.\" Critique it as the person who has to decide whether to move a launch date.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that no finished piece of work is named",
+        "Notes there is no next step with a date attached",
+        "Says whether anything is blocked is left unanswered",
+        "Names the reader's actual question: does the date still hold"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_comms_status_updates_matching_001",
+    "concept_id": "comms.status_updates",
+    "type": "matching",
+    "prompt": "Sort each line from a weekly update into the section a reader expects to find it under.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "The backfill finished Tuesday and the monthly totals reconcile",
+        "I pick up the deduplication logic on Monday",
+        "Sitting on a credential request with the platform team since Wednesday"
+      ],
+      "right": [
+        "Done",
+        "Next",
+        "Blocked"
+      ],
+      "pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_comms_status_updates_mcq_001",
+    "concept_id": "comms.status_updates",
+    "type": "mcq",
+    "prompt": "You spent the whole week waiting on access to a source system and nothing else moved. What belongs in this week's update?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Nothing — skip the update, since there is no progress to report",
+        "The blocker, who can clear it, and what slips if it is not cleared",
+        "A detailed plan for the work you will start once access arrives",
+        "A one-line note that it was a quiet week"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_comms_status_updates_push_back_001",
+    "concept_id": "comms.status_updates",
+    "type": "push_back",
+    "prompt": "Your manager asks you to drop the short Friday note and send one detailed summary at the end of each month instead, because the weekly ones are \"a lot of email\". Write your reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names cadence rather than length as the thing being given up",
+        "States that a month is too late for a blocker to surface",
+        "Grants something real about the manager's objection",
+        "Ends on a specific alternative rather than only an objection"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-05"
   }
 ]
