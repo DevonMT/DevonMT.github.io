@@ -108,9 +108,35 @@ body {
 .rail {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
   padding: 22px 0 30px;
+}
+/* Pips take the middle and the two controls sit on the edges, so adding the
+   way home did not push the progress indicator off-centre. */
+.rail .pips { margin: 0 auto; }
+
+/* Quiet on purpose. Nothing in the rail may compete with the prompt for first
+   read (SPEC §3), so this is the wordmark at label size, in the faint colour,
+   and it only reaches full contrast when you go looking for it. */
+.home {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  color: var(--text-faint);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 6px 2px;          /* a real tap target on a phone */
+}
+.home:hover, .home:focus-visible { color: var(--text-body); }
+.home-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ac);
+  flex: 0 0 auto;
 }
 
 /* Discrete pips, never a percentage bar (SPEC §3): four things, and you can

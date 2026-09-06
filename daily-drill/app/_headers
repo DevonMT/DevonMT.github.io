@@ -1,0 +1,29 @@
+# Cloudflare Pages response headers.
+#
+# This bundle has no build step on purpose, so nothing in it is content-hashed:
+# index.html asks for ./css/app.css and ./js/app.js by plain name, forever.
+# Pages' default is `max-age=14400`, which means a returning device keeps using
+# yesterday's stylesheet and yesterday's code for up to four hours after a
+# deploy — how a re-themed drill kept rendering in the old palette.
+#
+# Stale JS beside fresh HTML is the worse version of that same bug, so the
+# rule covers code and data as well as style.
+#
+# max-age=0 + must-revalidate is not "no caching": the browser keeps the file
+# and revalidates with its ETag, so the usual answer is a 304 with no body.
+# For an app opened once a night that costs nothing worth measuring, and it
+# removes the stale window entirely rather than shortening it.
+
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# The catalog and question bank change whenever the nightly job commits. A
+# device holding an old copy simply would not see the new questions.
+/catalog/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/bank/*
+  Cache-Control: public, max-age=0, must-revalidate
