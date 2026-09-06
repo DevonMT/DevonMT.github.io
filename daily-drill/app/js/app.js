@@ -12,8 +12,8 @@ import {
 } from './srs.js';
 import * as store from './store.js';
 import * as sync from './sync.js';
+import { catalogFingerprint } from './catalog.js';
 
-const CATALOG_VERSION = '2026-09-03';
 const DOMAINS = ['data', 'software', 'build', 'ops', 'comms'];
 const FREE_TYPES = new Set(['explain', 'critique', 'when_not', 'breaks_first', 'to_stakeholder', 'push_back', 'estimate']);
 const needsRubric = q => FREE_TYPES.has(q.type) || q.type === 'tf_why';
@@ -80,8 +80,14 @@ async function boot() {
       }
     }
 
-    if (state.catalog_version !== CATALOG_VERSION) {
-      state = { ...state, catalog_version: CATALOG_VERSION };
+    // Derived from the catalog just loaded, so it cannot describe a different
+    // file than the one in front of us. A change here means concepts were
+    // added, removed or renamed; there is no migration to run yet, and the
+    // planner already ignores a concept that has no questions left.
+    const catalogVersion = catalogFingerprint(catalog);
+    if (state.catalog_version !== catalogVersion) {
+      state = { ...state, catalog_version: catalogVersion };
+      persist();
     }
 
     // A device that has not turned sync on sees the gate once; it can also be
