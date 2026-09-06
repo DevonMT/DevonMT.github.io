@@ -78,12 +78,14 @@
         <button id="btn-import" class="btn-secondary">Import…</button>
         <input type="file" id="file-import" accept="application/json" hidden>
       </div>
-      <p class="note">Progress lives in this browser only. Export is the backup; moving between machines means exporting here and importing there. Import merges: attempts are immutable, so bringing in another device’s export adds its sessions rather than replacing yours.</p>
+      <p class="note">Sync already moves progress between your devices — export is for keeping a copy outside the account, or moving it somewhere that has no sync. Import merges rather than replaces: attempts are immutable, so bringing in another device’s export adds its sessions to yours.</p>
     </section>
 
     <section class="group">
       <div class="eyebrow">// sync</div>
       <p class="note" id="sync-status">—</p>
+      <p class="note">This happens on its own — when the app opens, and again after
+        each session. The button is here for when you want to see it happen.</p>
       <div class="row">
         <button id="btn-sync" class="btn-secondary">Sync now</button>
         <button id="btn-forget" class="btn-secondary danger">Turn off sync</button>

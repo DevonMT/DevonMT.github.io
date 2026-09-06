@@ -26,10 +26,10 @@
     "origin_capture_id": null,
     "answer": {
       "options": [
-        "Re-reading your notes twice with a highlighter",
-        "Watching a recorded talk on the topic",
+        "Re-reading your notes twice, annotating every part you are unsure about",
+        "Working through a worked example line by line, checking each step against the docs",
         "Writing an explanation from memory, then checking it and closing the gaps",
-        "Skimming the documentation index until the terms feel familiar"
+        "Watching a recorded talk at half speed, pausing to take structured notes"
       ],
       "correct": 2
     },

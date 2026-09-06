@@ -99,6 +99,46 @@ claude -p "$PROMPT" \
 [ -s "$DRAFT" ] || fail "no draft written (see /tmp/drill-run.json)"
 node -e "JSON.parse(require('fs').readFileSync('$DRAFT','utf8'))" || fail "draft is not valid JSON"
 
+# 2b. A second opinion, before anything is imported.
+#
+#     The structural validator checks shape and is blind to sense. The one
+#     genuinely broken question that reached the bank passed every structural
+#     check: it referred to "the correlation" without ever saying between what,
+#     which also made its own rubric unanswerable. A mechanical rule for that
+#     was tried and thrown away — on the real bank it rejected good questions,
+#     and a validator that does so gets switched off.
+#
+#     So the reviewer is another Claude run, on the same subscription, reading
+#     each draft cold with no idea which concept it came from. Failing this
+#     step costs one night's questions and nothing else.
+REVIEW_RUBRIC='You are reviewing drill questions before they enter a spaced-repetition bank.
+Judge each ONE AT A TIME, as a reader who sees only that question, at night, with nothing else on screen.
+
+Drop a question if ANY of these is true:
+ - it refers to something it never introduces ("the correlation", "the sample") so the reader cannot know what is meant
+ - a rubric criterion cannot be judged from what the prompt actually says
+ - the prompt does not state what the reader is meant to do
+ - the answer is given away by the wording of the prompt or by one option being obviously the long, careful one
+ - it asks for a fact that is wrong, or true only on one database or one version without saying so
+
+Keep everything else. Being terse, opinionated or hard is not a reason to drop.
+
+Reply with ONLY a JSON array, one entry per question, in the order given.
+"index" is the question's position in the array you were shown, counting from 0.
+[{"index": 0, "verdict": "keep" | "drop", "reason": "one sentence, only when dropping"}]'
+
+log "reviewing"
+claude -p "$REVIEW_RUBRIC
+
+Here are the questions:
+$(cat "$REPO/$DRAFT")" \
+  --permission-mode acceptEdits \
+  "${PERM_FLAGS[@]}" \
+  --output-format text > /tmp/drill-review.txt || fail "review run failed"
+
+node daily-drill/review-drafts.mjs "$DRAFT" /tmp/drill-review.txt \
+  || fail "review rejected the whole batch (see /tmp/drill-review.txt)"
+
 # 3. Validate, de-duplicate and import. Good drafts land; rejected ones are
 #    logged and their concepts simply reappear in tomorrow's briefing. Only a
 #    batch where NOTHING was accepted is treated as a failure.
