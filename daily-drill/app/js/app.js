@@ -252,7 +252,11 @@ function renderQuestion() {
 
   const primary = h('button', { class: 'btn-primary', type: 'button' },
     document.createTextNode(needsRubric(q) ? 'Show the checklist' : 'Check'));
-  actions.append(primary);
+  // A button that does nothing and says nothing reads as broken. This is the
+  // reason it did nothing, shown where the eye already is.
+  const nudge = h('p', { class: 'nudge' });
+  nudge.hidden = true;
+  actions.append(primary, nudge);
 
   el.append(meta, h('h1', { class: 'prompt' }, ...withCodeSpans(q.prompt)), control.node);
   if (rubricBox) { rubricBox.node.hidden = true; el.append(rubricBox.node); }
@@ -263,9 +267,21 @@ function renderQuestion() {
 
   let phase = 'answer';
 
+  // Any interaction with the control means they are answering; drop the nudge.
+  ['input', 'click', 'keydown'].forEach(ev =>
+    control.node.addEventListener(ev, () => { nudge.hidden = true; }));
+
   primary.addEventListener('click', () => {
     if (phase === 'answer') {
-      if (!control.ready()) return;
+      if (!control.ready()) {
+        nudge.textContent = needsRubric(q)
+          ? 'Write your answer first — the checklist grades what you actually said.'
+          : 'Give an answer first.';
+        nudge.hidden = false;
+        const first = control.node.querySelector('textarea, input, button');
+        if (first) first.focus();
+        return;
+      }
       control.lock();
       if (rubricBox) {
         // free-text and tf_why: the criteria appear beside what you wrote, and

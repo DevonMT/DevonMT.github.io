@@ -683,3 +683,12 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Why the primary button just refused. Amber, not danger: nothing has gone
+   wrong, there is simply nothing to grade yet. */
+.nudge {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--amber);
+}
