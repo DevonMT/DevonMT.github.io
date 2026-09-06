@@ -514,11 +514,66 @@ didn't. It is free, instant, offline, and it produces exactly the same *k* of
 Write the criteria to be checkable, not vague. "Explains it well" is a bad
 criterion. "Names at least one case where the two differ" is a good one.
 
-### Phase 2 — model grading
+### Phase 2 — model grading, as a second opinion
 
-Behind a toggle. Returns one boolean plus one sentence per criterion; the
-displayed score is how many were met. The answer is stored immediately and
-graded on reconnect, so the session never blocks on a request.
+**The problem phase 1 has.** Self-grading ticks criteria *after* they are on
+screen, which is exactly where hindsight bias lives: "yes, I basically said
+that." Nothing in the app contradicts it. Half the bank is objectively scored —
+109 of 219 questions are free text, and 12 more are `tf_why`, where the verdict
+is checked and the reasoning is not — but the self-graded half is the half that
+serves the app's actual goal, which is being able to *talk* about the work.
+
+**So the model does not replace the self-grade. It disagrees with it.**
+
+Phase 1 stays exactly as it is. Ticking the criteria is itself an act of
+retrieval, it is instant, and it works offline. What changes is that the answer
+is then read back against the same criteria by a model, which has the one
+advantage the self-grade cannot have: it only knows what was actually written.
+
+**What it returns**, per criterion: met or not, plus a short verbatim quote from
+the answer as evidence. A criterion marked met with no quote is treated as not
+met — the evidence is the point, and a model that cannot point at the words has
+not checked anything.
+
+**What is shown.** Nothing, when the two agree. Silence is the correct output
+for "you graded yourself accurately", and a nightly app that congratulates you
+becomes noise. When they disagree, the criterion is shown with the quote, or
+with its absence. Devon keeps the last word and can restore his own verdict; the
+disagreement is recorded either way.
+
+**What schedules the concept: the lower of the two.** If either the self-grade
+or the model says a criterion was missed, it counts as missed for SM-2. The
+asymmetry is deliberate — a false "missed" costs one extra review of something
+already known, a false "met" costs a forgotten concept, and this app exists to
+prevent exactly the second one.
+
+**It never blocks a drill.** The attempt is written self-graded and the session
+continues; grading happens afterwards. Offline, on error, or when the reply
+cannot be parsed, the attempt stays ungraded and is picked up on a later open.
+There are three visible states and never a silent fourth: **not checked**,
+**checked and agreed**, **checked and disagreed**. A grading pass that quietly
+changes nothing while reporting success is the failure this project has already
+had once, in the question reviewer, and it is guarded here for the same reason.
+
+**Where it runs.** The bundle has no server, so the call goes through the
+platform's existing sync API — `POST /api/drill/grade`, authenticated by the
+same session cookie sync already uses — and from there to the ai-broker on the
+subscription path. That path has no structured-output guarantee, so the reply is
+parsed and verified rather than trusted; one that will not parse leaves the
+attempt unchecked, which is a state the UI already shows.
+
+**How it is stored, given attempts are immutable.** A grade is not written into
+the attempt. Attempts are the only authoritative state and are replayed to
+derive scheduling; mutating one would break the property that lets two devices
+merge by set union. Grades are their own grow-only set, keyed by attempt id, and
+merge the same way. Replay joins them: an attempt with no grade schedules on the
+self-grade alone, an attempt with one schedules on the lower of the two.
+
+**What it costs, and what it gives up.** About two calls a night, which is
+nothing. The real cost is that answers leave the device: today they reach only
+Devon's own platform database, and grading sends them to a model as well. That
+is a deliberate trade for grading that reflects what was actually written, and
+it is why this stays behind a toggle rather than being on by default.
 
 ### Other requirements
 
