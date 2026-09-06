@@ -1,48 +1,62 @@
 /* ============================================================================
-   Daily Drill — BI Console surface
+   Daily Drill — Mesh
 
-   The palette below MIRRORS src/styles/variables.css. It is duplicated because
-   public/ is served raw and cannot import from src/. scripts/check-theme.mjs
-   scans this file so the two cannot silently drift apart.
+   The drill used to live at devontroedel.com/drill and wore that site's BI
+   Console palette: teal accent, cool navy ground, Space Grotesk. It now lives
+   on drill.devondoes.dev, alongside the platform, the admin portal and the
+   finance dashboard — so it wears Mesh, and the tokens below are the same ones
+   the platform's own pages define.
 
-   Design brief, specific to this app rather than the site:
+   Almost every rule in this file already went through these variables, so the
+   move is a retarget rather than a rewrite. Only two literals carried the old
+   palette and both are corrected below.
+
+   Design brief, specific to this app rather than the estate:
    - It opens straight into a question (SPEC §3), so there is no header moment.
-     Identity is carried by the grid and the palette in the periphery; nothing
-     competes with the prompt for first read.
+     Identity is carried by the ground and the periphery; nothing competes with
+     the prompt for first read.
    - It is used at night, on a phone, when tired. Large targets, high contrast,
      no hover-dependent affordances, no motion that demands attention.
    - Feedback is never punitive (SPEC §3). A missed criterion is AMBER, never
      danger red — red is reserved for destructive actions in settings. There is
      no red X anywhere in the answer flow.
+   - That last rule is why --amber is a clear gold rather than the estate's
+     --warn: copper is the accent here, and an orange "you missed this" would
+     read as decoration rather than feedback. The two must not be confusable.
    ========================================================================== */
 
 :root {
-  --bg:            #0a0e1a;
-  --bg-elevated:   #0e1424;
-  --surface:       #0d1322;
-  --border:        rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.06);
+  /* Ground and surfaces — the platform's values, unchanged. */
+  --bg:            #0B0D12;
+  --bg-elevated:   #171C26;
+  --surface:       #141821;
+  --border:        #262C38;
+  --border-subtle: rgba(38, 44, 56, 0.55);
 
-  --text:       #f4f7fd;
-  --text-body:  #cdd5e8;
-  --text-muted: #9aa6c2;
-  --text-faint: #616d8c;
-  --text-dark:  #2a3450;
+  --text:       #E8E4DC;
+  --text-body:  #D3CEC4;
+  --text-muted: #9AA1AE;
+  --text-faint: #6B7280;
+  /* Text ON the accent, and the dimmest structural marks (line numbers,
+     placeholders, unfilled pips). */
+  --text-dark:  #3A4150;
 
-  --ac:      #2dd4bf;
-  --ac-lite: #5fe6d4;
-  --ac-soft: #7ee0d0;
-  --amber:   #f0a868;
-  --amber-bg: rgba(240, 168, 104, 0.12);
-  --danger:  #f87171;
+  --ac:      #C86A3A;
+  --ac-lite: #E08A56;
+  --ac-soft: #DA9B76;
+  /* Deliberately yellower than --ac so "missed a criterion" cannot be mistaken
+     for the accent. See the brief above. */
+  --amber:   #E3B341;
+  --amber-bg: rgba(227, 179, 65, 0.12);
+  --danger:  #C4544A;
 
-  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter Tight', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --r-sm: 8px;
   --r-md: 10px;
-  --r-lg: 14px;
+  --r-lg: 12px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,7 +79,7 @@ body {
   overflow-x: hidden;
   background:
     radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
-    radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
+    radial-gradient(700px 420px at 8% 8%, rgba(200, 106, 58, 0.07), transparent 60%),
     var(--bg);
 }
 
@@ -606,7 +620,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   color: var(--text-body);
   overflow: auto;
 }
-.sheet::backdrop { background: rgba(5, 8, 15, 0.72); backdrop-filter: blur(3px); }
+.sheet::backdrop { background: rgba(11, 13, 18, 0.72); backdrop-filter: blur(3px); }
 
 .sheet-head {
   position: sticky; top: 0;
