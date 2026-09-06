@@ -1,13 +1,34 @@
 ---
+import { AUTH_MODE } from '../lib/privateClient';
+
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
-const navLinks = [
-  { href: '/about',           label: 'About' },
-  { href: '/projects',        label: 'Projects' },
-  { href: '/blog',            label: 'Writing' },
-  { href: '/games/discover',  label: 'Games' },
-  { href: '/#now',            label: 'Now' },
-];
+// One source, two estates. The hub build is served from games.devondoes.dev,
+// which ships only /games and /learn -- so the site's own nav pointed at five
+// paths that do not exist there (/about, /projects, /blog and two anchors on a
+// homepage the hub does not have). It now carries the estate's apps instead.
+const HUB = AUTH_MODE === 'access';
+
+const navLinks = HUB
+  ? [
+      { href: '/games/',                     label: 'Games' },
+      { href: '/learn/',                     label: 'Learn' },
+      { href: 'https://drill.devondoes.dev/', label: 'Drill' },
+      { href: 'https://devondoes.dev/',       label: 'All apps' },
+    ]
+  : [
+      { href: '/about',           label: 'About' },
+      { href: '/projects',        label: 'Projects' },
+      { href: '/blog',            label: 'Writing' },
+      { href: '/games/discover',  label: 'Games' },
+      { href: '/#now',            label: 'Now' },
+    ];
+
+// The wordmark said devondoes.dev on BOTH builds -- so devontroedel.com has
+// been introducing itself as a different site since the BI Console redesign.
+const mark = HUB
+  ? { name: 'devondoes', tld: '.dev', home: 'https://devondoes.dev/' }
+  : { name: 'devontroedel', tld: '.com', home: '/' };
 
 function isActive(href: string): boolean {
   if (href.includes('#')) return false;
@@ -18,9 +39,9 @@ function isActive(href: string): boolean {
 
 <header class="site-nav">
   <div class="nav-inner">
-    <a href="/" class="logo" aria-label="devondoes.dev — home">
+    <a href={mark.home} class="logo" aria-label={`${mark.name}${mark.tld} — home`}>
       <span class="logo-dot" aria-hidden="true"></span>
-      <span>devondoes<span class="logo-accent">.dev</span></span>
+      <span>{mark.name}<span class="logo-accent">{mark.tld}</span></span>
     </a>
 
     <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true" />

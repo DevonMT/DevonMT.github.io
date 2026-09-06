@@ -1,0 +1,56 @@
+/* ============================================================================
+   Mesh — the devondoes.dev palette, for the hub build only.
+
+   One Astro source produces two deployments (see src/lib/privateClient.ts):
+
+     'key'    → devontroedel.com. Personal site, BI Console, teal.
+     'access' → games.devondoes.dev. Part of the platform estate, Mesh, copper.
+
+   The layouts stamp data-ds="mesh" on <html> in the second case, and only then
+   do these values apply. Nothing here is imported conditionally: both token
+   sets ship in both builds, and the attribute decides. That is deliberate —
+   conditional bundling fails silently and in the wrong direction, leaving a
+   page with no tokens at all, whereas an attribute that never gets set simply
+   leaves the site looking exactly as it did.
+
+   These are the same values the platform's own pages define, so /games and
+   /learn sit next to the admin portal and the finance dashboard without
+   looking like guests. Names are unchanged, so no component needed editing:
+   the whole re-theme is this file plus one attribute.
+   ========================================================================== */
+
+:root[data-ds='mesh'] {
+  --color-bg:            #0B0D12;
+  --color-bg-elevated:   #171C26;
+  --color-surface:       #141821;
+  --color-border:        #262C38;
+  --color-border-subtle: rgba(38, 44, 56, 0.55);
+
+  --color-text:          #E8E4DC;
+  --color-text-muted:    #9AA1AE;
+  --color-text-faint:    #6B7280;
+  --color-text-dark:     #3A4150;
+
+  --color-accent:        #C86A3A;
+  --color-accent-hover:  #E08A56;
+  --color-accent-light:  #E08A56;
+  --color-accent-muted:  #DA9B76;
+  --color-accent-soft:   rgba(200, 106, 58, 0.12);
+
+  /* Yellower than the accent on purpose. Copper is already orange, so an
+     orange "needs attention" would read as decoration rather than a signal —
+     the same call made in the drill's stylesheet. */
+  --color-amber:         #E3B341;
+  --color-amber-bg:      rgba(227, 179, 65, 0.12);
+
+  --color-danger:        #C4544A;
+
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-sans:    'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
+
+  /* Mesh's cards are a touch tighter than the site's. */
+  --radius:    12px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+}

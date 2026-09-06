@@ -30,3 +30,4 @@ Thumbs.db
 
 # daily drill: transient authoring briefing
 daily-drill/.briefing.json
+dist-hub/

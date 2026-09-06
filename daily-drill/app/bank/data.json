@@ -46,7 +46,7 @@
     "id": "q_analytics_correlation_causation_push_back_001",
     "concept_id": "analytics.correlation_causation",
     "type": "push_back",
-    "prompt": "Someone tells you the sample is two million users, so the correlation is far too strong to be a fluke and the causal question is settled. Write your reply.",
+    "prompt": "A colleague says users who turn on notifications retain twice as well, and with two million in the sample the correlation is far too strong to be a fluke — so the causal question is settled. Write your reply.",
     "scope": "curriculum",
     "origin_capture_id": null,
     "rubric": {
