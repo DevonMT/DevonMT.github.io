@@ -31,6 +31,7 @@ const ENABLED_NAME = 'daily-drill/sync-on';
 
 /** Where to send someone who is not signed in. */
 export const SIGNIN_URL = 'https://id.devondoes.dev/';
+export const BOOT_CHECK_MS = 2500;
 
 /** Boot must not stall behind a slow network; a normal pull is ~200ms. */
 const PULL_TIMEOUT_MS = 2500;
@@ -84,9 +85,16 @@ async function call(path, { method = 'GET', body, timeout = PULL_TIMEOUT_MS } = 
 }
 
 /** Is there a usable session for this endpoint? Used by the connect gate. */
-export async function checkSession(endpoint) {
+/**
+ * Does this browser already have a usable devondoes.dev session?
+ *
+ * `timeout` exists because boot asks this question before the first question
+ * is drawn, and nothing is allowed to hold that up for eight seconds. A slow
+ * answer is treated as no answer: drill now, sync later.
+ */
+export async function checkSession(endpoint, timeout = PUSH_TIMEOUT_MS) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), PUSH_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeout);
   try {
     const res = await fetch(`${endpoint.replace(/\/+$/, '')}/health`, {
       signal: controller.signal,

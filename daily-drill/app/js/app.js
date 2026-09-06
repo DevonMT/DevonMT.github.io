@@ -90,17 +90,31 @@ async function boot() {
       persist();
     }
 
-    // A device that has not turned sync on sees the gate once; it can also be
-    // declined, because the app is fully usable without sync.
-    if (!sync.syncConfigured()) {
-      if (!state.settings.sync_declined) return showGate();
-    } else {
+    // Sync belongs to the devondoes.dev account, and this bundle is served from
+    // a *.devondoes.dev host, so the session cookie is already here. There is
+    // therefore nothing to ask a signed-in person: ask the server instead, and
+    // turn sync on by itself. An interstitial before question one contradicts
+    // the one thing this app is built around -- that opening it is never a
+    // decision (SPEC §3) -- and the old one asked permission it did not need.
+    if (!sync.syncConfigured() && !state.settings.sync_declined) {
+      const session = await sync.checkSession(sync.getEndpoint(), sync.BOOT_CHECK_MS);
+      if (session.ok) {
+        sync.enableSync();
+      } else if (session.code === 'signin' || session.code === 'noaccess') {
+        // Genuinely signed out, or signed in without a grant. Those need a
+        // person, so the gate earns its place here and nowhere else.
+        return showGate(session.reason);
+      }
+      // Offline or a server hiccup: say nothing, drill now, try again tomorrow.
+    }
+
+    if (sync.syncConfigured()) {
       // Pull before planning so a session done on another device is already
       // reflected and its questions are not asked again. Short timeout: offline
       // this fails fast and the session starts anyway.
       const res = await sync.reconcile(state);
       if (res.ok) { state = res.state; persist(); }
-      else if (res.reason === 'unauthorized') return showGate('That key was rejected. Enter it again.');
+      else if (res.reason === 'unauthorized') return showGate('Your session has expired. Sign in again.');
     }
     startSession();
   } catch (err) {

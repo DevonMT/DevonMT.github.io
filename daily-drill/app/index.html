@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0a0e1a">
+<meta name="theme-color" content="#0B0D12">
 <title>Daily Drill</title>
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="./css/app.css">
 </head>
 <body>
@@ -37,20 +37,21 @@
       </div>
     </main>
 
-    <!-- Shown once per device, only when no key is stored. The key doubles as
-         the sync credential, so nothing secret ships in this page. -->
+    <!-- Only reached when the platform says you are signed out or have no
+         grant. A signed-in device never sees this: boot checks the session and
+         turns sync on by itself. -->
     <section id="gate" class="gate" hidden>
       <div class="gate-card">
         <div class="gate-titlebar">
           <span class="dot-accent"></span><span class="dot-dim"></span><span class="dot-dim"></span>
-          <span class="gate-label">// access required · daily drill</span>
+          <span class="gate-label">// sign in · daily drill</span>
         </div>
         <div class="gate-body">
-          <p class="gate-intro">Sync this device to your devondoes.dev account, so a session done on your phone is already there on your laptop. Nothing to type &mdash; if you are signed in, it just works.</p>
+          <p class="gate-intro">The drill syncs through your devondoes.dev account, so a session done on your phone is already there on your laptop. You are not signed in on this device yet.</p>
           <form id="gate-form" autocomplete="off">
-            <p id="gate-signin" hidden><a href="https://id.devondoes.dev/" target="_blank" rel="noopener">Sign in at id.devondoes.dev</a>, then choose Connect again.</p>
+            <p id="gate-signin" hidden><a href="https://id.devondoes.dev/" target="_blank" rel="noopener">Sign in at id.devondoes.dev</a>, then come back and choose Retry.</p>
             <div class="actions">
-              <button type="submit" id="gate-submit" class="btn-primary">Connect</button>
+              <button type="submit" id="gate-submit" class="btn-primary">Retry</button>
               <button type="button" id="gate-skip" class="btn-secondary">Drill without syncing</button>
             </div>
           </form>
@@ -77,7 +78,7 @@
         <button id="btn-import" class="btn-secondary">Import…</button>
         <input type="file" id="file-import" accept="application/json" hidden>
       </div>
-      <p class="note">Progress lives in this browser only. Export is the backup; moving between machines means exporting here and importing there. Import replaces what is stored — it does not merge.</p>
+      <p class="note">Progress lives in this browser only. Export is the backup; moving between machines means exporting here and importing there. Import merges: attempts are immutable, so bringing in another device’s export adds its sessions rather than replacing yours.</p>
     </section>
 
     <section class="group">
@@ -85,7 +86,7 @@
       <p class="note" id="sync-status">—</p>
       <div class="row">
         <button id="btn-sync" class="btn-secondary">Sync now</button>
-        <button id="btn-forget" class="btn-secondary danger">Forget key</button>
+        <button id="btn-forget" class="btn-secondary danger">Turn off sync</button>
       </div>
     </section>
 

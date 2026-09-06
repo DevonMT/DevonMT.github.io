@@ -18,10 +18,13 @@ import { join, relative, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..');
-// daily-drill/app ships its own copy of the palette (it is served raw and cannot
-// import from src/), which is exactly the duplication that caused the original
-// drift — so it is scanned too.
-const SCAN_DIRS = [join(ROOT, 'src'), join(ROOT, 'public', 'drill')];
+// Only this site's own source. The drill used to be scanned here, back when it
+// was served from public/drill and shared this palette. It moved to
+// drill.devondoes.dev and now wears Mesh, the platform's system, so guarding it
+// against *this* site's legacy values would be guarding the wrong thing — and
+// the path being scanned had not existed since the bundle moved, so the check
+// was passing on an empty directory either way.
+const SCAN_DIRS = [join(ROOT, 'src')];
 const SCAN_EXT = new Set(['.astro', '.css', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.html']);
 
 // Legacy / wrong-palette values that must never reappear. Each entry: a label and
