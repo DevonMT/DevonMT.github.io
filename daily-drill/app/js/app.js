@@ -648,8 +648,8 @@ document.getElementById('settings-open').addEventListener('click', () => {
   document.getElementById('capture-count').textContent =
     state.captures.length ? `${state.captures.length} waiting to be sorted` : '';
   document.getElementById('sync-status').textContent = sync.syncConfigured()
-    ? `Syncing with ${new URL(sync.getEndpoint()).host} as your signed-in account. ${state.attempts.length} attempts held.`
-    : 'Not syncing on this device. Progress stays in this browser only.';
+    ? `On. Syncs at open and after each session, with ${new URL(sync.getEndpoint()).host} as your signed-in account. ${state.attempts.length} attempts held.`
+    : 'Not syncing. Sign in at id.devondoes.dev and reopen the drill — it turns itself on.';
   document.getElementById('storage-note').textContent = store.storageAvailable
     ? `catalog ${state.catalog_version ?? '—'} · ${state.attempts.length} attempts stored`
     : 'This browser is blocking local storage, so tonight will not be saved.';
