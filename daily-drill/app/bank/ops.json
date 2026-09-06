@@ -167,5 +167,455 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_linux_filesystem_breaks_first_001",
+    "concept_id": "linux.filesystem",
+    "type": "breaks_first",
+    "prompt": "A colleague's loader opens `config/settings.yml` and has never failed when they run it by hand from their project folder. Scheduled in cron, it dies on the first night. What breaks first, and why did the manual run hide it?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the path is resolved against the working directory",
+        "Says cron starts the job somewhere else, often the home directory",
+        "Names an absolute path or an explicit cd as the fix",
+        "Explains that the manual run happened to start in the right place"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_filesystem_explain_001",
+    "concept_id": "linux.filesystem",
+    "type": "explain",
+    "prompt": "You SSH into a server you have never touched before and a nightly job is failing. Name the first three places you look on the filesystem and say what each one tells you.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names /var/log or a service log path as one of the three",
+        "Says what /etc holds and why config is checked before code",
+        "Gives a reason for each location rather than listing paths alone",
+        "Mentions checking free space or a full filesystem as a cause"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_filesystem_matching_001",
+    "concept_id": "linux.filesystem",
+    "type": "matching",
+    "prompt": "Match each directory on an unfamiliar Linux box to what you would expect to find there.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "/etc",
+        "/var/log",
+        "/tmp",
+        "/usr/bin",
+        "/home/analyst"
+      ],
+      "right": [
+        "Configuration files for installed services",
+        "The record of what a job did the last time it ran",
+        "Scratch space that may be wiped on reboot",
+        "Executables placed there by the package manager",
+        "One person's own files and dotfiles"
+      ],
+      "pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_filesystem_mcq_001",
+    "concept_id": "linux.filesystem",
+    "type": "mcq",
+    "prompt": "A script runs `cd /srv/reports`, then `cd ../etl`, then `pwd`. What does `pwd` print?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "/srv/etl",
+        "/srv/reports/etl",
+        "/etl",
+        "/srv"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_permissions_cloze_001",
+    "concept_id": "linux.permissions",
+    "type": "cloze",
+    "prompt": "A file listed as `-rw-r-----` is owned by user `alice` and group `analysts`. A member of `analysts` who is not alice may ____ the file but may not ____ it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "read",
+            "read it",
+            "view",
+            "open"
+          ]
+        },
+        {
+          "accept": [
+            "write",
+            "write to",
+            "write to it",
+            "modify",
+            "edit",
+            "change"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_permissions_critique_001",
+    "concept_id": "linux.permissions",
+    "type": "critique",
+    "prompt": "A deploy script ends with the line `chmod -R 777 /srv/app/uploads`, under a comment reading \"fixes permission errors\". Critique that line.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that 777 makes the tree writable by every local account",
+        "Says the real question is which user the service runs as",
+        "Names chown plus a narrower mode such as 750 as the fix",
+        "Points out that -R also marks every file below as executable"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_permissions_push_back_001",
+    "concept_id": "linux.permissions",
+    "type": "push_back",
+    "prompt": "A contractor messages you: \"I keep getting Permission denied writing to the shared export folder — just put me in sudo and I'll stop bothering you.\" Write your reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names group membership or directory ownership as the smaller fix",
+        "States that sudo grants the whole machine, not one folder",
+        "Asks for the exact path and the error text before changing anything",
+        "Offers a concrete next step instead of a flat no"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_permissions_spot_error_001",
+    "concept_id": "linux.permissions",
+    "type": "spot_error",
+    "prompt": "This provisioning snippet sets up a service account and its credentials. Exactly one line is a real security bug — which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "#!/bin/sh",
+        "useradd -r -s /usr/sbin/nologin svc_etl",
+        "mkdir -p /srv/etl/secrets",
+        "chmod 777 /srv/etl/secrets",
+        "chown -R svc_etl:svc_etl /srv/etl",
+        "install -m 600 -o svc_etl -g svc_etl ./db.conf /srv/etl/secrets/db.conf"
+      ],
+      "bad_line": 3,
+      "why": "The directory holding the database credentials is left writable by every account on the box. The 600 mode on the last line protects the contents of db.conf, but a world-writable parent directory lets any local user delete that entry and drop in their own file, which the service will then read. This directory wants chmod 700."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_ssh_keys_critique_001",
+    "concept_id": "linux.ssh_keys",
+    "type": "critique",
+    "prompt": "A team keeps one private key file in the shared password manager, and every new hire downloads that file to get onto the servers. Critique the arrangement.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a shared private key destroys per-person attribution",
+        "Says revoking one leaver's access means rotating it for everyone",
+        "Names one key pair per person as the alternative",
+        "Notes that the key now exists on every machine anyone copied it to"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_ssh_keys_multi_001",
+    "concept_id": "linux.ssh_keys",
+    "type": "multi",
+    "prompt": "Which of these statements about an SSH key pair hold up?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The public half is what gets copied onto each server you want to reach",
+        "If you lose the private half you can regenerate it from the public half",
+        "A passphrase on the private key limits the damage if the laptop is stolen",
+        "During the handshake the server proves it holds your private key",
+        "One key pair can authorise you on any number of unrelated servers"
+      ],
+      "correct": [
+        0,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_ssh_keys_tf_why_001",
+    "concept_id": "linux.ssh_keys",
+    "type": "tf_why",
+    "prompt": "True or false: an attacker who obtains a copy of the `authorized_keys` file from a server can use it to log in as that user. Justify the verdict.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that authorized_keys contains public keys only",
+          "Says login requires the matching private key, which the file lacks",
+          "Describes the client signing a challenge to prove possession",
+          "Notes that write access to that file would be the real danger"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that authorized_keys contains public keys only",
+        "Says login requires the matching private key, which the file lacks",
+        "Describes the client signing a challenge to prove possession",
+        "Notes that write access to that file would be the real danger"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_ssh_keys_to_stakeholder_001",
+    "concept_id": "linux.ssh_keys",
+    "type": "to_stakeholder",
+    "prompt": "A client's office manager emails: \"Please send over your SSH key so IT can set up your access.\" Write the reply you would actually send.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Sends the public key and names the .pub file explicitly",
+        "States that the private half never leaves your machine",
+        "Explains the reason in one line without a lecture on cryptography",
+        "Ends with a concrete next step or a question about where to send it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_net_ports_breaks_first_001",
+    "concept_id": "net.ports",
+    "type": "breaks_first",
+    "prompt": "Two copies of the same worker get started on one box — one from a systemd unit, one from a tmux session someone left running — and both are configured to listen on port 9000. What breaks first, and what does the copy that survives see?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that only one process can hold the listening socket",
+        "Says the second start fails with address already in use",
+        "Notes that the first listener keeps serving traffic untouched",
+        "Points out the surviving process shows no sign of the conflict"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_net_ports_mcq_001",
+    "concept_id": "net.ports",
+    "type": "mcq",
+    "prompt": "An app on a server is bound to `127.0.0.1:8080`. Logged into that server, `curl localhost:8080` returns a page, but a load balancer on another host times out. What is going on?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Another process has already taken port 8080",
+        "The listener accepts connections only over the loopback interface",
+        "The load balancer has to authenticate before it can connect",
+        "Port 8080 is reserved and cannot be reached from off the host"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_net_ports_ordering_001",
+    "concept_id": "net.ports",
+    "type": "ordering",
+    "prompt": "A service refuses to start with \"address already in use\" on a box several teams share. Order the steps for tracking it down.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Restart the service and confirm it is listening where you expect",
+        "Read the error to get the exact address and port it wanted",
+        "Decide whether the process holding the port should be running at all",
+        "Run `ss -ltnp` to find which process currently holds it",
+        "Stop that process or move the new service to a different port"
+      ],
+      "correct_order": [
+        1,
+        3,
+        2,
+        4,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_net_ports_when_not_001",
+    "concept_id": "net.ports",
+    "type": "when_not",
+    "prompt": "Binding a service to 0.0.0.0 is the default in most tutorials. Name the cases where it is the wrong choice, and say what you would bind to instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that 0.0.0.0 accepts connections on every interface",
+        "Names a database, admin panel or metrics port as a case to keep local",
+        "Gives 127.0.0.1 as the bind address for same-host callers",
+        "Mentions a proxy or an SSH tunnel as how remote callers still reach it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_ops_backup_restore_estimate_001",
+    "concept_id": "ops.backup_restore",
+    "type": "estimate",
+    "prompt": "Leadership asks how long it would take to have the warehouse serving queries again if the primary cluster vanished this morning. Give your estimate and show how you got there.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a range rather than a single confident number",
+        "Splits the number into provision, restore, replay and verify",
+        "Names what the estimate hangs on, such as data volume or archive location",
+        "States that the figure is a guess until a drill measures it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_ops_backup_restore_push_back_001",
+    "concept_id": "ops.backup_restore",
+    "type": "push_back",
+    "prompt": "Your manager points out that the nightly snapshot job has exited green for 400 days straight, so spending a sprint day on a restore rehearsal is hard to justify. Respond.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Separates the job exiting zero from the archive being usable",
+        "Names one failure a green job would never catch",
+        "Proposes a time-boxed drill rather than an open-ended project",
+        "Asks what recovery time the business is actually assuming"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_ops_backup_restore_spot_error_001",
+    "concept_id": "ops.backup_restore",
+    "type": "spot_error",
+    "prompt": "This cron script has been reporting success every night for a year. Exactly one line is why the backups may be worthless — which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "#!/bin/sh",
+        "set -e",
+        "STAMP=$(date +%F)",
+        "pg_dump warehouse | gzip > /backups/wh-$STAMP.sql.gz",
+        "find /backups -name 'wh-*.sql.gz' -mtime +14 -delete",
+        "aws s3 sync /backups s3://org-backups/wh/"
+      ],
+      "bad_line": 3,
+      "why": "A shell pipeline reports the exit status of its last command, so `set -e` sees gzip succeed even when pg_dump dies partway. The script writes a perfectly valid gzip file containing a truncated dump, exits zero, and the next line then deletes the older archives that were still restorable. Add `set -o pipefail`, or dump to a file and check the status before compressing."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_ops_backup_restore_tf_why_001",
+    "concept_id": "ops.backup_restore",
+    "type": "tf_why",
+    "prompt": "True or false: a backup job that has reported success every night for a year is evidence that you can restore from it. Justify the verdict.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "Distinguishes the job finishing from the data coming back",
+          "Names something a green job misses, such as a truncated or unreadable archive",
+          "States that only a performed restore counts as evidence",
+          "Says the drill has to produce a measured elapsed time"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "Distinguishes the job finishing from the data coming back",
+        "Names something a green job misses, such as a truncated or unreadable archive",
+        "States that only a performed restore counts as evidence",
+        "Says the drill has to produce a measured elapsed time"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-06"
   }
 ]
