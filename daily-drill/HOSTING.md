@@ -15,7 +15,7 @@ architecture rather than to the app.
 
 ## What it is
 
-`daily-drill/app/` is a **self-contained static bundle**: 13 files, no build step,
+`daily-drill/app/` is a **self-contained static bundle**: 14 files, no build step,
 no server, no framework, no runtime dependency. Every reference inside it is
 relative, so it can be served from a domain root, a subdirectory, or a Pages
 project without a single change.

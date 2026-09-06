@@ -272,7 +272,7 @@ above. `tf_why` carries both.
 ### Committed files — served statically
 
 ```
-/catalog/concepts.json        array of concept objects
+/catalog/concepts.json        array of concept objects (no version field: see catalog_version below)
 /bank/data.json               questions, one file per domain
 /bank/software.json
 /bank/build.json
@@ -289,7 +289,11 @@ single fetch small.
 ```js
 {
   version: 1,
-  catalog_version: "2026-09-03",
+  // Derived from the catalog itself by js/catalog.js, never typed by hand:
+  // "<count>c-<hash of the sorted concept ids>". Changes when a concept is
+  // added, removed or renamed; not when the file is reformatted or a tier is
+  // edited. See "Catalog rot or renames" in the risks table.
+  catalog_version: "181c-81a76f92",
 
   // SRS state — ONE ROW PER CONCEPT, not per question
   schedule: {
@@ -540,7 +544,7 @@ graded on reconnect, so the session never blocks on a request.
 | Grading inconsistency | Boolean criteria, not numeric scores; calibration fixture set |
 | No network | Everything static and offline-capable; grading is local in phase 1 |
 | API cost creep | No runtime model calls at all in phase 1; most question types never need one |
-| Catalog rot or renames | `catalog_version` in state; explicit migration when the catalog changes |
+| Catalog rot or renames | `catalog_version` in state, **derived from the concept ids** (`js/catalog.js`) rather than hand-maintained, so it cannot fall out of step with the file. A concept that disappears also loses its bank entries, and `planSession` already skips any concept with no questions — so removal degrades quietly today. The version is the hook for an explicit migration if one is ever needed. |
 | Abandonment | Return Path (§7); no loss states anywhere |
 | Backlog anxiety | Due count never displayed; overflow silently redistributed; forgetting rule caps the queue |
 | Binge distorts schedule | Extra reps excluded from schedule state |
