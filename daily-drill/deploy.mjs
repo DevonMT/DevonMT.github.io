@@ -56,7 +56,10 @@ export function stamp(dir, v) {
   // index.html: the stylesheet and the entry module.
   const idx = join(dir, 'index.html');
   let html = readFileSync(idx, 'utf8');
-  html = html.replace('href="./css/app.css"', `href="./css/app.css${q}"`);
+  // Every local stylesheet, not app.css by name: the design system arrives as
+  // its own files, and stamping only one of them leaves a new app.css beside a
+  // cached tokens.css — which is the palette half-applied.
+  html = html.replace(/href="(\.\/css\/[A-Za-z0-9_.-]+\.css)"/g, `href="$1${q}"`);
   html = html.replace('src="./js/app.js"', `src="./js/app.js${q}"`);
   writeFileSync(idx, html);
 

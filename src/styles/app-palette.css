@@ -1,0 +1,52 @@
+/* ============================================================================
+   The app palette — devondoes.dev's apps, for the standalone builds.
+
+   Third of three. The site's own tokens live in variables.css; mesh.css
+   restates them for the hub's front door; this restates them again for the
+   things people actually work in, so that an invitation, the sign-up form and
+   the app itself read as one product.
+
+   Same trick as mesh.css and for the same reason: the NAMES are unchanged, so
+   no component needed editing. What is different here is that the values are
+   not literals — they point at ds-tokens.css, the estate's shared contract,
+   which answers each of them differently in light and dark. That is what makes
+   this the first page on the site with two themes: nothing here mentions a
+   colour, so following the device costs nothing.
+
+   Only pages that stamp data-ds="app" get this. /games/discover does not, and
+   keeps the personal site's look.
+   ========================================================================== */
+
+:root[data-ds='app'] {
+  --color-bg:            var(--bg);
+  /* The most-raised tone. --seg sits above the surface in dark and below it in
+     light, which is right both times: a light interface signals "interactive"
+     with a well rather than a highlight. */
+  --color-bg-elevated:   var(--seg);
+  --color-surface:       var(--surface);
+
+  --color-border:        var(--line);
+  --color-border-subtle: color-mix(in srgb, var(--line) 55%, transparent);
+
+  --color-text:          var(--ink);
+  --color-text-muted:    var(--muted);
+  --color-text-faint:    var(--faint);
+  /* Placeholder and rim territory: decoration, never text that carries
+     meaning. */
+  --color-text-dark:     var(--control-rim);
+
+  --color-accent:        var(--accent);
+  --color-accent-hover:  var(--accent-deep);
+  /* All three of these are used as accent-coloured TEXT, so they take the deep
+     variant: the plain accent is a button fill and does not have to clear
+     4.5:1 against the page. */
+  --color-accent-light:  var(--accent-deep);
+  --color-accent-muted:  var(--accent-deep);
+  --color-accent-soft:   var(--accent-soft);
+
+  /* "Worth a look", kept yellower than the accent so it reads as a signal. */
+  --color-amber:         var(--fav);
+  --color-amber-bg:      var(--fav-soft);
+
+  --color-danger:        var(--danger);
+}

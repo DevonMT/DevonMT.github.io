@@ -4,13 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0B0D12">
+<meta name="theme-color" content="#f2f4f3">
+<meta name="color-scheme" content="light dark">
 <title>Daily Drill</title>
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<!-- Generated from devondoes/ds. tokens first, then base, then the app. -->
+<link rel="stylesheet" href="./css/tokens.css">
+<link rel="stylesheet" href="./css/base.css">
 <link rel="stylesheet" href="./css/app.css">
+<script>
+/* The address bar and, on Android, the status bar are painted from this
+   meta, which cannot follow a media query on its own. Reading --bg means
+   it can never disagree with the page. */
+addEventListener("DOMContentLoaded",function(){
+  var sync=function(){
+    var g=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+    if(g)document.querySelector('meta[name="theme-color"]').setAttribute("content",g);
+  };
+  sync();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change",sync);
+});
+</script>
 </head>
 <body>
 
