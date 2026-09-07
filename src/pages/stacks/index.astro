@@ -3,11 +3,11 @@ import PrivateLayout from '../../layouts/PrivateLayout.astro';
 ---
 
 <script>
-  // This page now lives on the hub at games.devondoes.dev, served same-origin
+  // This page now lives on the hub as Stacks, served same-origin
   // with its API behind Cloudflare Access. The copy built for devontroedel.com
   // ('key' mode) is kept only so one source builds both; it forwards there.
-  import { AUTH_MODE } from '../../lib/privateClient';
-  if (AUTH_MODE !== 'access') location.replace('https://games.devondoes.dev/learn/');
+  import { AUTH_MODE, HUB_ORIGIN } from '../../lib/privateClient';
+  if (AUTH_MODE !== 'access') location.replace(HUB_ORIGIN + '/stacks/');
 </script>
 
 

@@ -7,7 +7,7 @@
  *
  * WHY THIS FILE EXISTS. The hub build was a remembered command, and what it
  * produced was the WHOLE SITE — /about, /blog, /projects, the home page, even
- * the CNAME — all sitting on games.devondoes.dev behind an app login. The
+ * the CNAME — all sitting on the hub hostname behind an app login. The
  * personal site is not part of the hub and had no business being served from
  * it, and the catch-all static handler meant every unknown path there returned
  * the personal home page.
@@ -27,12 +27,18 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'dist-hub');
 
 /** Everything the hub serves. Assets are shared, so _astro comes too. */
-const KEEP = new Set(['games', 'learn', '_astro', 'favicon.svg']);
+const KEEP = new Set(['backlog', 'stacks', '_astro', 'favicon.svg']);
 
 /** Where it goes. The backend mounts this read-only as its static root. */
 const TARGET = 'dmini:/home/devon/apps/games-frontend';
 
 rmSync(OUT, { recursive: true, force: true });
+
+// The same checks `npm run build` runs. This script called `astro build`
+// directly and so skipped them, which let a type error reach a hub build that
+// the personal build would have refused — the hub is not the lesser deployment.
+execFileSync('node', ['scripts/check-theme.mjs'], { cwd: ROOT, stdio: 'inherit', shell: true });
+execFileSync('npx', ['astro', 'check'], { cwd: ROOT, stdio: 'inherit', shell: true });
 
 execFileSync('npx', ['astro', 'build', '--outDir', 'dist-hub'], {
   cwd: ROOT,
@@ -48,17 +54,8 @@ for (const name of readdirSync(OUT)) {
   dropped++;
 }
 
-// /games/discover is Playfinder, which has its own hostname and its own
-// deployment. Two URLs for one app compete with each other and only one of
-// them is the app's real home.
-const discover = join(OUT, 'games', 'discover');
-if (existsSync(discover)) {
-  rmSync(discover, { recursive: true, force: true });
-  dropped++;
-}
-
 const kept = readdirSync(OUT);
-for (const required of ['games', 'learn']) {
+for (const required of ['backlog', 'stacks']) {
   const page = join(OUT, required, 'index.html');
   if (!existsSync(page) || !statSync(page).size) {
     console.error(`\n  MISSING ${required}/index.html — the hub would 404 on its own app.`);

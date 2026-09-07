@@ -7,7 +7,7 @@
  *
  *  - 'key'    (default) - pages served from devontroedel.com, calling the API
  *             cross-origin with a shared secret the user pastes in.
- *  - 'access' - pages served from games.devondoes.dev, SAME-ORIGIN with the
+ *  - 'access' - pages served from the app's own hostname, SAME-ORIGIN with the
  *             API, behind Cloudflare Access. The Access cookie rides along
  *             automatically, so there is no key and no CORS.
  *
@@ -18,6 +18,20 @@
 export const AUTH_MODE: 'key' | 'access' =
   import.meta.env.PUBLIC_AUTH_MODE === 'access' ? 'access' : 'key';
 
+/**
+ * Where the hub actually answers.
+ *
+ * The apps are called Backlog and Stacks now, but a NAME is not a HOSTNAME:
+ * backlog.devondoes.dev needs a DNS record, an Access application and a tunnel
+ * entry before it resolves, and none of those can be created from the repo. The
+ * gateway already answers to both names, so everything that has to link across
+ * origins uses the one that works today.
+ *
+ * ONE PLACE, so the flip is one edit rather than four scattered strings that
+ * quietly rot at different times.
+ */
+export const HUB_ORIGIN = 'https://games.devondoes.dev';
+
 export const API_BASE =
   AUTH_MODE === 'access'
     ? '' // same-origin: /learn, /releases, ... are served by this very host
@@ -25,7 +39,7 @@ export const API_BASE =
     // exists. In 'key' mode the pages redirect to the hub before any request
     // is made, so this value is never used — it points at the hub so that if
     // it ever IS used, it reaches something real.
-    : (import.meta.env.PUBLIC_API_BASE ?? 'https://games.devondoes.dev');
+    : (import.meta.env.PUBLIC_API_BASE ?? HUB_ORIGIN);
 
 export const KEY_NAME = 'devon_key';
 
