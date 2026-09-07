@@ -5,7 +5,7 @@ import Gate from '../../components/Gate.astro';
 ---
 
 <script>
-  // This page now lives on the hub at games.devondoes.dev, served same-origin
+  // This page now lives on the hub as Backlog, served same-origin
   // with its API behind Cloudflare Access. The copy built for devontroedel.com
   // ('key' mode) is kept only so one source builds both; it forwards there.
   //
@@ -15,7 +15,7 @@ import Gate from '../../components/Gate.astro';
   // you arrive to find every game you had dismissed back in the list, with
   // nothing to explain why. It rides in the FRAGMENT, which is never sent to
   // the server, and the hub copy merges it on arrival.
-  import { AUTH_MODE } from '../../lib/privateClient';
+  import { AUTH_MODE, HUB_ORIGIN } from '../../lib/privateClient';
   if (AUTH_MODE !== 'access') {
     let hash = '';
     try {
@@ -27,7 +27,7 @@ import Gate from '../../components/Gate.astro';
     } catch {
       /* nothing worth carrying, or storage is unreadable */
     }
-    location.replace('https://games.devondoes.dev/games/' + hash);
+    location.replace(HUB_ORIGIN + '/backlog/' + hash);
   }
 </script>
 

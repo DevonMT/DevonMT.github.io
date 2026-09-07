@@ -3,16 +3,16 @@ import { AUTH_MODE } from '../lib/privateClient';
 
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
-// One source, two estates. The hub build is served from games.devondoes.dev,
-// which ships only /games and /learn -- so the site's own nav pointed at five
+// One source, two estates. The hub build is served from the estate's own
+// hostnames, and ships only these pages -- so the site's own nav pointed at five
 // paths that do not exist there (/about, /projects, /blog and two anchors on a
 // homepage the hub does not have). It now carries the estate's apps instead.
 const HUB = AUTH_MODE === 'access';
 
 const navLinks = HUB
   ? [
-      { href: '/games/',                     label: 'Games' },
-      { href: '/learn/',                     label: 'Learn' },
+      { href: '/backlog/',                    label: 'Backlog' },
+      { href: '/stacks/',                     label: 'Stacks' },
       { href: 'https://drill.devondoes.dev/', label: 'Drill' },
       { href: 'https://devondoes.dev/',       label: 'All apps' },
     ]
