@@ -8,8 +8,27 @@ import Gate from '../../components/Gate.astro';
   // This page now lives on the hub at games.devondoes.dev, served same-origin
   // with its API behind Cloudflare Access. The copy built for devontroedel.com
   // ('key' mode) is kept only so one source builds both; it forwards there.
+  //
+  // The forward carries the backlog exclusions with it. Everything else this
+  // app knows is on the server, but `games_backlog_excluded` is localStorage
+  // and localStorage is per-ORIGIN, so a plain redirect drops it silently —
+  // you arrive to find every game you had dismissed back in the list, with
+  // nothing to explain why. It rides in the FRAGMENT, which is never sent to
+  // the server, and the hub copy merges it on arrival.
   import { AUTH_MODE } from '../../lib/privateClient';
-  if (AUTH_MODE !== 'access') location.replace('https://games.devondoes.dev/games/');
+  if (AUTH_MODE !== 'access') {
+    let hash = '';
+    try {
+      const raw = localStorage.getItem('games_backlog_excluded');
+      const ids = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(ids) && ids.length) {
+        hash = '#excluded=' + encodeURIComponent(JSON.stringify(ids));
+      }
+    } catch {
+      /* nothing worth carrying, or storage is unreadable */
+    }
+    location.replace('https://games.devondoes.dev/games/' + hash);
+  }
 </script>
 
 
@@ -1147,6 +1166,27 @@ import Gate from '../../components/Gate.astro';
   const backlogGrid      = document.getElementById('backlog-grid')!;
   const backlogThreshold = document.getElementById('backlog-threshold') as HTMLSelectElement;
   const EXCLUDED_KEY = 'games_backlog_excluded';
+
+  // Exclusions handed over by the retired copy on devontroedel.com. Merged, not
+  // replaced — this browser may already have its own, and arriving from an old
+  // bookmark should never un-dismiss something dismissed here. Consumed once:
+  // the fragment is cleared so a refresh cannot re-apply a stale set.
+  (function adoptHandover() {
+    const m = /(?:^|[#&])excluded=([^&]+)/.exec(location.hash);
+    if (!m) return;
+    try {
+      const incoming = JSON.parse(decodeURIComponent(m[1]));
+      if (Array.isArray(incoming) && incoming.length) {
+        const raw = localStorage.getItem(EXCLUDED_KEY);
+        const mine = new Set<number>(raw ? JSON.parse(raw) : []);
+        for (const id of incoming) if (typeof id === 'number') mine.add(id);
+        localStorage.setItem(EXCLUDED_KEY, JSON.stringify([...mine]));
+      }
+    } catch {
+      /* a malformed fragment is not worth failing the page over */
+    }
+    history.replaceState(null, '', location.pathname + location.search);
+  })();
 
   function getExcluded(): Set<number> {
     try {
