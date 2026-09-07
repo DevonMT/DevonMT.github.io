@@ -15,7 +15,9 @@
     "drill:generate": "node daily-drill/generate-bank.mjs",
     "drill:validate": "node daily-drill/validate-catalog.cjs daily-drill/app/catalog/concepts.json",
     "drill:next": "node daily-drill/next-concepts.mjs",
-    "build:hub": "node scripts/build-hub.mjs"
+    "build:hub": "node scripts/build-hub.mjs",
+    "lint:ds": "node ../devondoes/ds/sync.mjs --check",
+    "lint:css": "python ../devondoes/ds/lint/check-shorthands.py daily-drill/app/css/app.css daily-drill/app/css/chrome.css daily-drill/app/css/tokens.css daily-drill/app/css/base.css"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.3",

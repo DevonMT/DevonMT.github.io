@@ -131,11 +131,20 @@ body {
 
 /* ---------------------------------------------------------------- rail */
 
+/*
+ * The rail doubles as the estate bar (see chrome.css). These override the
+ * bar's own frame: the drill's rail sits inside the page rather than on top of
+ * it, so it takes no surface, no border and no minimum height — what it keeps
+ * from the bar is the wordmark, the breadcrumb and the way out.
+ */
 .rail {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 22px 0 30px;
+  background: none;
+  border-bottom: none;
+  min-height: 0;
 }
 /* Pips take the middle and the two controls sit on the edges, so adding the
    way home did not push the progress indicator off-centre. */
