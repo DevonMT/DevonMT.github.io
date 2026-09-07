@@ -12,9 +12,10 @@
  * what keeps this free of CORS, of a second allowlist to maintain, and of the
  * "* is invalid with credentials" trap that the drill sync had to solve.
  *
- * An app served from outside the gateway — Daily Drill is on Pages — has no
- * such proxy, so it passes its own origin instead and the platform answers it
- * by the drill's existing CORS allowlist.
+ * An app served from OUTSIDE the gateway — Daily Drill is on Pages — has no
+ * such proxy. It sets data-platform on the bar and the calls go to the platform
+ * directly, answered by the BAR_ORIGINS allow-list there. Same two paths either
+ * way, so the bar never has to know which side of the gateway it is on.
  */
 (function () {
   /*
@@ -68,7 +69,7 @@
     out.hidden = true;
     out.addEventListener('click', function () {
       out.disabled = true;
-      fetch(base + '/api/auth/sign-out', {
+      fetch(base + '/api/sign-out', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

@@ -16,6 +16,7 @@ import '../styles/global.css';
 // site keeps its look at /games/discover, which stamps nothing.
 import '../styles/ds-tokens.css';
 import '../styles/app-palette.css';
+import '../styles/ds-chrome.css';
 import PlayfinderApp from '../components/PlayfinderApp.astro';
 ---
 
@@ -50,57 +51,23 @@ import PlayfinderApp from '../components/PlayfinderApp.astro';
     <div id="site">
       <div id="bg-grid" aria-hidden="true"></div>
 
-      <nav class="hub-nav">
-        <a class="hub-mark" href="https://devondoes.dev/">devondoes.dev</a>
-        <span class="hub-sep">/</span>
-        <span class="hub-here">playfinder</span>
-      </nav>
+      <!-- The shape every app now wears; this page is where it came from.
+           No identity and no way out, because Playfinder has no accounts —
+           the bar's contract makes both optional for exactly this case. -->
+      <header class="ds-bar">
+        <a class="ds-mark" href="https://devondoes.dev/">devondoes.dev</a>
+        <span class="ds-sep" aria-hidden="true">/</span>
+        <span class="ds-here">playfinder</span>
+      </header>
 
       <PlayfinderApp />
 
     </div><!-- #site -->
-    <script is:inline>
-      /* The address bar is painted from the theme-color meta, which cannot
-         follow a media query on its own. Reading --bg means it can never
-         disagree with the page. */
-      (function () {
-        var sync = function () {
-          var g = getComputedStyle(document.documentElement)
-            .getPropertyValue('--bg').trim();
-          if (g) document.querySelector('meta[name="theme-color"]').setAttribute('content', g);
-        };
-        sync();
-        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sync);
-      })();
-    </script>
+    <script is:inline src="/ds-chrome.js" defer></script>
   </body>
 </html>
 
 <style>
   /* Minimal chrome. The app below brings its own styles; this is only the
      thin line at the top that says where you are and how to get back. */
-  .hub-nav {
-    position: relative;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 18px 24px 0;
-    font-size: 14px;
-  }
-  .hub-mark {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    text-decoration: none;
-    color: inherit;
-  }
-  .hub-mark:hover {
-    text-decoration: underline;
-  }
-  .hub-sep,
-  .hub-here {
-    opacity: 0.55;
-  }
 </style>
