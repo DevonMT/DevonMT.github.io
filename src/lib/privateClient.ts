@@ -19,18 +19,17 @@ export const AUTH_MODE: 'key' | 'access' =
   import.meta.env.PUBLIC_AUTH_MODE === 'access' ? 'access' : 'key';
 
 /**
- * Where the hub actually answers.
+ * Where each hub app answers.
  *
- * The apps are called Backlog and Stacks now, but a NAME is not a HOSTNAME:
- * backlog.devondoes.dev needs a DNS record, an Access application and a tunnel
- * entry before it resolves, and none of those can be created from the repo. The
- * gateway already answers to both names, so everything that has to link across
- * origins uses the one that works today.
- *
- * ONE PLACE, so the flip is one edit rather than four scattered strings that
- * quietly rot at different times.
+ * One constant per app, not one for "the hub": they share a container but they
+ * are two apps on two hostnames now, and each hostname serves only its own —
+ * the other app's paths 404 there on purpose. Kept here so a link across
+ * origins is never a hostname typed into a page.
  */
-export const HUB_ORIGIN = 'https://games.devondoes.dev';
+export const APP_ORIGIN = {
+  backlog: 'https://backlog.devondoes.dev',
+  stacks: 'https://stacks.devondoes.dev',
+} as const;
 
 export const API_BASE =
   AUTH_MODE === 'access'
@@ -39,7 +38,7 @@ export const API_BASE =
     // exists. In 'key' mode the pages redirect to the hub before any request
     // is made, so this value is never used — it points at the hub so that if
     // it ever IS used, it reaches something real.
-    : (import.meta.env.PUBLIC_API_BASE ?? HUB_ORIGIN);
+    : (import.meta.env.PUBLIC_API_BASE ?? APP_ORIGIN.backlog);
 
 export const KEY_NAME = 'devon_key';
 
