@@ -1,21 +1,19 @@
 ---
 import { AUTH_MODE } from '../lib/privateClient';
+import EstateBar from './EstateBar.astro';
 
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
-// One source, two estates. The hub build is served from the estate's own
-// hostnames, and ships only these pages -- so the site's own nav pointed at five
-// paths that do not exist there (/about, /projects, /blog and two anchors on a
-// homepage the hub does not have). It now carries the estate's apps instead.
+// One source, two estates -- and on the hub, this is not the nav at all.
+//
+// It used to carry the estate's apps as links. That was still the PERSONAL
+// SITE'S nav wearing a different list: a burger menu, a "Say Hi" call to
+// action, and a shape nothing else on the estate had. Every app now gets the
+// same estate bar instead, so on the hub this component just delegates.
 const HUB = AUTH_MODE === 'access';
 
 const navLinks = HUB
-  ? [
-      { href: '/backlog/',                    label: 'Backlog' },
-      { href: '/stacks/',                     label: 'Stacks' },
-      { href: 'https://drill.devondoes.dev/', label: 'Drill' },
-      { href: 'https://devondoes.dev/',       label: 'All apps' },
-    ]
+  ? []
   : [
       { href: '/about',           label: 'About' },
       { href: '/projects',        label: 'Projects' },
@@ -37,6 +35,7 @@ function isActive(href: string): boolean {
 }
 ---
 
+{HUB ? <EstateBar /> : (
 <header class="site-nav">
   <div class="nav-inner">
     <a href={mark.home} class="logo" aria-label={`${mark.name}${mark.tld} — home`}>
@@ -63,6 +62,7 @@ function isActive(href: string): boolean {
     </nav>
   </div>
 </header>
+)}
 
 <style>
   .site-nav {
