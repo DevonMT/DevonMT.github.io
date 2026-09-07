@@ -25,39 +25,65 @@
      read as decoration rather than feedback. The two must not be confusable.
    ========================================================================== */
 
+/*
+ * The drill's names, answered by the shared contract.
+ *
+ * Nothing in the 700 lines below changed. The stylesheet was already written
+ * entirely against its own token names, so re-pointing those names at
+ * ds/tokens.css re-themes the whole app and brings a light theme with it —
+ * this file has no idea which palette it is wearing.
+ *
+ * Where the contract has no equivalent, the ROLE is derived from one that
+ * does, rather than a literal being reintroduced: a literal is a colour a
+ * theme cannot reach, which is how the app ended up dark-only.
+ */
 :root {
-  /* Ground and surfaces — the platform's values, unchanged. */
-  --bg:            #0B0D12;
-  --bg-elevated:   #171C26;
-  --surface:       #141821;
-  --border:        #262C38;
-  --border-subtle: rgba(38, 44, 56, 0.55);
+  /* --bg, --surface and --danger are contract names already: they need no
+     alias and take their values straight from tokens.css. */
 
-  --text:       #E8E4DC;
-  --text-body:  #D3CEC4;
-  --text-muted: #9AA1AE;
-  --text-faint: #6B7280;
-  /* Text ON the accent, and the dimmest structural marks (line numbers,
-     placeholders, unfilled pips). */
-  --text-dark:  #3A4150;
+  /* The most-raised tone, used for option cards and hover. --seg sits above
+     the surface in dark and below it in light, which is correct both times:
+     a light interface signals "interactive" with a well, not a highlight. */
+  --bg-elevated:   var(--seg);
 
-  --ac:      #C86A3A;
-  --ac-lite: #E08A56;
-  --ac-soft: #DA9B76;
-  /* Deliberately yellower than --ac so "missed a criterion" cannot be mistaken
-     for the accent. See the brief above. */
-  --amber:   #E3B341;
-  --amber-bg: rgba(227, 179, 65, 0.12);
-  --danger:  #C4544A;
+  --border:        var(--line);
+  --border-subtle: color-mix(in srgb, var(--line) 55%, transparent);
+
+  --text:       var(--ink);
+  /* Slightly softened for long-form reading, as the original was. Mixed toward
+     the ground rather than fixed, so it softens in the right direction in
+     either theme. */
+  --text-body:  color-mix(in srgb, var(--ink) 88%, var(--bg));
+  --text-muted: var(--muted);
+  /* Deliberately the only --faint consumer left is .icon-btn. Everything else
+     that used it — a loading message, an eyebrow, a disclosure summary, a
+     field label, a note — is text that carries meaning, and --faint is allowed
+     to sit below 4.5:1 precisely because it must not. All of them passed while
+     the app was dark-only; scoring the light theme is what found them. */
+  --text-faint: var(--faint);
+  /* Checkbox rims and line numbers — decoration, never text that carries
+     meaning, which is exactly what --control-rim is for. */
+  --text-dark:  var(--control-rim);
+
+  --ac:      var(--accent);
+  --ac-lite: var(--accent-deep);
+  /* Accent-coloured TEXT, so it takes the deep variant: the plain accent is a
+     button fill and does not have to pass 4.5:1 against the page. */
+  --ac-soft: var(--accent-deep);
+
+  /* "Needs attention", kept yellower than the accent on purpose — copper is
+     already orange, so an orange signal reads as decoration. */
+  --amber:    var(--fav);
+  --amber-bg: var(--fav-soft);
 
   --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Inter Tight', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-
   --r-sm: 8px;
   --r-md: 10px;
   --r-lg: 12px;
 }
+
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -79,7 +105,7 @@ body {
   overflow-x: hidden;
   background:
     radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
-    radial-gradient(700px 420px at 8% 8%, rgba(200, 106, 58, 0.07), transparent 60%),
+    radial-gradient(700px 420px at 8% 8%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
     var(--bg);
 }
 
@@ -88,8 +114,8 @@ body {
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
   opacity: 0.5;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--line) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 40%, transparent) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
@@ -125,7 +151,11 @@ body {
   font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: .04em;
-  color: var(--text-faint);
+  /* --muted, not --faint. This is the way back to the hub, so it carries
+     meaning; --faint is documented for metadata that does not, and is allowed
+     to sit below 4.5:1 for exactly that reason. It passed only while the app
+     was dark-only; scoring the light theme is what caught it. */
+  color: var(--text-muted);
   text-decoration: none;
   white-space: nowrap;
   padding: 6px 2px;          /* a real tap target on a phone */
@@ -165,13 +195,13 @@ body {
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s, background-color 0.2s;
 }
-.icon-btn:hover { color: var(--text-body); border-color: var(--border); background: rgba(255, 255, 255, 0.03); }
+.icon-btn:hover { color: var(--text-body); border-color: var(--border); background: var(--press); }
 
 /* ---------------------------------------------------------------- boot */
 
 .boot {
   display: flex; align-items: center; gap: 12px;
-  color: var(--text-faint);
+  color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 13px;
   padding-top: 12vh;
@@ -304,7 +334,7 @@ main { flex: 1; }
   font-family: var(--font-mono);
   font-size: 0.86em;
   color: var(--ac-soft);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--seg);
   padding: 2px 6px;
   border-radius: 5px;
   white-space: nowrap;
@@ -448,7 +478,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   padding: 18px 18px 6px;
   margin-bottom: 24px;
 }
-.rubric .eyebrow { color: var(--text-faint); margin-bottom: 12px; }
+.rubric .eyebrow { color: var(--text-muted); margin-bottom: 12px; }
 
 .crit {
   display: flex; align-items: flex-start; gap: 13px;
@@ -506,7 +536,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   font-family: var(--font-mono);
   font-size: 12.5px;
   letter-spacing: 0.06em;
-  color: var(--text-faint);
+  color: var(--text-muted);
   cursor: pointer;
   padding: 6px 0;
 }
@@ -544,7 +574,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
 .btn-primary:hover:not(:disabled) { background: var(--ac-lite); border-color: var(--ac-lite); }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.btn-secondary { background: transparent; color: var(--text-body); border: 1px solid rgba(255, 255, 255, 0.14); }
+.btn-secondary { background: transparent; color: var(--text-body); border: 1px solid var(--line); }
 .btn-secondary:hover { border-color: color-mix(in srgb, var(--ac) 50%, transparent); color: var(--text); }
 .btn-secondary.sm { padding: 8px 14px; font-size: 13px; }
 .btn-secondary.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
@@ -590,7 +620,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
 
 .empty { padding-top: 10vh; color: var(--text-muted); }
 .empty h1 { font-family: var(--font-display); font-size: 28px; color: var(--text); margin-bottom: 12px; }
-.empty code { font-family: var(--font-mono); font-size: 13px; color: var(--ac-soft); background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 5px; }
+.empty code { font-family: var(--font-mono); font-size: 13px; color: var(--ac-soft); background: var(--seg); padding: 2px 6px; border-radius: 5px; }
 
 /* ---------------------------------------------------------------- gate */
 
@@ -606,19 +636,19 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   width: 100%;
   border-radius: 15px;
   background: var(--surface);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line);
   overflow: hidden;
-  box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.8);
+  box-shadow: var(--shadow-dialog);
 }
 .gate-titlebar {
   display: flex; align-items: center; gap: 8px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.015);
+  background: color-mix(in srgb, var(--press) 25%, transparent);
 }
 .dot-accent { width: 11px; height: 11px; border-radius: 50%; background: var(--amber); flex: 0 0 auto; }
-.dot-dim { width: 11px; height: 11px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); flex: 0 0 auto; }
-.gate-label { margin-left: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--text-faint); }
+.dot-dim { width: 11px; height: 11px; border-radius: 50%; background: var(--control-rim); flex: 0 0 auto; }
+.gate-label { margin-left: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
 
 .gate-body { padding: 22px; }
 .gate-intro { color: var(--text-muted); font-size: 15px; margin-bottom: 20px; }
@@ -628,7 +658,9 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: 0.06em;
-  color: var(--text-faint);
+  /* A field label names what you are typing into, so it is text that carries
+     meaning: --muted, not --faint. */
+  color: var(--text-muted);
   margin-bottom: 7px;
 }
 .gate .actions { margin-top: 18px; }
@@ -646,7 +678,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   color: var(--text-body);
   overflow: auto;
 }
-.sheet::backdrop { background: rgba(11, 13, 18, 0.72); backdrop-filter: blur(3px); }
+.sheet::backdrop { background: var(--scrim); backdrop-filter: blur(3px); }
 
 .sheet-head {
   position: sticky; top: 0;
@@ -669,7 +701,7 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
 .group .eyebrow { margin-bottom: 0; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-.note { font-size: 13.5px; line-height: 1.55; color: var(--text-faint); }
+.note { font-size: 13.5px; line-height: 1.55; color: var(--text-muted); }
 .note.inline { margin: 0; }
 .note.version { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dark); }
 

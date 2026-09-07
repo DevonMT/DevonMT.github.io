@@ -11,13 +11,16 @@
  * content otherwise compete with each other in search.
  */
 import '../styles/global.css';
-// Redefines the same tokens under [data-ds="mesh"], stamped on <html> below.
-import '../styles/mesh.css';
+// The estate's shared contract supplies the values; app-palette answers the
+// site's own token names with them, under [data-ds="app"] stamped below. The
+// site keeps its look at /games/discover, which stamps nothing.
+import '../styles/ds-tokens.css';
+import '../styles/app-palette.css';
 import PlayfinderApp from '../components/PlayfinderApp.astro';
 ---
 
 <!doctype html>
-<html lang="en" data-ds="mesh">
+<html lang="en" data-ds="app">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,7 +37,8 @@ import PlayfinderApp from '../components/PlayfinderApp.astro';
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
     />
-    <meta name="theme-color" content="#0B0D12" />
+    <meta name="theme-color" content="#f2f4f3" />
+    <meta name="color-scheme" content="light dark" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Playfinder — games matched to your taste" />
     <meta
@@ -55,6 +59,20 @@ import PlayfinderApp from '../components/PlayfinderApp.astro';
       <PlayfinderApp />
 
     </div><!-- #site -->
+    <script is:inline>
+      /* The address bar is painted from the theme-color meta, which cannot
+         follow a media query on its own. Reading --bg means it can never
+         disagree with the page. */
+      (function () {
+        var sync = function () {
+          var g = getComputedStyle(document.documentElement)
+            .getPropertyValue('--bg').trim();
+          if (g) document.querySelector('meta[name="theme-color"]').setAttribute('content', g);
+        };
+        sync();
+        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sync);
+      })();
+    </script>
   </body>
 </html>
 
