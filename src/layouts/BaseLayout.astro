@@ -1,14 +1,17 @@
 ---
 import '../styles/global.css';
-// Ships in both builds; only applies where <html data-ds="mesh"> is set below.
-import '../styles/mesh.css';
+// The estate's shared contract and the palette that answers it, plus the bar
+// every app wears. All three ship in both builds; only data-ds="app" below
+// applies them, so devontroedel.com is untouched and keeps BI Console.
+import '../styles/ds-tokens.css';
+import '../styles/app-palette.css';
+import '../styles/ds-chrome.css';
 import { AUTH_MODE } from '../lib/privateClient';
 
-// One source, two estates. The 'access' build is the one served from
-// the estate's own hostnames, next to the platform and Runway, so it
-// wears Mesh; devontroedel.com keeps BI Console, which is its own identity and
-// the palette the bi-console-ds package documents.
-const MESH = AUTH_MODE === 'access';
+// One source, two estates. The 'access' build is served from the estate's own
+// hostnames next to the platform, Mise and Runway, so it wears what they wear.
+// devontroedel.com keeps BI Console, its own identity.
+const HUB = AUTH_MODE === 'access';
 
 export interface Props {
   title?: string;
@@ -41,7 +44,7 @@ const personSchema = {
 ---
 
 <!doctype html>
-<html lang="en" data-ds={MESH ? 'mesh' : 'bi'}>
+<html lang="en" data-ds={HUB ? 'app' : 'bi'}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -53,7 +56,10 @@ const personSchema = {
 
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content={MESH ? '#0B0D12' : '#0a0e1a'} />
+    <!-- The hub follows the device, so its ground is not a fixed value; the
+         bar's script keeps this in step with --bg. -->
+    <meta name="color-scheme" content={HUB ? 'light dark' : 'dark'} />
+    <meta name="theme-color" content={HUB ? '#f2f4f3' : '#0a0e1a'} />
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -74,7 +80,7 @@ const personSchema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href={MESH
+      href={HUB
         ? 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'
         : 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'}
     />

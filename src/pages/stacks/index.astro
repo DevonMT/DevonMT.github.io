@@ -12,7 +12,7 @@ import PrivateLayout from '../../layouts/PrivateLayout.astro';
 
 
 <PrivateLayout
-  title="Learn — Devon Troedel"
+  title="Stacks"
   description="Private learning tracker."
   label="learn"
   table="learn_sessions"
@@ -25,7 +25,7 @@ import PrivateLayout from '../../layouts/PrivateLayout.astro';
 <div id="app" hidden>
 
   <div class="page-bar">
-    <span class="page-tag">// learn</span>
+    <span class="page-tag">// stacks</span>
   </div>
 
   <!-- Tab bar -->
@@ -171,10 +171,10 @@ import PrivateLayout from '../../layouts/PrivateLayout.astro';
         </div>
         <div class="heatmap-legend">
           <span class="legend-lbl">less</span>
-          <span class="hm-cell" style="background:#0d1322"></span>
-          <span class="hm-cell" style="background:rgba(45,212,191,0.3)"></span>
-          <span class="hm-cell" style="background:rgba(45,212,191,0.6)"></span>
-          <span class="hm-cell" style="background:#2dd4bf"></span>
+          <span class="hm-cell" style="background:var(--color-surface)"></span>
+          <span class="hm-cell" style="background:color-mix(in srgb, var(--color-accent) 30%, transparent)"></span>
+          <span class="hm-cell" style="background:color-mix(in srgb, var(--color-accent) 60%, transparent)"></span>
+          <span class="hm-cell" style="background:var(--color-accent)"></span>
           <span class="legend-lbl">more</span>
         </div>
       </div>
@@ -277,7 +277,7 @@ select.l-input { cursor: pointer; }
 
 /* ── Buttons ── */
 .btn-primary {
-  background: var(--color-accent); color: #0a0e1a; font-family: var(--font-sans);
+  background: var(--color-accent); color: var(--color-bg); font-family: var(--font-sans);
   font-weight: 600; font-size: 0.95rem; border: none; border-radius: var(--radius-xs);
   padding: 0.75rem 1.5rem; cursor: pointer; transition: background var(--transition);
   min-height: 44px;
@@ -305,7 +305,7 @@ select.l-input { cursor: pointer; }
 .recent-del:hover { color: var(--color-danger); }
 .recent-empty { font-size: 0.85rem; color: var(--color-text-faint); font-family: var(--font-mono); }
 .src-tag { display: inline-block; font-size: 0.7rem; font-family: var(--font-mono); padding: 0.1rem 0.4rem; border-radius: 4px; background: var(--color-accent-soft); color: var(--color-accent); margin-right: 0.35rem; }
-.src-tag.dc { background: rgba(240,168,104,0.12); color: var(--color-amber); }
+.src-tag.dc { background: color-mix(in srgb, var(--color-amber) 12%, transparent); color: var(--color-amber); }
 .src-tag.de { background: rgba(167,139,250,0.12); color: #a78bfa; }
 
 /* ── Dashboard shared ── */
@@ -362,7 +362,7 @@ select.l-input { cursor: pointer; }
 .balance-age.never { color: var(--color-danger); }
 
 /* ── Spinner (log-submit button) ── */
-.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #0a0e1a; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid color-mix(in srgb, var(--color-bg) 30%, transparent); border-top-color: var(--color-bg); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 
@@ -638,10 +638,10 @@ select.l-input { cursor: pointer; }
   }
 
   function heatColor(n: number): string {
-    if (n === 0) return '#0d1322';
-    if (n === 1) return 'rgba(45,212,191,0.35)';
-    if (n <= 3)  return 'rgba(45,212,191,0.65)';
-    return '#2dd4bf';
+    if (n === 0) return 'var(--color-surface)';
+    if (n === 1) return 'color-mix(in srgb, var(--color-accent) 35%, transparent)';
+    if (n <= 3)  return 'color-mix(in srgb, var(--color-accent) 65%, transparent)';
+    return 'var(--color-accent)';
   }
 
   function renderHeatmap() {
@@ -694,8 +694,8 @@ select.l-input { cursor: pointer; }
     const CHART_DEFAULTS = {
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa6c2', font: { family: 'JetBrains Mono', size: 10 } } },
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9aa6c2', font: { family: 'JetBrains Mono', size: 10 } } },
+        x: { grid: { color: 'color-mix(in srgb, var(--color-text) 5%, transparent)' }, ticks: { color: 'var(--color-text-muted)', font: { family: 'JetBrains Mono', size: 10 } } },
+        y: { grid: { color: 'color-mix(in srgb, var(--color-text) 5%, transparent)' }, ticks: { color: 'var(--color-text-muted)', font: { family: 'JetBrains Mono', size: 10 } } },
       },
     };
 
@@ -710,13 +710,13 @@ select.l-input { cursor: pointer; }
         labels: ['Book', 'DataCamp', 'DataExpert'],
         datasets: [{
           data: [srcMins.book / 60, srcMins.datacamp / 60, srcMins.dataexpert / 60].map(v => Math.round(v * 10) / 10),
-          backgroundColor: ['rgba(45,212,191,0.8)', 'rgba(240,168,104,0.8)', 'rgba(167,139,250,0.8)'],
-          borderColor: '#0e1424',
+          backgroundColor: ['color-mix(in srgb, var(--color-accent) 80%, transparent)', 'color-mix(in srgb, var(--color-amber) 80%, transparent)', 'rgba(167,139,250,0.8)'],
+          borderColor: 'var(--color-bg-elevated)',
           borderWidth: 2,
         }],
       },
       options: {
-        plugins: { legend: { display: true, position: 'bottom', labels: { color: '#9aa6c2', font: { family: 'JetBrains Mono', size: 9 }, boxWidth: 10, padding: 8 } } },
+        plugins: { legend: { display: true, position: 'bottom', labels: { color: 'var(--color-text-muted)', font: { family: 'JetBrains Mono', size: 9 }, boxWidth: 10, padding: 8 } } },
         cutout: '65%',
       },
     });
@@ -733,7 +733,7 @@ select.l-input { cursor: pointer; }
         labels: SKILLS,
         datasets: [{
           data: SKILLS.map(sk => Math.round((skillMins[sk] || 0) / 60 * 10) / 10),
-          backgroundColor: SKILLS.map(sk => skillMins[sk] > 0 ? 'rgba(45,212,191,0.7)' : 'rgba(255,255,255,0.06)'),
+          backgroundColor: SKILLS.map(sk => skillMins[sk] > 0 ? 'color-mix(in srgb, var(--color-accent) 70%, transparent)' : 'color-mix(in srgb, var(--color-text) 6%, transparent)'),
           borderRadius: 3,
         }],
       },
@@ -766,9 +766,9 @@ select.l-input { cursor: pointer; }
         labels: months,
         datasets: [{
           data: monthCounts,
-          borderColor: '#2dd4bf',
-          backgroundColor: 'rgba(45,212,191,0.1)',
-          pointBackgroundColor: '#2dd4bf',
+          borderColor: 'var(--color-accent)',
+          backgroundColor: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+          pointBackgroundColor: 'var(--color-accent)',
           pointRadius: 4,
           tension: 0.3,
           fill: true,

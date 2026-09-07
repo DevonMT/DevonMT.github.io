@@ -1,0 +1,36 @@
+---
+/**
+ * The estate bar: devondoes.dev / <app>, who you are, and the way out.
+ *
+ * Markup only. The look is ds-chrome.css and the behaviour is ds-chrome.js,
+ * both generated from devondoes/ds so this bar is the same object in the
+ * platform's template strings, the drill's static HTML and Runway's Jinja.
+ *
+ * The label is derived from the path rather than passed, so a new hub page
+ * cannot ship with the wrong one or with none.
+ */
+const seg = Astro.url.pathname.split('/').filter(Boolean)[0] ?? '';
+
+export interface Props {
+  /** Override only where the path is not the name. */
+  here?: string;
+  /** Public apps have no account to name, so no identity and no sign out. */
+  anonymous?: boolean;
+}
+const { here = seg, anonymous = false } = Astro.props;
+---
+
+<header class="ds-bar">
+  <a class="ds-mark" href="https://devondoes.dev/">devondoes.dev</a>
+  <span class="ds-sep" aria-hidden="true">/</span>
+  <span class="ds-here">{here}</span>
+  <span class="ds-fill"></span>
+  {!anonymous && (
+    <>
+      <span class="ds-who"></span>
+      <button class="ds-out" type="button" hidden>Sign out</button>
+    </>
+  )}
+</header>
+
+<script is:inline src="/ds-chrome.js" defer></script>

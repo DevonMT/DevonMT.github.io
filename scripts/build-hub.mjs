@@ -27,7 +27,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'dist-hub');
 
 /** Everything the hub serves. Assets are shared, so _astro comes too. */
-const KEEP = new Set(['backlog', 'stacks', '_astro', 'favicon.svg']);
+const KEEP = new Set(['backlog', 'stacks', '_astro', 'favicon.svg', 'ds-chrome.js']);
 
 /** Where it goes. The backend mounts this read-only as its static root. */
 const TARGET = 'dmini:/home/devon/apps/games-frontend';

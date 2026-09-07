@@ -38,8 +38,9 @@ const { title, description, label, table, intro } = Astro.props;
     min-height: 100vh;
     background:
       radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--ac) 10%, transparent), transparent 60%),
-      radial-gradient(700px 420px at 8% 8%, rgba(240, 168, 104, 0.06), transparent 60%),
-      #0a0e1a;
+      radial-gradient(700px 420px at 8% 8%,
+        color-mix(in srgb, var(--color-amber) 6%, transparent), transparent 60%),
+      var(--color-bg);
     overflow-x: clip;
   }
   #bg-grid {
@@ -49,8 +50,8 @@ const { title, description, label, table, intro } = Astro.props;
     z-index: 0;
     opacity: 0.5;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--color-text) 2.2%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--color-text) 2.2%, transparent) 1px, transparent 1px);
     background-size: 64px 64px;
   }
   /* Lift app content above the fixed grid (which paints at z-index 0). */
