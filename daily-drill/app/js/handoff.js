@@ -9,7 +9,7 @@
  * held none of the owner's attempts at all.
  *
  * So on its first visit Recall asks the old hostname for what it has. The old
- * hostname keeps serving exactly one page, migrate.html, which the redirect to
+ * hostname keeps serving exactly one page, migrate.html (at /migrate), which the redirect to
  * the new name exempts. Loaded here in a hidden frame, it reads its own storage
  * and posts it back, to this origin and no other. The two hosts are the same
  * site (devondoes.dev), so browsers give that frame its real storage rather
@@ -44,7 +44,7 @@ export function handoff(state, adopt) {
   const frame = document.createElement('iframe');
   frame.hidden = true;
   frame.setAttribute('aria-hidden', 'true');
-  frame.src = `${OLD_ORIGIN}/migrate.html`;
+  frame.src = `${OLD_ORIGIN}/migrate`;   // Pages serves migrate.html without its extension
 
   let settled = false;
   const finish = () => { settled = true; removeEventListener('message', onMessage); frame.remove(); };
