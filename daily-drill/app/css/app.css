@@ -1,11 +1,11 @@
 /* ============================================================================
-   Daily Drill — Mesh
+   Daily Drill (becoming Recall) — the estate design system
 
    The drill used to live at devontroedel.com/drill and wore that site's BI
    Console palette: teal accent, cool navy ground, Space Grotesk. It now lives
    on drill.devondoes.dev, alongside the platform, the admin portal and the
-   finance dashboard — so it wears Mesh, and the tokens below are the same ones
-   the platform's own pages define.
+   finance dashboard — so it wears the estate's design system (devondoes/ds),
+   answering the same token names every app does.
 
    Almost every rule in this file already went through these variables, so the
    move is a retarget rather than a rewrite. Only two literals carried the old
@@ -21,7 +21,7 @@
      danger red — red is reserved for destructive actions in settings. There is
      no red X anywhere in the answer flow.
    - That last rule is why --amber is a clear gold rather than the estate's
-     --warn: copper is the accent here, and an orange "you missed this" would
+     --warn, which is orange: an orange "you missed this" would
      read as decoration rather than feedback. The two must not be confusable.
    ========================================================================== */
 

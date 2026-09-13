@@ -1,13 +1,12 @@
 /* ============================================================================
    The app palette — devondoes.dev's apps, for the standalone builds.
 
-   Third of three. The site's own tokens live in variables.css; mesh.css
-   restates them for the hub's front door; this restates them again for the
+   The site's own tokens live in variables.css; this restates them for the
    things people actually work in, so that an invitation, the sign-up form and
-   the app itself read as one product.
+   the app itself read as one product. (A third file, mesh.css, restated them
+   for a front door that was never wired up; it was removed in 2026-09.)
 
-   Same trick as mesh.css and for the same reason: the NAMES are unchanged, so
-   no component needed editing. What is different here is that the values are
+   The NAMES are unchanged, so no component needed editing. What is different here is that the values are
    not literals — they point at ds-tokens.css, the estate's shared contract,
    which answers each of them differently in light and dark. That is what makes
    this the first page on the site with two themes: nothing here mentions a
