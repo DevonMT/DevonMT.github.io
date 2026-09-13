@@ -1,0 +1,10 @@
+<!-- Generated from devondoes/ds/emblems/stacks.svg — do not edit here.
+     Edit the source and run `node ds/sync.mjs`. `--check` fails on drift. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<style>
+  .hx{fill:#316847} .sy{fill:#f9fdfa}
+  @media (prefers-color-scheme: dark){ .hx{fill:#97c4a6} .sy{fill:#08180e} }
+</style>
+<path class="hx" d="M12 1.6 21.2 6.9v10.2L12 22.4 2.8 17.1V6.9Z"/>
+<path class="sy" d="M7.2 8h2.1v8.2H7.2Zm3 1.4h2.1v6.8h-2.1Zm3.2-.5 2-.5 2 7.6-2 .5Z"/>
+</svg>
