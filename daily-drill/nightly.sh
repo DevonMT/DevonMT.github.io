@@ -124,7 +124,7 @@ Drop a question if ANY of these is true:
 Keep everything else. Being terse, opinionated or hard is not a reason to drop.
 
 Reply with ONLY a JSON array, one entry per question, in the order given.
-"index" is the question's position in the array you were shown, counting from 0.
+"index" is the position of the question in the array you were shown, counting from 0.
 [{"index": 0, "verdict": "keep" | "drop", "reason": "one sentence, only when dropping"}]'
 
 log "reviewing"
