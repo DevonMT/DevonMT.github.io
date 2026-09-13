@@ -1,0 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>Recall handoff</title>
+<!--
+  The one page drill.devondoes.dev still serves after Daily Drill became Recall
+  (see js/handoff.js). Loaded by recall.devondoes.dev in a hidden frame, it
+  hands over what this hostname has stored, to that origin and no other.
+  Deployed to both hostnames; it does nothing unless it is on the old one and
+  inside a frame. Safe to delete once nobody opens the old address.
+-->
+<script>
+(function () {
+  var NEW_ORIGIN = 'https://recall.devondoes.dev';
+  if (location.origin !== 'https://drill.devondoes.dev' || window.parent === window) return;
+  var raw = null, syncOn = null;
+  try {
+    raw = localStorage.getItem('daily-drill/v1');
+    syncOn = localStorage.getItem('daily-drill/sync-on');
+  } catch (e) { /* storage unavailable: send nothing, which reads as nothing to carry */ }
+  // The target origin is fixed, so a page that framed this one could not read it.
+  window.parent.postMessage({ kind: 'recall-handoff', raw: raw, syncOn: syncOn }, NEW_ORIGIN);
+})();
+</script>

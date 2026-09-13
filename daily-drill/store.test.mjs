@@ -53,8 +53,8 @@ test('migrate does not downgrade a newer stored version', () => {
 });
 
 test('parseImport rejects a file that is not an export', () => {
-  assert.throws(() => parseImport('{"hello":"world"}'), /not a Daily Drill export/);
-  assert.throws(() => parseImport('[]'), /not a Daily Drill export/);
+  assert.throws(() => parseImport('{"hello":"world"}'), /not a Recall export/);
+  assert.throws(() => parseImport('[]'), /not a Recall export/);
   assert.doesNotThrow(() => parseImport(JSON.stringify({ attempts: [] })));
 });
 

@@ -11,6 +11,7 @@ import {
   SESSION_SIZE, toDay,
 } from './srs.js';
 import * as store from './store.js';
+import { handoff } from './handoff.js';
 import * as sync from './sync.js';
 import { catalogFingerprint } from './catalog.js';
 
@@ -64,6 +65,9 @@ const persist = () => store.save(state);
 // ---------------------------------------------------------------- boot
 
 async function boot() {
+  // Progress stored under the old hostname, carried over once. Beside boot, not
+  // before it: opening the app is never a wait (SPEC §3).
+  handoff(state, (merged) => { state = merged; persist(); location.reload(); });
   try {
     const [cat, ...banks] = await Promise.all([
       fetch('./catalog/concepts.json').then(r => r.json()),
@@ -649,7 +653,7 @@ document.getElementById('settings-open').addEventListener('click', () => {
     state.captures.length ? `${state.captures.length} waiting to be sorted` : '';
   document.getElementById('sync-status').textContent = sync.syncConfigured()
     ? `On. Syncs at open and after each session, with ${new URL(sync.getEndpoint()).host} as your signed-in account. ${state.attempts.length} attempts held.`
-    : 'Not syncing. Sign in at id.devondoes.dev and reopen the drill — it turns itself on.';
+    : 'Not syncing. Sign in at id.devondoes.dev and reopen Recall — it turns itself on.';
   document.getElementById('storage-note').textContent = store.storageAvailable
     ? `catalog ${state.catalog_version ?? '—'} · ${state.attempts.length} attempts stored`
     : 'This browser is blocking local storage, so tonight will not be saved.';
@@ -674,7 +678,7 @@ document.getElementById('btn-sync').addEventListener('click', async ev => {
   if (!res.ok) {
     status.textContent =
       res.reason === 'signin'   ? 'You are signed out. Sign in at id.devondoes.dev, then sync again.'
-      : res.reason === 'noaccess' ? 'Your account has no access to the drill yet. Ask Devon for it.'
+      : res.reason === 'noaccess' ? 'Your account has no access to Recall yet. Ask Devon for it.'
       : `Sync failed: ${res.message}. Your progress here is untouched.`;
     return;
   }

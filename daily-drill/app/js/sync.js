@@ -76,7 +76,7 @@ async function call(path, { method = 'GET', body, timeout = PULL_TIMEOUT_MS } = 
     // These two are different problems and must not collapse into one message:
     // one is "sign in", the other is "ask for access".
     if (res.status === 401) throw Object.assign(new Error('not signed in'), { code: 'signin' });
-    if (res.status === 403) throw Object.assign(new Error('no access to the drill'), { code: 'noaccess' });
+    if (res.status === 403) throw Object.assign(new Error('no access to Recall'), { code: 'noaccess' });
     if (!res.ok) throw Object.assign(new Error(`sync failed (${res.status})`), { code: 'http' });
     return res.json();
   } finally {
@@ -101,7 +101,7 @@ export async function checkSession(endpoint, timeout = PUSH_TIMEOUT_MS) {
       credentials: 'include',
     });
     if (res.status === 401) return { ok: false, code: 'signin', reason: 'Sign in at id.devondoes.dev first, then try again.' };
-    if (res.status === 403) return { ok: false, code: 'noaccess', reason: 'Your account has no access to the drill yet. Ask Devon.' };
+    if (res.status === 403) return { ok: false, code: 'noaccess', reason: 'Your account has no access to Recall yet. Ask Devon.' };
     if (!res.ok) return { ok: false, code: 'http', reason: `Sync service error (${res.status}).` };
     return { ok: true };
   } catch {
