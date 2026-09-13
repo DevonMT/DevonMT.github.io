@@ -99,8 +99,9 @@ export function exportFilename(today) {
 
 export function parseImport(text) {
   const parsed = JSON.parse(text);
-  if (!parsed || typeof parsed !== 'object') throw new Error('not a Daily Drill export');
-  if (!Array.isArray(parsed.attempts)) throw new Error('not a Daily Drill export');
+  // Exports from before the rename (Daily Drill) are the same format.
+  if (!parsed || typeof parsed !== 'object') throw new Error('not a Recall export');
+  if (!Array.isArray(parsed.attempts)) throw new Error('not a Recall export');
   return migrate(parsed);
 }
 
