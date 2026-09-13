@@ -12,6 +12,13 @@ import { AUTH_MODE } from '../lib/privateClient';
 // hostnames next to the platform, Mise and Runway, so it wears what they wear.
 // devontroedel.com keeps BI Console, its own identity.
 const HUB = AUTH_MODE === 'access';
+// On the estate's hostnames, each app's own emblem (devondoes/ds/emblems).
+// The personal site keeps its DT mark.
+const path = Astro.url.pathname;
+const ICON = !HUB ? '/favicon.svg'
+  : path.startsWith('/stacks') || path.startsWith('/learn') ? '/emblems/stacks.svg'
+  : path.startsWith('/backlog') || path.startsWith('/games') ? '/emblems/backlog.svg'
+  : '/favicon.svg';
 
 export interface Props {
   title?: string;
@@ -55,7 +62,7 @@ const personSchema = {
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={ICON} />
     <!-- The hub follows the device, so its ground is not a fixed value; the
          bar's script keeps this in step with --bg. -->
     <meta name="color-scheme" content={HUB ? 'light dark' : 'dark'} />

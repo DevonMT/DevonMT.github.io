@@ -1,6 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DT">
-  <rect width="64" height="64" rx="14" fill="#0a0e27"/>
-  <text x="50%" y="50%" dy="0.35em" text-anchor="middle"
-        font-family="'JetBrains Mono', ui-monospace, monospace"
-        font-size="30" font-weight="700" fill="#14b8a6">DT</text>
+<!-- Generated from devondoes/ds/emblems/recall.svg — do not edit here.
+     Edit the source and run `node ds/sync.mjs`. `--check` fails on drift. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<style>
+  .hx{fill:#5c4a9e} .sy{fill:#fcfbff}
+  @media (prefers-color-scheme: dark){ .hx{fill:#b6acf6} .sy{fill:#141120} }
+</style>
+<path class="hx" d="M12 1.6 21.2 6.9v10.2L12 22.4 2.8 17.1V6.9Z"/>
+<path class="sy" d="M7.67 9.5A5 5 0 0 1 16.92 11.13L15.15 11.44A3.2 3.2 0 0 0 9.23 10.4ZM17.81 10.98 14.27 11.6 16.49 13.85ZM16.33 14.5A5 5 0 0 1 7.08 12.87L8.85 12.56A3.2 3.2 0 0 0 14.77 13.6ZM6.19 13.02 9.73 12.4 7.51 10.15Z"/>
 </svg>
