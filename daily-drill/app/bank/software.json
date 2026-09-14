@@ -582,5 +582,80 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_py_environments_critique_001",
+    "concept_id": "py.environments",
+    "type": "critique",
+    "prompt": "A project's `requirements.txt` reads `pandas`, `requests`, `sqlalchemy` — three lines, no versions — and the README says to install it with pip and run the script. Critique that setup.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that nothing is pinned, so two installs can differ",
+        "Notes that the transitive dependencies are not recorded at all",
+        "Says nothing isolates this install from other projects on the machine",
+        "Recommends a lockfile plus a per-project environment"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_py_environments_explain_001",
+    "concept_id": "py.environments",
+    "type": "explain",
+    "prompt": "A script runs fine on your laptop and dies on a coworker's with a `TypeError` raised inside a library neither of you edited. Explain what most likely differs between the two machines and how a lockfile would have headed it off.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a different installed version of a library as the cause",
+        "States that an unpinned install resolves versions at install time",
+        "Says a lockfile records exact versions including transitive ones",
+        "Mentions a per-project virtual environment as the isolation boundary"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_py_environments_mcq_001",
+    "concept_id": "py.environments",
+    "type": "mcq",
+    "prompt": "Two projects on the same machine need different releases of the same library, and both must keep working. What makes that possible?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A separate virtual environment for each project",
+        "Reinstalling the library at the start of every run",
+        "Listing both versions in a single requirements file",
+        "Upgrading to the newer release and patching whichever project breaks"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_py_environments_spot_error_001",
+    "concept_id": "py.environments",
+    "type": "spot_error",
+    "prompt": "These four shell lines are a project's documented setup. They run without an error message, yet the packages end up somewhere nobody wanted. Which line is wrong?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "python -m venv .venv",
+        "pip install -r requirements.txt",
+        "source .venv/bin/activate",
+        "python etl.py"
+      ],
+      "bad_line": 1,
+      "why": "The install happens before the environment is activated, so pip is still the system interpreter's pip and the packages land machine-wide. Activation has to come before the install — the order should be create, activate, install, run."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
   }
 ]

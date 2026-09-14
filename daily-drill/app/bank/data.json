@@ -1162,6 +1162,113 @@
     "created_at": "2026-09-03"
   },
   {
+    "id": "q_orchestration_dags_critique_001",
+    "concept_id": "orchestration.dags",
+    "type": "critique",
+    "prompt": "A team runs three cron entries: extract at 02:00, transform at 02:30, load at 03:00. The half-hour gaps were chosen because each step 'usually takes about twenty minutes'. Critique this design.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Identifies that the gaps encode a guess about runtime, not a dependency",
+        "Says a slow extract lets the transform read partial or stale data",
+        "Notes that nothing stops the later steps when an earlier one fails",
+        "Names task dependencies as the primitive that replaces the timing gaps"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_orchestration_dags_matching_001",
+    "concept_id": "orchestration.dags",
+    "type": "matching",
+    "prompt": "Match each behaviour a team wants from their scheduling setup to the mechanism that actually provides it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "A failed step stops everything that depends on it",
+        "Rerunning yesterday's date rebuilds yesterday's data",
+        "A job waits for a file to land before it starts",
+        "At most two heavy jobs run at once"
+      ],
+      "right": [
+        "A concurrency pool",
+        "Dependency edges between tasks",
+        "Parameterising the run by its logical date",
+        "A sensor that waits on the external signal"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_orchestration_dags_tf_why_001",
+    "concept_id": "orchestration.dags",
+    "type": "tf_why",
+    "prompt": "True or false: putting two tasks in the same DAG guarantees they will never run at the same moment.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that tasks with no edge between them can run in parallel",
+          "Says edges are the only thing that constrains ordering",
+          "Names a shared resource or table as a hazard the graph does not model",
+          "Mentions a concurrency pool or limit as the way to serialise them"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that tasks with no edge between them can run in parallel",
+        "Says edges are the only thing that constrains ordering",
+        "Names a shared resource or table as a hazard the graph does not model",
+        "Mentions a concurrency pool or limit as the way to serialise them"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_orchestration_dags_when_not_001",
+    "concept_id": "orchestration.dags",
+    "type": "when_not",
+    "prompt": "Describe a situation where standing up an orchestrator would be the wrong call, and say what you would run instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case with a single task and no downstream consumers",
+        "Weighs the cost of operating the orchestrator itself",
+        "Gives a concrete simpler alternative such as a single cron entry",
+        "States the trigger that would change the answer later"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
     "id": "q_perf_cost_reasoning_cloze_001",
     "concept_id": "perf.cost_reasoning",
     "type": "cloze",
@@ -1725,6 +1832,246 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_pipelines_etl_vs_elt_cloze_001",
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "cloze",
+    "prompt": "An analyst wants two years of revenue re-bucketed under a new definition. Under the ELT ordering the team can do that without contacting the source system, because the untransformed rows are already sitting in the ______.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "warehouse",
+            "data warehouse",
+            "warehouse raw layer",
+            "raw layer",
+            "landing zone",
+            "staging layer"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_etl_vs_elt_explain_001",
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "explain",
+    "prompt": "Warehouse storage and compute got cheap enough that many teams stopped transforming data before loading it. Walk through what that reordering changes about how you chase down a wrong number.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the untransformed source rows are kept in the warehouse",
+        "Says you can inspect the input to a broken transform after the fact",
+        "Notes that re-running the logic needs no fresh pull from the source",
+        "Names a cost or governance downside of landing raw data"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_etl_vs_elt_multi_001",
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "multi",
+    "prompt": "Which of these follow from loading source rows untouched and doing the reshaping inside the warehouse? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A change to the business logic can be re-applied without touching the source system",
+        "The warehouse bill now covers transform compute as well as storage",
+        "Personal data arrives in the warehouse before any masking step runs",
+        "The source system absorbs the transform workload",
+        "Schema drift in the source can no longer break anything downstream"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_etl_vs_elt_push_back_001",
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "push_back",
+    "prompt": "A colleague wants all reshaping done inside the ingestion job because 'landing raw rows wastes warehouse storage'. Push back on that.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Compares storage cost against the cost of re-extracting from the source",
+        "States that a transform bug destroys the evidence when T comes first",
+        "Concedes a case where transforming before load is right, such as PII",
+        "Lands on a recommendation rather than listing both sides"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_idempotency_breaks_first_001",
+    "concept_id": "pipelines.idempotency",
+    "type": "breaks_first",
+    "prompt": "A nightly job appends the last 24 hours of events to a table. The scheduler retries a failed task twice before giving up, and tonight's failure was a client timeout that fired after the write had already committed. What breaks first, and who notices?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the retry appends a second copy of the same rows",
+        "Says the timeout left no signal that the first write had landed",
+        "Names an inflated count or revenue figure as the visible symptom",
+        "Proposes delete-then-insert by partition or a merge on a key"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_idempotency_predict_output_001",
+    "concept_id": "pipelines.idempotency",
+    "type": "predict_output",
+    "prompt": "A task runs `DELETE FROM daily_sales WHERE sale_date = '2026-03-01'` followed by an INSERT that writes exactly one aggregate row for that date, both in one transaction. It succeeds, and then a retry storm downstream causes the same task to run three more times. How many rows for 2026-03-01 are in `daily_sales` at the end?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "1",
+        "one",
+        "one row",
+        "a single row"
+      ],
+      "explain": "The delete makes each run replace rather than add, so the fourth run leaves the table exactly as the first one did: one row for that date. This is what idempotent means in practice — running twice equals running once, which is what makes an automatic retry safe."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_idempotency_spot_error_001",
+    "concept_id": "pipelines.idempotency",
+    "type": "spot_error",
+    "prompt": "This is the whole body of a task that loads one day of sales and is retried automatically on failure. One line is the reason a retry corrupts the table. Which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "-- task: load a single day into daily_sales",
+        "INSERT INTO daily_sales (sale_date, total)",
+        "SELECT order_date, SUM(amount)",
+        "FROM orders",
+        "WHERE order_date = '{{ run_date }}'",
+        "GROUP BY order_date;"
+      ],
+      "bad_line": 1,
+      "why": "Nothing clears the target date before the write, so a retry of the same `run_date` adds a second row for that day instead of replacing the first. Delete the rows for `run_date` in the same transaction, or MERGE on `sale_date`, so that running twice leaves the same table as running once."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_pipelines_idempotency_when_not_001",
+    "concept_id": "pipelines.idempotency",
+    "type": "when_not",
+    "prompt": "Name a step where you would not spend engineering time making the run repeatable, and say what you would put in place instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a one-off or supervised run as the case",
+        "Weighs the cost of the merge or key logic against how often it reruns",
+        "Offers a substitute safeguard such as a manual gate or an alert",
+        "States what would change the decision, such as the step becoming scheduled"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_quality_freshness_estimate_001",
+    "concept_id": "quality.freshness",
+    "type": "estimate",
+    "prompt": "You are adding an alert on the age of the newest row in a table that a sales team feeds hourly during business hours and not at all overnight. How old should the newest row be before it pages someone? Give a range and show how you got there.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a range rather than a single false point estimate",
+        "Ties the threshold to the load cadence plus a margin",
+        "Handles the overnight gap so it does not page anyone at 3am",
+        "Weighs the cost of a false page in the reasoning"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_quality_freshness_mcq_001",
+    "concept_id": "quality.freshness",
+    "type": "mcq",
+    "prompt": "A table is monitored by a nightly job that alerts if the row count ever falls. The count has never fallen. Which problem would that monitor miss entirely?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The source stopped publishing and the newest row is now a week old",
+        "A bad load truncated the table to zero rows",
+        "A delete removed half the history",
+        "The table was dropped overnight"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_quality_freshness_multi_001",
+    "concept_id": "quality.freshness",
+    "type": "multi",
+    "prompt": "Which of these should a freshness check on a warehouse table treat as a failure? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The newest event timestamp is older than the agreed threshold",
+        "The job exited with a success status but wrote no new rows this window",
+        "The overnight row count moved more than it usually does",
+        "The upstream system is reachable but has published nothing since yesterday",
+        "A source column was renamed and the load mapped it to NULL"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_quality_freshness_to_stakeholder_001",
+    "concept_id": "quality.freshness",
+    "type": "to_stakeholder",
+    "prompt": "Every monitor stayed green all week, and on Friday a stakeholder noticed the newest order on their dashboard was from Monday. Write what you tell them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the job ran and reported success while loading nothing new",
+        "Explains that the checks watched the job, not the data it produced",
+        "Names an upstream feed going quiet as the kind of cause",
+        "Commits to a freshness check with a stated threshold"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
   },
   {
     "id": "q_sql_conditional_aggregation_critique_001",
