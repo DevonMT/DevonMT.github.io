@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+// Backlog's theme (ds/themes, generated): arcade dusk palette and Silkscreen.
+// Imported after the layout so it lands after the shared tokens.
+import '../../styles/themes/backlog.css';
 import SiteNav from '../../components/SiteNav.astro';
 import Gate from '../../components/Gate.astro';
 ---
@@ -194,9 +197,22 @@ import Gate from '../../components/Gate.astro';
 
 <!-- Global styles: dynamically-created elements need global scope -->
 <style is:global>
+  /* The arcade floor's line colour, from the ground's own hue, as the board
+     drew it; and the strength of the dusk glow. */
+  :root { --arcade-grid: oklch(38% 0.076 288 / 0.12); --dusk: 16%; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) { --arcade-grid: oklch(86% 0.064 300 / 0.1); --dusk: 13%; }
+  }
+  :root[data-theme='dark'] { --arcade-grid: oklch(86% 0.064 300 / 0.1); --dusk: 13%; }
+
+  /* Any class that sets display outranks the user agent's [hidden]{display:none}:
+     the taste panel was always open (its toggle only flipped aria-expanded) and
+     "Load more" showed with nothing to load. `hidden` means hidden here. */
+  [hidden] { display: none !important; }
+
   /* ── Filter chips (built by buildChips()) ── */
   .chip {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     color: var(--color-text-muted);
     background: transparent;
@@ -242,7 +258,7 @@ import Gate from '../../components/Gate.astro';
     flex-wrap: wrap;
   }
   .backlog-name {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: 600;
     color: var(--color-text);
@@ -251,20 +267,20 @@ import Gate from '../../components/Gate.astro';
   }
   .backlog-name:hover { color: var(--color-accent); }
   .backlog-hours {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-text-muted);
   }
 
   .discover-name {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: 600;
     color: var(--color-text);
     display: block;
   }
   .discover-platforms {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-text-muted);
     display: block;
@@ -273,7 +289,7 @@ import Gate from '../../components/Gate.astro';
 
   .backlog-exclude {
     margin-left: auto;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-text-muted);
     background: transparent;
@@ -291,7 +307,7 @@ import Gate from '../../components/Gate.astro';
     border: none;
     padding: 0;
     color: var(--color-accent);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: inherit;
     cursor: pointer;
     text-decoration: underline;
@@ -315,7 +331,7 @@ import Gate from '../../components/Gate.astro';
     transform: translateY(-3px);
   }
   .game-card h3 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-body);
     font-size: 17px;
     font-weight: 600;
     color: var(--color-text);
@@ -326,14 +342,16 @@ import Gate from '../../components/Gate.astro';
     align-items: center;
     flex-wrap: wrap;
     gap: 6px 10px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     color: var(--color-text-muted);
   }
   .metacritic {
     font-weight: 700;
     font-size: 11px;
-    color: var(--color-bg);
+    /* Dark text, always: these badges are bright in both themes, and the page
+       ground as text colour was white on green in light mode. */
+    color: #111;
     background: var(--color-text-muted);
     border-radius: 5px;
     padding: 2px 7px;
@@ -341,9 +359,9 @@ import Gate from '../../components/Gate.astro';
   .metacritic.high { background: #22c55e; }
   .metacritic.mid  { background: #f59e0b; }
   .metacritic.low  { background: #ef4444; }
-  .game-platforms  { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-muted); margin: 0; }
-  .game-categories { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.04em; margin: 0; }
-  .game-byline     { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-text-muted); margin: 0; }
+  .game-platforms  { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-muted); margin: 0; }
+  .game-categories { font-family: var(--font-mono); font-size: 11px; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.04em; margin: 0; }
+  .game-byline     { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-muted); margin: 0; }
   .game-desc {
     font-size: 14px;
     color: var(--color-text-muted);
@@ -362,7 +380,7 @@ import Gate from '../../components/Gate.astro';
     flex-wrap: wrap;
   }
   .rate-btn {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 500;
     padding: 6px 13px;
@@ -375,7 +393,7 @@ import Gate from '../../components/Gate.astro';
   }
   .rate-btn:hover { background: color-mix(in srgb, var(--color-accent) 16%, transparent); }
   .steam-link {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-text-muted);
     text-decoration: none;
@@ -400,14 +418,14 @@ import Gate from '../../components/Gate.astro';
     gap: 10px;
   }
   .reco-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
   .reco-score {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 700;
   }
@@ -445,6 +463,15 @@ import Gate from '../../components/Gate.astro';
   }
   @keyframes g-spin { to { transform: rotate(360deg); } }
   button[disabled] { opacity: 0.55; cursor: progress; }
+
+  /* TAP TARGETS, measured at 390px: the exclude button was 21px tall, chips and
+     small buttons about 29px. Height from min-height, look unchanged. */
+  .chip, .taste-chip, .btn-sm, .rate-btn, .steam-link {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .backlog-exclude { min-height: 32px; }
 </style>
 
 <style>
@@ -452,23 +479,32 @@ import Gate from '../../components/Gate.astro';
   #site {
     position: relative;
     min-height: 100vh;
-    background:
-      radial-gradient(900px 480px at 78% -8%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 60%),
-      radial-gradient(700px 420px at 8% 8%, color-mix(in srgb, var(--color-amber) 6%, transparent), transparent 60%),
-      var(--color-bg);
+    background: var(--color-bg);
     overflow-x: clip; /* `clip` keeps the sticky nav working; `hidden` would break it */
   }
 
+  /* THE ARCADE FLOOR. A 12px pixel grid rising from the bottom of the screen
+     and fading out before the middle, with a dusk glow of the accent under it:
+     Backlog's B2 on the theme board. Fixed, so it stays the floor of the window
+     while the page scrolls; still, so the motion setting has nothing to stop. */
   #bg-grid {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.5;
     background-image:
-      linear-gradient(color-mix(in srgb, var(--color-text) 2.2%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--color-text) 2.2%, transparent) 1px, transparent 1px);
-    background-size: 64px 64px;
+      linear-gradient(var(--arcade-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--arcade-grid) 1px, transparent 1px);
+    background-size: 12px 12px;
+    background-position: center bottom;
+    -webkit-mask: linear-gradient(to top, #000, transparent 75%);
+    mask: linear-gradient(to top, #000, transparent 75%);
+  }
+  #bg-grid::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in oklab, var(--color-accent) var(--dusk), transparent), transparent 70%);
   }
 
   /* ── Page content ── */
@@ -489,8 +525,8 @@ import Gate from '../../components/Gate.astro';
     border-radius: 9px;
     border: none;
     background: var(--color-accent);
-    color: var(--color-bg);
-    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-ink);
+    font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -509,7 +545,7 @@ import Gate from '../../components/Gate.astro';
     border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     background: transparent;
     color: var(--color-text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -522,7 +558,7 @@ import Gate from '../../components/Gate.astro';
   }
 
   .btn-sm {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11.5px;
     font-weight: 500;
     padding: 6px 13px;
@@ -554,7 +590,7 @@ import Gate from '../../components/Gate.astro';
     border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
     border-radius: 9px;
     color: var(--color-text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
     padding: 9px 13px;
     transition: border-color 0.2s;
@@ -572,19 +608,21 @@ import Gate from '../../components/Gate.astro';
   }
 
   .eyebrow-amber {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     color: var(--color-amber);
     letter-spacing: 0.08em;
     margin-bottom: 14px;
   }
 
+  /* Arcade lettering for the one title. Silkscreen is a pixel face, wide and
+     only legible large, so it is kept to this and sized to fit a phone. */
   .page-h1 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
-    font-size: 48px;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    font-size: clamp(24px, 6.4vw, 40px);
+    letter-spacing: 0;
+    line-height: 1.15;
     color: var(--color-text);
     margin: 0;
     background: none;
@@ -617,7 +655,7 @@ import Gate from '../../components/Gate.astro';
 
   #sync-status {
     flex: 1 1 auto;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     color: var(--color-text-muted);
   }
@@ -654,7 +692,7 @@ import Gate from '../../components/Gate.astro';
   .taste-toggle:hover { background: color-mix(in srgb, var(--color-text) 2%, transparent); }
 
   .taste-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     color: var(--color-amber);
     letter-spacing: 0.06em;
@@ -663,14 +701,14 @@ import Gate from '../../components/Gate.astro';
 
   .taste-summary {
     flex: 1;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     color: var(--color-text-muted);
     text-align: left;
   }
 
   .taste-chevron {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     color: var(--color-text-muted);
     flex-shrink: 0;
@@ -691,7 +729,7 @@ import Gate from '../../components/Gate.astro';
   }
 
   .field-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 11.5px;
     color: var(--color-text-muted);
     text-transform: uppercase;
@@ -703,7 +741,7 @@ import Gate from '../../components/Gate.astro';
     border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
     border-radius: 9px;
     color: var(--color-text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
     padding: 10px 14px;
     resize: vertical;
@@ -722,7 +760,7 @@ import Gate from '../../components/Gate.astro';
   }
 
   .taste-chip {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     color: var(--color-text-muted);
     border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
@@ -749,7 +787,7 @@ import Gate from '../../components/Gate.astro';
   }
 
   .tab-btn {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     font-weight: 500;
     color: var(--color-text-muted);
@@ -874,7 +912,7 @@ import Gate from '../../components/Gate.astro';
 
   .grid-status {
     margin-top: 14px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     color: var(--color-text-muted);
   }
@@ -908,6 +946,10 @@ import Gate from '../../components/Gate.astro';
   @media (prefers-reduced-motion: reduce) {
     .logo-dot, .sync-dot { animation: none; }
   }
+  /* The estate's animation switch (chrome stamps data-motion="off"). The pulse
+     obeyed the device setting but not the person's own choice. */
+  :global(:root[data-motion='off']) .logo-dot,
+  :global(:root[data-motion='off']) .sync-dot { animation: none; }
 </style>
 
 <script>

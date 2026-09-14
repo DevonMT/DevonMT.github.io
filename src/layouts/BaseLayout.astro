@@ -12,6 +12,9 @@ import { AUTH_MODE } from '../lib/privateClient';
 // hostnames next to the platform, Mise and Runway, so it wears what they wear.
 // devontroedel.com keeps BI Console, its own identity.
 const HUB = AUTH_MODE === 'access';
+// Each hub app's display face, loaded only on that app's pages (ds/themes).
+const DISPLAY_FACE = HUB && (Astro.url.pathname.startsWith('/backlog') || Astro.url.pathname.startsWith('/games'))
+  ? '&family=Silkscreen:wght@400;700' : '';
 // On the estate's hostnames, each app's own emblem (devondoes/ds/emblems).
 // The personal site keeps its DT mark.
 const path = Astro.url.pathname;
@@ -88,7 +91,7 @@ const personSchema = {
     <link
       rel="stylesheet"
       href={HUB
-        ? 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'
+        ? `https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700${DISPLAY_FACE}&display=swap`
         : 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'}
     />
 
