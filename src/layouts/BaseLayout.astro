@@ -13,8 +13,10 @@ import { AUTH_MODE } from '../lib/privateClient';
 // devontroedel.com keeps BI Console, its own identity.
 const HUB = AUTH_MODE === 'access';
 // Each hub app's display face, loaded only on that app's pages (ds/themes).
-const DISPLAY_FACE = HUB && (Astro.url.pathname.startsWith('/backlog') || Astro.url.pathname.startsWith('/games'))
-  ? '&family=Silkscreen:wght@400;700' : '';
+const DISPLAY_FACE = !HUB ? ''
+  : Astro.url.pathname.startsWith('/backlog') || Astro.url.pathname.startsWith('/games') ? '&family=Silkscreen:wght@400;700'
+  : Astro.url.pathname.startsWith('/stacks') || Astro.url.pathname.startsWith('/learn') ? '&family=Libre+Caslon+Display'
+  : '';
 // On the estate's hostnames, each app's own emblem (devondoes/ds/emblems).
 // The personal site keeps its DT mark.
 const path = Astro.url.pathname;
