@@ -617,5 +617,84 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_ops_secrets_breaks_first_001",
+    "concept_id": "ops.secrets",
+    "type": "breaks_first",
+    "prompt": "A four-person team keeps the warehouse password in a `config.yaml` that lives in the repo, reasoning that the repo is private. Two years later the team is thirty people plus rotating contractors. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the widening set of people with read access as the failure",
+        "Says the value stays in git history even after someone edits the file",
+        "Points out that nobody can tell who has already copied it out",
+        "Proposes an environment variable or a secret store as the replacement"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_ops_secrets_mcq_001",
+    "concept_id": "ops.secrets",
+    "type": "mcq",
+    "prompt": "You find a live cloud access key in a commit that was pushed to the shared remote yesterday. What is the first thing you do?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Rotate the key at the provider and load the replacement from the secret store",
+        "Force-push a rewritten history so the commit no longer exists",
+        "Add the file to `.gitignore` and commit that change",
+        "File a ticket so the cleanup can be planned into the next sprint"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_ops_secrets_ordering_001",
+    "concept_id": "ops.secrets",
+    "type": "ordering",
+    "prompt": "A database password has been sitting in the repository's git history for months. Put these four steps in the order you would carry them out.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Revoke the exposed credential at the provider",
+        "Issue a replacement credential and put it in the secret store",
+        "Purge the value from git history and tell clone holders to re-clone",
+        "Redeploy the services so they read the replacement"
+      ],
+      "correct_order": [
+        1,
+        3,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_ops_secrets_to_stakeholder_001",
+    "concept_id": "ops.secrets",
+    "type": "to_stakeholder",
+    "prompt": "A manager asks why an engineer lost most of a day after a coworker pasted an API key into a commit and deleted it an hour later. Write what you tell the manager, without jargon.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the key had to be replaced, not just removed from the file",
+        "Explains that the old commit survives in history and in every clone",
+        "Says the exposed key kept working until someone revoked it",
+        "Avoids implying that deleting the line undid the exposure"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-14"
   }
 ]

@@ -1,0 +1,325 @@
+[
+  {
+    "concept_id": "ops.secrets",
+    "type": "breaks_first",
+    "prompt": "A four-person team keeps the warehouse password in a `config.yaml` that lives in the repo, reasoning that the repo is private. Two years later the team is thirty people plus rotating contractors. What breaks first?",
+    "criteria": [
+      "Names the widening set of people with read access as the failure",
+      "Says the value stays in git history even after someone edits the file",
+      "Points out that nobody can tell who has already copied it out",
+      "Proposes an environment variable or a secret store as the replacement"
+    ]
+  },
+  {
+    "concept_id": "ops.secrets",
+    "type": "to_stakeholder",
+    "prompt": "A manager asks why an engineer lost most of a day after a coworker pasted an API key into a commit and deleted it an hour later. Write what you tell the manager, without jargon.",
+    "criteria": [
+      "States that the key had to be replaced, not just removed from the file",
+      "Explains that the old commit survives in history and in every clone",
+      "Says the exposed key kept working until someone revoked it",
+      "Avoids implying that deleting the line undid the exposure"
+    ]
+  },
+  {
+    "concept_id": "ops.secrets",
+    "type": "mcq",
+    "prompt": "You find a live cloud access key in a commit that was pushed to the shared remote yesterday. What is the first thing you do?",
+    "options": [
+      "Rotate the key at the provider and load the replacement from the secret store",
+      "Force-push a rewritten history so the commit no longer exists",
+      "Add the file to `.gitignore` and commit that change",
+      "File a ticket so the cleanup can be planned into the next sprint"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "ops.secrets",
+    "type": "ordering",
+    "prompt": "A database password has been sitting in the repository's git history for months. Put these four steps in the order you would carry them out.",
+    "items": [
+      "Revoke the exposed credential at the provider",
+      "Issue a replacement credential and put it in the secret store",
+      "Purge the value from git history and tell clone holders to re-clone",
+      "Redeploy the services so they read the replacement"
+    ],
+    "correct_order": [
+      1,
+      3,
+      0,
+      2
+    ]
+  },
+  {
+    "concept_id": "orchestration.dags",
+    "type": "critique",
+    "prompt": "A team runs three cron entries: extract at 02:00, transform at 02:30, load at 03:00. The half-hour gaps were chosen because each step 'usually takes about twenty minutes'. Critique this design.",
+    "criteria": [
+      "Identifies that the gaps encode a guess about runtime, not a dependency",
+      "Says a slow extract lets the transform read partial or stale data",
+      "Notes that nothing stops the later steps when an earlier one fails",
+      "Names task dependencies as the primitive that replaces the timing gaps"
+    ]
+  },
+  {
+    "concept_id": "orchestration.dags",
+    "type": "when_not",
+    "prompt": "Describe a situation where standing up an orchestrator would be the wrong call, and say what you would run instead.",
+    "criteria": [
+      "Names a case with a single task and no downstream consumers",
+      "Weighs the cost of operating the orchestrator itself",
+      "Gives a concrete simpler alternative such as a single cron entry",
+      "States the trigger that would change the answer later"
+    ]
+  },
+  {
+    "concept_id": "orchestration.dags",
+    "type": "tf_why",
+    "prompt": "True or false: putting two tasks in the same DAG guarantees they will never run at the same moment.",
+    "verdict": false,
+    "criteria": [
+      "States that tasks with no edge between them can run in parallel",
+      "Says edges are the only thing that constrains ordering",
+      "Names a shared resource or table as a hazard the graph does not model",
+      "Mentions a concurrency pool or limit as the way to serialise them"
+    ]
+  },
+  {
+    "concept_id": "orchestration.dags",
+    "type": "matching",
+    "prompt": "Match each behaviour a team wants from their scheduling setup to the mechanism that actually provides it.",
+    "left": [
+      "A failed step stops everything that depends on it",
+      "Rerunning yesterday's date rebuilds yesterday's data",
+      "A job waits for a file to land before it starts",
+      "At most two heavy jobs run at once"
+    ],
+    "right": [
+      "A concurrency pool",
+      "Dependency edges between tasks",
+      "Parameterising the run by its logical date",
+      "A sensor that waits on the external signal"
+    ],
+    "pairs": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        0
+      ]
+    ]
+  },
+  {
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "explain",
+    "prompt": "Warehouse storage and compute got cheap enough that many teams stopped transforming data before loading it. Walk through what that reordering changes about how you chase down a wrong number.",
+    "criteria": [
+      "States that the untransformed source rows are kept in the warehouse",
+      "Says you can inspect the input to a broken transform after the fact",
+      "Notes that re-running the logic needs no fresh pull from the source",
+      "Names a cost or governance downside of landing raw data"
+    ]
+  },
+  {
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "push_back",
+    "prompt": "A colleague wants all reshaping done inside the ingestion job because 'landing raw rows wastes warehouse storage'. Push back on that.",
+    "criteria": [
+      "Compares storage cost against the cost of re-extracting from the source",
+      "States that a transform bug destroys the evidence when T comes first",
+      "Concedes a case where transforming before load is right, such as PII",
+      "Lands on a recommendation rather than listing both sides"
+    ]
+  },
+  {
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "multi",
+    "prompt": "Which of these follow from loading source rows untouched and doing the reshaping inside the warehouse? Select all that apply.",
+    "options": [
+      "A change to the business logic can be re-applied without touching the source system",
+      "The warehouse bill now covers transform compute as well as storage",
+      "Personal data arrives in the warehouse before any masking step runs",
+      "The source system absorbs the transform workload",
+      "Schema drift in the source can no longer break anything downstream"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "pipelines.etl_vs_elt",
+    "type": "cloze",
+    "prompt": "An analyst wants two years of revenue re-bucketed under a new definition. Under the ELT ordering the team can do that without contacting the source system, because the untransformed rows are already sitting in the ______.",
+    "blanks": [
+      {
+        "accept": [
+          "warehouse",
+          "data warehouse",
+          "warehouse raw layer",
+          "raw layer",
+          "landing zone",
+          "staging layer"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "pipelines.idempotency",
+    "type": "breaks_first",
+    "prompt": "A nightly job appends the last 24 hours of events to a table. The scheduler retries a failed task twice before giving up, and tonight's failure was a client timeout that fired after the write had already committed. What breaks first, and who notices?",
+    "criteria": [
+      "States that the retry appends a second copy of the same rows",
+      "Says the timeout left no signal that the first write had landed",
+      "Names an inflated count or revenue figure as the visible symptom",
+      "Proposes delete-then-insert by partition or a merge on a key"
+    ]
+  },
+  {
+    "concept_id": "pipelines.idempotency",
+    "type": "when_not",
+    "prompt": "Name a step where you would not spend engineering time making the run repeatable, and say what you would put in place instead.",
+    "criteria": [
+      "Names a one-off or supervised run as the case",
+      "Weighs the cost of the merge or key logic against how often it reruns",
+      "Offers a substitute safeguard such as a manual gate or an alert",
+      "States what would change the decision, such as the step becoming scheduled"
+    ]
+  },
+  {
+    "concept_id": "pipelines.idempotency",
+    "type": "spot_error",
+    "prompt": "This is the whole body of a task that loads one day of sales and is retried automatically on failure. One line is the reason a retry corrupts the table. Which one?",
+    "lines": [
+      "-- task: load a single day into daily_sales",
+      "INSERT INTO daily_sales (sale_date, total)",
+      "SELECT order_date, SUM(amount)",
+      "FROM orders",
+      "WHERE order_date = '{{ run_date }}'",
+      "GROUP BY order_date;"
+    ],
+    "bad_line": 1,
+    "why": "Nothing clears the target date before the write, so a retry of the same `run_date` adds a second row for that day instead of replacing the first. Delete the rows for `run_date` in the same transaction, or MERGE on `sale_date`, so that running twice leaves the same table as running once."
+  },
+  {
+    "concept_id": "pipelines.idempotency",
+    "type": "predict_output",
+    "prompt": "A task runs `DELETE FROM daily_sales WHERE sale_date = '2026-03-01'` followed by an INSERT that writes exactly one aggregate row for that date, both in one transaction. It succeeds, and then a retry storm downstream causes the same task to run three more times. How many rows for 2026-03-01 are in `daily_sales` at the end?",
+    "accept": [
+      "1",
+      "one",
+      "one row",
+      "a single row"
+    ],
+    "explain": "The delete makes each run replace rather than add, so the fourth run leaves the table exactly as the first one did: one row for that date. This is what idempotent means in practice — running twice equals running once, which is what makes an automatic retry safe."
+  },
+  {
+    "concept_id": "py.environments",
+    "type": "explain",
+    "prompt": "A script runs fine on your laptop and dies on a coworker's with a `TypeError` raised inside a library neither of you edited. Explain what most likely differs between the two machines and how a lockfile would have headed it off.",
+    "criteria": [
+      "Names a different installed version of a library as the cause",
+      "States that an unpinned install resolves versions at install time",
+      "Says a lockfile records exact versions including transitive ones",
+      "Mentions a per-project virtual environment as the isolation boundary"
+    ]
+  },
+  {
+    "concept_id": "py.environments",
+    "type": "critique",
+    "prompt": "A project's `requirements.txt` reads `pandas`, `requests`, `sqlalchemy` — three lines, no versions — and the README says to install it with pip and run the script. Critique that setup.",
+    "criteria": [
+      "Points out that nothing is pinned, so two installs can differ",
+      "Notes that the transitive dependencies are not recorded at all",
+      "Says nothing isolates this install from other projects on the machine",
+      "Recommends a lockfile plus a per-project environment"
+    ]
+  },
+  {
+    "concept_id": "py.environments",
+    "type": "mcq",
+    "prompt": "Two projects on the same machine need different releases of the same library, and both must keep working. What makes that possible?",
+    "options": [
+      "A separate virtual environment for each project",
+      "Reinstalling the library at the start of every run",
+      "Listing both versions in a single requirements file",
+      "Upgrading to the newer release and patching whichever project breaks"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "py.environments",
+    "type": "spot_error",
+    "prompt": "These four shell lines are a project's documented setup. They run without an error message, yet the packages end up somewhere nobody wanted. Which line is wrong?",
+    "lines": [
+      "python -m venv .venv",
+      "pip install -r requirements.txt",
+      "source .venv/bin/activate",
+      "python etl.py"
+    ],
+    "bad_line": 1,
+    "why": "The install happens before the environment is activated, so pip is still the system interpreter's pip and the packages land machine-wide. Activation has to come before the install — the order should be create, activate, install, run."
+  },
+  {
+    "concept_id": "quality.freshness",
+    "type": "to_stakeholder",
+    "prompt": "Every monitor stayed green all week, and on Friday a stakeholder noticed the newest order on their dashboard was from Monday. Write what you tell them.",
+    "criteria": [
+      "States that the job ran and reported success while loading nothing new",
+      "Explains that the checks watched the job, not the data it produced",
+      "Names an upstream feed going quiet as the kind of cause",
+      "Commits to a freshness check with a stated threshold"
+    ]
+  },
+  {
+    "concept_id": "quality.freshness",
+    "type": "estimate",
+    "prompt": "You are adding an alert on the age of the newest row in a table that a sales team feeds hourly during business hours and not at all overnight. How old should the newest row be before it pages someone? Give a range and show how you got there.",
+    "criteria": [
+      "Gives a range rather than a single false point estimate",
+      "Ties the threshold to the load cadence plus a margin",
+      "Handles the overnight gap so it does not page anyone at 3am",
+      "Weighs the cost of a false page in the reasoning"
+    ]
+  },
+  {
+    "concept_id": "quality.freshness",
+    "type": "mcq",
+    "prompt": "A table is monitored by a nightly job that alerts if the row count ever falls. The count has never fallen. Which problem would that monitor miss entirely?",
+    "options": [
+      "The source stopped publishing and the newest row is now a week old",
+      "A bad load truncated the table to zero rows",
+      "A delete removed half the history",
+      "The table was dropped overnight"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "quality.freshness",
+    "type": "multi",
+    "prompt": "Which of these should a freshness check on a warehouse table treat as a failure? Select all that apply.",
+    "options": [
+      "The newest event timestamp is older than the agreed threshold",
+      "The job exited with a success status but wrote no new rows this window",
+      "The overnight row count moved more than it usually does",
+      "The upstream system is reachable but has published nothing since yesterday",
+      "A source column was renamed and the load mapped it to NULL"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      3
+    ]
+  }
+]
