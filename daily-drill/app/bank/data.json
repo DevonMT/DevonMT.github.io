@@ -3028,5 +3028,102 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-03"
+  },
+  {
+    "id": "q_viz_chart_choice_matching_001",
+    "concept_id": "viz.chart_choice",
+    "type": "matching",
+    "prompt": "Match each question someone brings to you with the chart form that answers it most directly.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Which of our nine regions sold the most last quarter?",
+        "How is order value spread across our customers — are most of them small?",
+        "Has weekly signup volume been climbing since spring?",
+        "Do customers who visit more often also spend more per order?"
+      ],
+      "right": [
+        "A scatter plot",
+        "A histogram",
+        "A sorted bar chart",
+        "A line chart over time"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_viz_chart_choice_mcq_001",
+    "concept_id": "viz.chart_choice",
+    "type": "mcq",
+    "prompt": "You need one chart that shows four cost categories summing to each month's total, and also lets someone compare this month's categories against last month's. Which encoding does both jobs?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A stacked bar per month, one segment per category",
+        "One pie chart per month, placed side by side",
+        "A line chart with a line per category and no total drawn",
+        "A single bar per month showing only the combined total"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_viz_chart_choice_push_back_001",
+    "concept_id": "viz.chart_choice",
+    "type": "push_back",
+    "prompt": "A stakeholder asks for a pie chart of revenue split across eleven product lines, on the grounds that the executive team is used to pies. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that comparing similar-sized slices by angle is unreliable",
+        "Notes that eleven slices is far more than a pie can keep separable",
+        "Offers a specific replacement such as a sorted horizontal bar chart",
+        "Lands on a recommendation instead of listing the options and stopping"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_viz_chart_choice_when_not_001",
+    "concept_id": "viz.chart_choice",
+    "type": "when_not",
+    "prompt": "Someone hands you twelve numbers in a table and asks for a chart. Describe when you would hand the table straight back, and what has to be true for that to be the right call.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case such as the reader needing the exact values to quote",
+        "States that a chart of a dozen numbers can carry less than the table did",
+        "Says a chart earns its place when the question is about shape, trend or comparison",
+        "Names the signal that flips the decision, such as far more rows arriving"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
   }
 ]

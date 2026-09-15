@@ -77,5 +77,408 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_srs_spacing_effect_estimate_001",
+    "concept_id": "srs.spacing_effect",
+    "type": "estimate",
+    "prompt": "A fact came back in front of you tonight for the first time in four days, and you produced the answer without hesitating. How far out should it go before you see it again? Give a range and show the reasoning that gets you there.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a range instead of a single unsupported number",
+        "Pushes the next gap out past the four days just survived",
+        "Ties the size of the jump to how little effort the recall took",
+        "Names a wrong or hesitant answer as what would collapse the interval back down"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_srs_spacing_effect_explain_001",
+    "concept_id": "srs.spacing_effect",
+    "type": "explain",
+    "prompt": "You reread a chapter three times on Sunday and do badly on a Wednesday quiz. A friend read it once, then on Monday, Tuesday and Wednesday tried to write down what it said before opening it. They do well. Explain what their study did that yours did not.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names pulling the answer out of memory as the act that strengthens it",
+        "States that rereading builds familiarity with the page, not access to the fact",
+        "Says the gaps between attempts are what make the recall effortful",
+        "Notes that the fluent feeling during rereading is why the failure is a surprise"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_srs_spacing_effect_mcq_001",
+    "concept_id": "srs.spacing_effect",
+    "type": "mcq",
+    "prompt": "Two people study the same twenty facts for the same total number of minutes. One does every minute in a single sitting; the other splits the minutes across five days. Both are tested a month later. What happens?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The one who spread the minutes across five days remembers more",
+        "They come out about even, because the total study time was the same",
+        "The single-sitting one remembers more, having had less time in between to forget",
+        "The spread-out one wins on a test taken right after studying, but the gap closes by a month"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_srs_spacing_effect_ordering_001",
+    "concept_id": "srs.spacing_effect",
+    "type": "ordering",
+    "prompt": "Put these four moments of a single review of one fact into the order that leaves the strongest memory behind.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Check what you wrote against the answer key and mark it",
+        "Read the question and close the notes",
+        "Write down the best answer you can produce from memory",
+        "Schedule the next sighting further out than the gap you just came through"
+      ],
+      "correct_order": [
+        1,
+        2,
+        0,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_storage_localstorage_breaks_first_001",
+    "concept_id": "storage.localstorage",
+    "type": "breaks_first",
+    "prompt": "A study app keeps every answer a person has ever given in a single localStorage key, rewriting the whole array after each question. The most dedicated user has been at it nightly for two years. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the roughly 5MB per-origin quota as the ceiling being approached",
+        "States that the write throws once the quota is exceeded rather than failing quietly",
+        "Says the rewrite is synchronous, so it blocks the main thread as the array grows",
+        "Proposes trimming the history or keeping it out of the per-question write path"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_storage_localstorage_predict_output_001",
+    "concept_id": "storage.localstorage",
+    "type": "predict_output",
+    "prompt": "A page runs `localStorage.setItem('count', 3)`. On the next load it runs `const n = localStorage.getItem('count');` then `console.log(n + 1);`. What appears in the console?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "31",
+        "\"31\"",
+        "the string 31",
+        "31, as a string",
+        "31 as a string"
+      ],
+      "explain": "Everything comes back out of localStorage as a string, so `getItem` returns `\"3\"` and `+` concatenates instead of adding. Numbers have to be converted on the way out with `Number(...)` or `parseInt(...)`, for the same reason objects have to be JSON round-tripped."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_storage_localstorage_spot_error_001",
+    "concept_id": "storage.localstorage",
+    "type": "spot_error",
+    "prompt": "This helper is supposed to persist a progress object. It never throws and never logs, yet the value read back on the next load is useless. Which line is the problem?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "function saveProgress(progress) {",
+        "  try {",
+        "    localStorage.setItem('progress', progress);",
+        "  } catch (e) {",
+        "    console.warn('progress not saved', e);",
+        "  }",
+        "}"
+      ],
+      "bad_line": 2,
+      "why": "localStorage holds strings and nothing else, so handing `setItem` an object stores the result of its `toString` — the literal text `[object Object]` — with no error raised anywhere. Serialise on the way in with `JSON.stringify(progress)` and parse on the way out."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_bounded_session_matching_001",
+    "concept_id": "ux.bounded_session",
+    "type": "matching",
+    "prompt": "Match each detail of a four-question review session to the person it exists for.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "A hard ceiling of four questions",
+        "Filled and unfilled pips along the top of the screen",
+        "A screen that comes up after the last answer and says the session is over"
+      ],
+      "right": [
+        "Someone part-way through who wants to know how much is left",
+        "Someone weighing up whether to open the app at all tonight",
+        "Someone who has just answered the last question and does not realise it"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_bounded_session_tf_why_001",
+    "concept_id": "ux.bounded_session",
+    "type": "tf_why",
+    "prompt": "True or false: the screen shown after the last question is a nicety, since a person can already tell they are finished when no further question arrives.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that nothing appearing is indistinguishable from the app having stalled",
+          "Says the end screen marks the session as completed rather than abandoned",
+          "Names the explicit stop as what gives permission to put the device down",
+          "Notes that without it the natural next move is to go looking for more"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that nothing appearing is indistinguishable from the app having stalled",
+        "Says the end screen marks the session as completed rather than abandoned",
+        "Names the explicit stop as what gives permission to put the device down",
+        "Notes that without it the natural next move is to go looking for more"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_bounded_session_to_stakeholder_001",
+    "concept_id": "ux.bounded_session",
+    "type": "to_stakeholder",
+    "prompt": "Someone trying your review app asks why it refuses to give them a fifth question when they were enjoying themselves and had time to spare. Answer them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the ceiling is set for the worst night, not the best one",
+        "Says an open-ended session makes the decision to start a larger one",
+        "Points out that the end is visible before the first question is answered",
+        "Admits the cost to the motivated evening and says why the trade is taken anyway"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_bounded_session_when_not_001",
+    "concept_id": "ux.bounded_session",
+    "type": "when_not",
+    "prompt": "Name a kind of studying where a hard four-question ceiling would be the wrong design, and say what you would bound instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case such as cramming to a deadline or clearing a first-time backlog",
+        "Says what replaces the fixed count, such as a time box or a due queue",
+        "Keeps some end point in view rather than removing the bound altogether",
+        "States the signal that would send you back to the fixed count"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_no_loss_states_critique_001",
+    "concept_id": "ux.no_loss_states",
+    "type": "critique",
+    "prompt": "An app greets you with '148 cards due' so that you always know where you stand. Critique that number.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the figure only ever grows during an absence and reads as debt",
+        "States that a large count makes a four-question session feel futile",
+        "Notes that the number measures the gap, not anything tonight can change",
+        "Proposes showing the small fixed session instead of the backlog"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_no_loss_states_mcq_001",
+    "concept_id": "ux.no_loss_states",
+    "type": "mcq",
+    "prompt": "Two apps hold identical content. One keeps a daily streak; the other records nothing about attendance. A user of each misses eleven days in a row. What does the streak most reliably change about day twelve?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It attaches a cost to returning that the other app does not have",
+        "It makes returning likelier, because the user has already invested in the streak",
+        "Nothing, since the questions waiting on day twelve are the same either way",
+        "It shortens the session the returning user is handed"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_no_loss_states_multi_001",
+    "concept_id": "ux.no_loss_states",
+    "type": "multi",
+    "prompt": "Someone opens a review app for the first time in three weeks. Which of these, if the app puts them on screen, make it likelier that the person closes it without answering anything? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A banner announcing that their 41-day streak has ended",
+        "A count of 300 items now overdue",
+        "The first question, already on screen and ready to answer",
+        "A calendar grid with three weeks of blank squares",
+        "A session that is the same four questions long as it was three weeks ago"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_no_loss_states_push_back_001",
+    "concept_id": "ux.no_loss_states",
+    "type": "push_back",
+    "prompt": "A colleague wants a streak counter plus a 'your 40-day streak has ended' banner, arguing that streaks are the best-evidenced retention feature in consumer apps. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the banner fires at the exact moment someone chose to come back",
+        "Says a broken streak reframes a return as a failure rather than a win",
+        "Separates nightly compliance from what the app is actually for",
+        "Lands on a recommendation instead of laying out both sides"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_zero_decisions_breaks_first_001",
+    "concept_id": "ux.zero_decisions",
+    "type": "breaks_first",
+    "prompt": "The app opens straight onto a question. One user wants to skip tonight's subject, a second wants to drill one specific area before a morning meeting, and a third wants to see how many questions they have answered in total. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the drill-one-area request as the one with no path at all",
+        "States that the design is tuned for the ordinary nightly case, not these three",
+        "Says restoring a picker puts the decision back in front of everyone",
+        "Proposes serving the edge case somewhere off the opening path"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_zero_decisions_cloze_001",
+    "concept_id": "ux.zero_decisions",
+    "type": "cloze",
+    "prompt": "An opening screen that asks 'which deck?' and 'how long tonight?' puts two ______ in front of someone whose willingness is nearly gone, and each one is a place where the app gets closed instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "decisions",
+            "decision points",
+            "choices",
+            "pre-session decisions",
+            "pre-session choices"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_zero_decisions_explain_001",
+    "concept_id": "ux.zero_decisions",
+    "type": "explain",
+    "prompt": "Opening the app lands you directly on a question — no home screen, no deck picker, no start button. Walk through what that removal buys, and name what it costs.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that every choice before the first question is a place to drop out",
+        "Says the design makes the decision in advance so a tired person does not have to",
+        "Names a concrete thing now impossible, such as picking tonight's topic",
+        "Notes that the cost falls on the rarer user who wanted the control"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_ux_zero_decisions_ordering_001",
+    "concept_id": "ux.zero_decisions",
+    "type": "ordering",
+    "prompt": "Someone taps the icon of a review app that has no home screen and no start button. Put these four moments in the order they happen, from the tap to the second question.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "The answer is graded against its rubric",
+        "The icon is tapped",
+        "The next question replaces the last one",
+        "A question is on screen with the input already focused"
+      ],
+      "correct_order": [
+        1,
+        3,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-15"
   }
 ]
