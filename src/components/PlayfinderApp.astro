@@ -1695,13 +1695,21 @@
     }
 
     if (res.status === 429) {
-      let retryMins = 60;
-      try {
-        const body = await res.json() as Record<string, unknown>;
+      let body: Record<string, unknown> = {};
+      try { body = await res.json() as Record<string, unknown>; } catch { /* ignore */ }
+      // Only the per-IP limit is the visitor's own and lifted by a friend key.
+      // Any other 429 (Playfinder busy, daily cap) says what to do in its own
+      // text. No reason at all is an older backend, whose only 429 was this one.
+      const reason = body['reason'];
+      if (reason === 'rate_limit' || reason === undefined) {
         const secs = typeof body['retryAfterSeconds'] === 'number' ? body['retryAfterSeconds'] : 3600;
-        retryMins = Math.ceil(secs / 60);
-      } catch { /* ignore */ }
-      throw new RateLimitError(`You've hit the free limit — try again in ~${retryMins} minute(s), or use a friend key for unlimited access.`);
+        const retryMins = Math.ceil(secs / 60);
+        throw new RateLimitError(`You've hit the free limit — try again in ~${retryMins} minute(s), or use a friend key for unlimited access.`);
+      }
+      throw new ApiError(
+        typeof body['error'] === 'string' ? body['error'] : 'Playfinder is busy right now, try again in a few minutes.',
+        429,
+      );
     }
 
     if (!res.ok) {
