@@ -3125,5 +3125,193 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_warehouse_columnar_critique_001",
+    "concept_id": "warehouse.columnar",
+    "type": "critique",
+    "prompt": "A colleague defends `SELECT *` on a 90-column warehouse table by saying the database has to read the whole row off disk anyway. Take that reasoning apart.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that storage is laid out per column, so unnamed columns are never fetched",
+        "Says `SELECT *` forces every column to be read and decompressed",
+        "Says the cost tracks the columns named rather than the width of the row",
+        "Identifies the claim as an assumption carried over from row-oriented storage"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_columnar_estimate_001",
+    "concept_id": "warehouse.columnar",
+    "type": "estimate",
+    "prompt": "A table has 200 columns and 4 billion rows. A query names two of those columns and no others. Roughly what fraction of the table's stored bytes must the engine touch, and what would make that estimate badly wrong?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Lands near 1 percent — two columns out of two hundred",
+        "Says the row count cancels out because every column has the same number of rows",
+        "Names unequal column widths as the reason the fraction shifts",
+        "Notes that one wide string column can dominate the byte total"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_columnar_mcq_001",
+    "concept_id": "warehouse.columnar",
+    "type": "mcq",
+    "prompt": "Two columns hold 4 billion values each: one is an event date that arrives roughly in order, the other is a random identifier. The date column ends up a fraction of the size on disk. What is doing the work?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Neighbouring values in the date column repeat or step predictably, so encodings collapse long runs",
+        "Date columns are indexed by default, and the index replaces the stored values",
+        "The identifier column is held uncompressed because it is a key",
+        "Compression is only applied to columns that appear in a WHERE clause"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_columnar_multi_001",
+    "concept_id": "warehouse.columnar",
+    "type": "multi",
+    "prompt": "Which of these follow directly from storing a table one column at a time instead of one row at a time?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Scanning three columns of a 90-column table reads a small slice of the total bytes",
+        "Values sitting next to each other share a type and often a narrow range, so encodings pay off",
+        "Assembling one complete row by key is comparatively expensive",
+        "Adding a column means rewriting every row already stored",
+        "Summing a single numeric column can avoid touching any other column",
+        "Every query has to scan the whole table because no index can exist"
+      ],
+      "correct": [
+        0,
+        1,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_olap_vs_oltp_explain_001",
+    "concept_id": "warehouse.olap_vs_oltp",
+    "type": "explain",
+    "prompt": "Start from one sentence: system A takes thousands of tiny single-row writes a second, system B answers a few dozen enormous scans an hour. Derive from that alone why A ends up normalised with many indexes and B ends up wide and denormalised.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Ties normalisation to keeping a single-row write cheap and unduplicated",
+        "Says an index speeds point lookups but taxes every write that maintains it",
+        "Explains that a scan reading most rows gets no benefit from a B-tree index",
+        "Links denormalisation to avoiding joins across billions of rows"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_olap_vs_oltp_matching_001",
+    "concept_id": "warehouse.olap_vs_oltp",
+    "type": "matching",
+    "prompt": "Match each design choice to the access pattern that makes it pay for itself.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Third-normal-form tables with narrow rows",
+        "One wide table with attribute values repeated on every row",
+        "An index on each column a form lets the user filter by",
+        "Physically sorting rows by event date as they land"
+      ],
+      "right": [
+        "Answering an aggregate that never joins",
+        "Returning one known row in single-digit milliseconds",
+        "Changing one customer's address in exactly one place",
+        "Skipping whole blocks of a five-year table for a 7-day question"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_olap_vs_oltp_push_back_001",
+    "concept_id": "warehouse.olap_vs_oltp",
+    "type": "push_back",
+    "prompt": "An engineer wants the weekly revenue rollup to query the live application database directly, to avoid the complexity of standing up a warehouse. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names contention with live transactional traffic as the immediate risk",
+        "Says a row store must read entire rows to aggregate one column",
+        "Acknowledges the real cost the proposal is trying to avoid",
+        "Offers a concrete alternative such as a read replica or a nightly extract"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_olap_vs_oltp_tf_why_001",
+    "concept_id": "warehouse.olap_vs_oltp",
+    "type": "tf_why",
+    "prompt": "True or false: when an analytical query that scans a billion rows runs slow, adding indexes is the standard fix. Say what makes your verdict hold.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that a query touching most rows gains nothing from an index lookup",
+          "Names partitioning, clustering or reading fewer columns as the real lever",
+          "Says indexes earn their keep on selective single-row access",
+          "Mentions the write and storage overhead each extra index adds"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that a query touching most rows gains nothing from an index lookup",
+        "Names partitioning, clustering or reading fewer columns as the real lever",
+        "Says indexes earn their keep on selective single-row access",
+        "Mentions the write and storage overhead each extra index adds"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
   }
 ]

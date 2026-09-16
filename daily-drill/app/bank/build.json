@@ -480,5 +480,343 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_web_client_secrets_breaks_first_001",
+    "concept_id": "web.client_secrets",
+    "type": "breaks_first",
+    "prompt": "You ship a browser-only app that calls a paid model API with the key written into the JavaScript, and you lock the key to your own domain in the provider's console. What breaks first, and what did that domain restriction actually buy you?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the key is readable in the page source or the network tab",
+        "States that the origin or referrer header is sent by the client and can be forged",
+        "Names quota exhaustion or an unexpected bill as the first visible symptom",
+        "Concludes that only a server you control can hold the key"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_client_secrets_mcq_001",
+    "concept_id": "web.client_secrets",
+    "type": "mcq",
+    "prompt": "A page served as static files needs to call a paid API. Four arrangements are proposed. Which one actually keeps the key out of the visitor's reach?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Fetch the key from a `config.json` sitting beside the page at startup",
+        "Inject the key at build time from an environment variable",
+        "Send the request to a server you control, which attaches the key and forwards it",
+        "Write the key into `localStorage` on first load and read it from there afterwards"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_client_secrets_tf_why_001",
+    "concept_id": "web.client_secrets",
+    "type": "tf_why",
+    "prompt": "True or false: running the bundle through a minifier so the API key is not greppable in the shipped source makes it acceptable to keep the key in the browser. Justify the verdict.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that the running code must hand the real key to the network layer",
+          "Notes the key then appears in plain text in the request headers",
+          "Says obfuscation raises the effort without moving the trust boundary",
+          "Points at the devtools network tab as where it surfaces anyway"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the running code must hand the real key to the network layer",
+        "Notes the key then appears in plain text in the request headers",
+        "Says obfuscation raises the effort without moving the trust boundary",
+        "Points at the devtools network tab as where it surfaces anyway"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_client_secrets_to_stakeholder_001",
+    "concept_id": "web.client_secrets",
+    "type": "to_stakeholder",
+    "prompt": "A product owner with no engineering background asks why you need to run and pay for a small server just to call a paid API, when the thing you built is only a web page. Answer them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that anything the browser downloads can be read by the person using it",
+        "Avoids jargon such as CORS, bundler or environment variable",
+        "Names the concrete risk: a stranger spending against your account",
+        "Ends on one recommendation rather than a menu of options"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_dom_events_explain_001",
+    "concept_id": "web.dom_events",
+    "type": "explain",
+    "prompt": "A list of fifty buttons is thrown away and rebuilt from scratch whenever the data changes, yet one click handler attached once to the surrounding container keeps working on the new buttons. Explain the mechanism.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a click travels up from the clicked node through its ancestors",
+        "Says the handler inspects `event.target` to learn which button was hit",
+        "Explains that freshly created children need no listener of their own",
+        "Notes that the container element itself is never replaced"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_dom_events_predict_output_001",
+    "concept_id": "web.dom_events",
+    "type": "predict_output",
+    "prompt": "An outer `div` and an inner `button` each get a click listener that logs its own name. Both are registered with the default options and neither calls `stopPropagation`. Someone clicks the button. What gets logged, in what order?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "button then div",
+        "button, div",
+        "button div",
+        "inner then outer",
+        "button first, then div"
+      ],
+      "explain": "Listeners registered without `capture` run in the bubble phase, so the innermost target fires first and the event then travels up: `button`, then `div`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_dom_events_spot_error_001",
+    "concept_id": "web.dom_events",
+    "type": "spot_error",
+    "prompt": "This delegated click handler never selects anything, whatever row the user clicks. Find the line at fault.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "const list = document.querySelector('.results');",
+        "list.addEventListener('click', (e) => {",
+        "  select(e.target.dataset.id);",
+        "});",
+        "list.innerHTML = rows",
+        "  .map(r => `<li class=\"row\" data-id=\"${r.id}\"><span>${r.name}</span></li>`)",
+        "  .join('');"
+      ],
+      "bad_line": 2,
+      "why": "The click lands on the inner `<span>`, so `e.target` is that span, not the `<li>` carrying `data-id`. The handler has to walk up first: `e.target.closest('.row').dataset.id`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_dom_events_when_not_001",
+    "concept_id": "web.dom_events",
+    "type": "when_not",
+    "prompt": "One delegated listener on a container is usually the move. When is a listener per element the better choice instead?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names an event that does not bubble, such as focus or scroll",
+        "Says the delegated handler must filter targets, which breaks as markup shifts",
+        "Gives a case where a child calls `stopPropagation` and the container never hears it",
+        "Mentions a small fixed set of elements as a reason not to bother"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_fetch_json_breaks_first_001",
+    "concept_id": "web.fetch_json",
+    "type": "breaks_first",
+    "prompt": "A page loads its data at startup with `const data = await fetch(url).then(r => r.json())` and renders from it. Months later the file is moved and the host answers that path with its own 404 page. What breaks first, and what does the visitor see?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that `fetch` does not reject on a 404 response",
+        "Says `r.json()` is the thing that fails, because it is handed HTML",
+        "Names an empty screen as what the visitor actually gets",
+        "Proposes checking `r.ok` before parsing the body"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_fetch_json_critique_001",
+    "concept_id": "web.fetch_json",
+    "type": "critique",
+    "prompt": "Review this startup path: the page fetches three separate JSON files, awaiting each one before requesting the next, with the whole block in a single `try` that logs to the console if anything throws. What would you change?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the three requests are independent and should overlap",
+        "Names `Promise.all` or starting all three before awaiting as the fix",
+        "Points out that a console log leaves nothing on screen for the visitor",
+        "Says one shared `try` cannot say which of the three failed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_fetch_json_ordering_001",
+    "concept_id": "web.fetch_json",
+    "type": "ordering",
+    "prompt": "Put these steps into the order a careful on-demand JSON load performs them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Parse the body with `await response.json()`",
+        "Swap the loading state for the rendered content",
+        "Check `response.ok` and throw with the status when it is false",
+        "Put a visible loading state on screen and call `fetch`"
+      ],
+      "correct_order": [
+        3,
+        2,
+        0,
+        1
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_fetch_json_spot_error_001",
+    "concept_id": "web.fetch_json",
+    "type": "spot_error",
+    "prompt": "The network tab shows the file arriving with a 200, but the screen stays empty. One line explains it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "async function loadBank(domain) {",
+        "  const res = await fetch(`bank/${domain}.json`);",
+        "  if (!res.ok) throw new Error(`bank ${domain}: ${res.status}`);",
+        "  return res.json();",
+        "}",
+        "const bank = loadBank('data');",
+        "render(bank.questions);"
+      ],
+      "bad_line": 5,
+      "why": "`loadBank` is `async`, so it hands back a Promise, not the parsed body. `bank.questions` is `undefined` and the render draws nothing — the call needs `await loadBank('data')` inside an async caller, or a `.then`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_static_hosting_cloze_001",
+    "concept_id": "web.static_hosting",
+    "type": "cloze",
+    "prompt": "A static host answers each request by handing back a file from disk unchanged, running none of your ______ in the process — which is why a request for a path that does not exist comes back as a bare ______ instead of hitting a route handler.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "code",
+            "server code",
+            "server-side code",
+            "program",
+            "process"
+          ]
+        },
+        {
+          "accept": [
+            "404",
+            "404 Not Found",
+            "404 response",
+            "not found"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_static_hosting_estimate_001",
+    "concept_id": "web.static_hosting",
+    "type": "estimate",
+    "prompt": "Your site is a few hundred kilobytes of HTML, CSS, JS and JSON on a static host behind a CDN, and it takes ten thousand visits a month. Estimate the monthly bill, and say what the number is made of.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Lands at or very near zero dollars a month",
+        "Multiplies page weight by visits to get a few gigabytes of transfer",
+        "Says bandwidth and stored bytes are the only meters running",
+        "Notes there is no per-request compute charge to pay at all"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_static_hosting_multi_001",
+    "concept_id": "web.static_hosting",
+    "type": "multi",
+    "prompt": "Which of these hold for a site served by a static file host?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Every visitor requesting a given path receives identical bytes",
+        "Any value the page needs at run time is readable by the visitor",
+        "The host can check who is asking before it hands over a file, with nothing else added",
+        "Absorbing a traffic spike is mostly the CDN's problem rather than yours",
+        "The host can tailor the page per signed-in user before sending it",
+        "Something one visitor types can be kept for the next visitor without another service"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_static_hosting_push_back_001",
+    "concept_id": "web.static_hosting",
+    "type": "push_back",
+    "prompt": "A teammate wants to add a quick server-side password check to an app that lives on a static file host, saying it is only a few lines. Push back on the proposal.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the host runs none of your code per request",
+        "Says any check written into the page executes on the visitor's own machine",
+        "Names a concrete route such as a serverless function or a hosted auth service",
+        "Acknowledges the outcome the teammate is trying to reach"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-16"
   }
 ]
