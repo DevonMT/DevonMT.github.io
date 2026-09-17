@@ -1,0 +1,368 @@
+[
+  {
+    "concept_id": "analytics.cohorts",
+    "type": "explain",
+    "prompt": "Two charts describe the same subscription product. The first plots 30-day retention by calendar month and shows a sharp dip in April. The second plots retention by months-since-signup, one line per signup month, and every line sits on top of the others. A large marketing push landed in March. Explain how both charts can be accurate.",
+    "criteria": [
+      "Says the calendar chart mixes users of different tenures into one number",
+      "States that a signup surge shifts the mix toward brand-new users",
+      "Notes new users retain at a lower rate than seasoned ones, dragging the average down",
+      "Says the second chart holds tenure fixed, so it measures behaviour rather than mix"
+    ]
+  },
+  {
+    "concept_id": "analytics.cohorts",
+    "type": "to_stakeholder",
+    "prompt": "Overall 90-day retention has slid from 41 percent to 36 percent across the year, and an executive asks whether the product has gotten worse. Broken out by signup month, each intake's curve has the same shape as last year's. Write the two or three sentences you would say in that meeting.",
+    "criteria": [
+      "States that each signup group retains at roughly the same rate as before",
+      "Attributes the headline decline to a change in who is signing up",
+      "Names the acquisition mix or channel split as the thing to examine next",
+      "Stops short of claiming the product improved, only that it did not degrade"
+    ]
+  },
+  {
+    "concept_id": "analytics.cohorts",
+    "type": "multi",
+    "prompt": "A table has one row per signup month and one column per month-since-signup, with each cell holding the share of that intake still active. Which readings of that table hold up?",
+    "options": [
+      "Following one row left to right traces a single intake as it ages",
+      "Reading one column top to bottom compares different intakes at the same age",
+      "The lower-right cells are empty because recent intakes have not lived that long yet",
+      "Each row's percentages are divided by that row's own starting headcount",
+      "The most recent row's month-12 figure tells you whether recent signups retain better",
+      "Because every row uses a different denominator, rows cannot be compared to each other"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "concept_id": "analytics.cohorts",
+    "type": "matching",
+    "prompt": "Match each way of slicing the same event log to the question it is actually able to answer.",
+    "left": [
+      "Sum revenue by calendar week",
+      "Average revenue per user at month three, grouped by signup month",
+      "Count of first purchases, grouped by signup month",
+      "Month-three retention within one signup month, split by acquisition channel"
+    ],
+    "right": [
+      "How big each intake was when it arrived",
+      "Whether the business is growing, mix shifts included",
+      "Whether one source brings users who stick around longer",
+      "Whether later joiners are worth more or less than earlier ones at the same age"
+    ],
+    "pairs": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        2
+      ]
+    ]
+  },
+  {
+    "concept_id": "api.auth_models",
+    "type": "when_not",
+    "prompt": "A nightly job needs to pull inventory counts from a supplier's API. An engineer sketches a full authorization-code flow with a consent screen and a redirect URL. When is that flow the wrong instrument, and what belongs there instead?",
+    "criteria": [
+      "States that the authorization-code flow exists to delegate a human's access",
+      "Points out there is nobody at a browser at 2am to click consent",
+      "Names client credentials or a provisioned key as the fit for machine-to-machine calls",
+      "Says the credential should identify the calling service rather than a person"
+    ]
+  },
+  {
+    "concept_id": "api.auth_models",
+    "type": "critique",
+    "prompt": "A team keeps a single API key in a shared vault, uses it from three different services, and has never rotated it because, in their words, it lives in a secret manager so it is safe. Pull that reasoning apart.",
+    "criteria": [
+      "States that one shared key makes the caller unidentifiable in the provider's logs",
+      "Says rotation now means changing three consumers at the same instant",
+      "Notes that secure storage does not limit what a leaked copy can do",
+      "Recommends one credential per consumer so any one can be revoked alone"
+    ]
+  },
+  {
+    "concept_id": "api.auth_models",
+    "type": "matching",
+    "prompt": "Match each credential to what it identifies and how long it lives.",
+    "left": [
+      "A static API key sent in a request header",
+      "An access token obtained through a client-credentials grant",
+      "An access token obtained through an authorization-code grant",
+      "A refresh token"
+    ],
+    "right": [
+      "Carries one named user's delegated permission and expires within the hour",
+      "Identifies a machine caller and stays valid until somebody revokes it",
+      "Is never presented to the resource API; it only buys fresh access tokens",
+      "Identifies a machine caller and expires on its own within hours"
+    ],
+    "pairs": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        2
+      ]
+    ]
+  },
+  {
+    "concept_id": "api.auth_models",
+    "type": "tf_why",
+    "prompt": "True or false: sending a bearer token in an `Authorization` header rather than in the query string makes it safe to call the API over plain HTTP.",
+    "verdict": false,
+    "criteria": [
+      "States that a bearer token grants access to whoever holds it, with no further proof",
+      "Says headers travel in cleartext just like the rest of an unencrypted request",
+      "Names interception on the network path as the concrete failure",
+      "Acknowledges the header does help by keeping the token out of URLs and access logs"
+    ]
+  },
+  {
+    "concept_id": "api.pagination",
+    "type": "breaks_first",
+    "prompt": "A nightly export walks an API with `?limit=100&offset=N`, raising N by 100 until a page returns fewer than 100 records. The underlying table is receiving inserts and deletes the whole time the export runs. What breaks first, and how would anyone find out?",
+    "criteria": [
+      "States that a delete shifts later rows down into an offset already passed",
+      "Says those shifted rows are never returned, so the export silently loses records",
+      "Notes an insert ahead of the cursor causes the same row to be returned twice",
+      "Says the job exits with success, so only a row count or duplicate check reveals it"
+    ]
+  },
+  {
+    "concept_id": "api.pagination",
+    "type": "explain",
+    "prompt": "A colleague replaces a page counter with a token encoding the `created_at` and `id` of the final record on the previous page. Walk through why that token survives concurrent writes when the counter did not, and say what the `id` half is doing there.",
+    "criteria": [
+      "Says the token marks a position in the sort order instead of counting rows",
+      "States that the next page is a comparison against that key rather than a skip",
+      "Explains rows added or removed elsewhere do not move the remembered position",
+      "Says the `id` breaks ties so two records with one timestamp cannot be skipped or repeated"
+    ]
+  },
+  {
+    "concept_id": "api.pagination",
+    "type": "spot_error",
+    "prompt": "This loop is supposed to page through an endpoint that takes an `after` cursor and returns records in ascending id order. Which line is wrong?",
+    "lines": [
+      "rows = []",
+      "cursor = None",
+      "while True:",
+      "    page = get('/events', params={'limit': 100, 'after': cursor}).json()['data']",
+      "    rows.extend(page)",
+      "    if len(page) < 100:",
+      "        break",
+      "    cursor = page[0]['id']",
+      "print(len(rows))"
+    ],
+    "bad_line": 7,
+    "why": "The cursor has to be the id of the last record received, `page[-1]['id']`. Taking `page[0]` asks for everything after the *first* record of the page, so each round trip advances by a single record and re-collects the other 99 — the export finishes with enormous duplication."
+  },
+  {
+    "concept_id": "api.pagination",
+    "type": "mcq",
+    "prompt": "A feed sorted newest-first is served with offset pagination. A user loads page 1, pauses, and three new items are published before they tap through to page 2. What do they see?",
+    "options": [
+      "The last three items of page 1 shown again at the top of page 2",
+      "Three items missing from the start of page 2",
+      "An error, because the offset no longer matches the result set",
+      "No difference, since the offset is resolved against the snapshot taken on page 1"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "api.rate_limits",
+    "type": "critique",
+    "prompt": "A client that receives a 429 sleeps for exactly one second and retries, up to ten times. Two hundred copies of that client run against the same endpoint. Critique the policy.",
+    "criteria": [
+      "States that every instance that was throttled retries at the same instant",
+      "Names the synchronised burst as the reason the next round of 429s arrives too",
+      "Says the delay has to grow with each successive attempt rather than stay flat",
+      "Says a random offset per client is what actually spreads the retries apart"
+    ]
+  },
+  {
+    "concept_id": "api.rate_limits",
+    "type": "estimate",
+    "prompt": "A client backs off exponentially, starting at one second and doubling after each failure. Roughly how much time has it spent waiting by the time the sixth retry fires, and what ceiling would you put on it?",
+    "criteria": [
+      "Adds roughly 1 + 2 + 4 + 8 + 16 + 32 and lands near a minute",
+      "Notes the final wait alone is about half the total, since each doubles the last",
+      "Names a per-attempt cap in the region of 30 to 60 seconds",
+      "Says a total time budget matters more than a fixed count of attempts"
+    ]
+  },
+  {
+    "concept_id": "api.rate_limits",
+    "type": "ordering",
+    "prompt": "Put the steps of a retry loop reacting to a 429 into the order they should run.",
+    "items": [
+      "Honour the `Retry-After` value if the response carried one",
+      "Otherwise double the base delay once for each attempt already made",
+      "Multiply the resulting delay by a random factor",
+      "Sleep for that interval, then reissue the request",
+      "Abandon the call and surface the failure once the time budget is spent"
+    ],
+    "correct_order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  {
+    "concept_id": "api.rate_limits",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: adding a random factor to each computed backoff delay is called ______, and without it a fleet of clients that all failed at the same moment retries in lockstep, a pattern known as the ______ herd.",
+    "blanks": [
+      {
+        "accept": [
+          "jitter",
+          "jittering",
+          "adding jitter"
+        ]
+      },
+      {
+        "accept": [
+          "thundering",
+          "thundering herd"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "code.complexity",
+    "type": "estimate",
+    "prompt": "A deduplication script compares every record against every other record. On a 2,000-record file it finishes in about four seconds. Someone hands you a 20,000-record file. Estimate the runtime and name the measurement that would confirm or kill your estimate.",
+    "criteria": [
+      "Identifies the comparison count as growing with the square of the input",
+      "States that ten times the records means about a hundred times the work",
+      "Lands somewhere near 400 seconds, six or seven minutes",
+      "Names timing at two or three intermediate sizes as the check on the shape"
+    ]
+  },
+  {
+    "concept_id": "code.complexity",
+    "type": "push_back",
+    "prompt": "A reviewer blocks your pull request because a helper is quadratic: it compares every currency code against every other one to find duplicates. The list has 38 entries, is hardcoded, and the helper runs once at process start. Push back.",
+    "criteria": [
+      "States that a growth rate only bites when the input is free to grow",
+      "Puts the actual work at fewer than 1,500 comparisons",
+      "Notes it runs once at startup rather than per request or per row",
+      "Concedes the objection would stand if the list ever became user-supplied"
+    ]
+  },
+  {
+    "concept_id": "code.complexity",
+    "type": "mcq",
+    "prompt": "A loop runs once per element of a list of n items, and on each pass checks membership with `if x in seen`, where `seen` is a Python list that also holds about n items. A reviewer changes `seen` to a set. What happens to the total work?",
+    "options": [
+      "It drops from roughly n squared to roughly n, because each check stops scanning",
+      "It drops from n squared to n log n, because sets keep their contents sorted",
+      "It is unchanged, since both structures are scanned element by element",
+      "The whole loop becomes constant time regardless of how large n gets"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "code.complexity",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a routine whose work grows with the square of its input is described as ______ time, while one that discards half the remaining candidates on every step is described as ______ time.",
+    "blanks": [
+      {
+        "accept": [
+          "quadratic",
+          "O(n^2)",
+          "O(n2)",
+          "o(n^2)",
+          "n squared"
+        ]
+      },
+      {
+        "accept": [
+          "logarithmic",
+          "O(log n)",
+          "O(logn)",
+          "log",
+          "log n"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "code.mutability",
+    "type": "explain",
+    "prompt": "Someone writes `b = a` where `a` is a list, appends one element to `b`, and is startled to find `a` has grown too. Explain what the assignment actually did, and what to write instead for an independent list.",
+    "criteria": [
+      "States that assignment binds a second name to the very same object",
+      "Says no copy happens, so there is one list with two labels on it",
+      "Names `list(a)`, `a[:]` or `copy.copy(a)` as the way to get a separate list",
+      "Notes a shallow copy still shares whatever objects sit inside the list"
+    ]
+  },
+  {
+    "concept_id": "code.mutability",
+    "type": "breaks_first",
+    "prompt": "A helper is declared `def add_tag(tag, tags=[]):`, appends the tag, and returns `tags`. Its unit test passes on every run. What breaks first once it is deployed behind a long-lived web worker, and when does the symptom appear?",
+    "criteria": [
+      "States that the default list is built once, when the function is defined",
+      "Says every call that omits the argument shares that one accumulating list",
+      "Notes tags from earlier requests leak into later ones in the same process",
+      "Says a test calling it once per fresh interpreter cannot expose it",
+      "Names `tags=None` plus an in-body default as the repair"
+    ]
+  },
+  {
+    "concept_id": "code.mutability",
+    "type": "predict_output",
+    "prompt": "A module defines a helper and calls it three times in a row:\n\n`def collect(item, bucket=[]):`\n`    bucket.append(item)`\n`    return bucket`\n\n`print(collect(1), collect(2), collect(3))`\n\nWhat does it print?",
+    "accept": [
+      "[1, 2, 3] [1, 2, 3] [1, 2, 3]",
+      "[1,2,3] [1,2,3] [1,2,3]"
+    ],
+    "explain": "The default `[]` is created once at definition time, so all three calls append to the same list. All three arguments to `print` are evaluated before anything is printed, and all three are the same object, by then holding `[1, 2, 3]`."
+  },
+  {
+    "concept_id": "code.mutability",
+    "type": "spot_error",
+    "prompt": "This is meant to hand back an n-by-n grid of zeros whose cells can be set independently. Which line is the bug?",
+    "lines": [
+      "def blank_grid(n):",
+      "    row = [0] * n",
+      "    return [row] * n",
+      "",
+      "g = blank_grid(3)",
+      "g[0][0] = 9",
+      "print(g)"
+    ],
+    "bad_line": 2,
+    "why": "`[row] * n` stores n references to the one list built on the line above, so assigning to `g[0][0]` shows up in every row and the grid prints as three identical rows. Build the rows separately: `return [[0] * n for _ in range(n)]`."
+  }
+]
