@@ -181,6 +181,95 @@
     "created_at": "2026-09-04"
   },
   {
+    "id": "q_comms_bad_news_early_breaks_first_001",
+    "concept_id": "comms.bad_news_early",
+    "type": "breaks_first",
+    "prompt": "A weekly load that feeds the leadership dashboard silently dropped one of its sources last Tuesday. You discover it on Friday afternoon and decide to raise it at Monday's standup instead. What breaks first over that weekend, and who pays for the delay?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a decision someone makes on the stale numbers before Monday",
+        "States that the cost of the slip grows with every day it is unreported",
+        "Identifies the risk that someone else finds it and reports it first",
+        "Says what could still be salvaged by speaking on the Friday"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_bad_news_early_ordering_001",
+    "concept_id": "comms.bad_news_early",
+    "type": "ordering",
+    "prompt": "Put these steps in the order you would take them on the day you realise a committed deadline is going to be missed.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Send the agreed plan in writing to everyone downstream",
+        "Tell the owner the date has moved and walk them through the options",
+        "Notice the task is behind and confirm how many days are at stake",
+        "Draft two recovery options and price each one in scope and time"
+      ],
+      "correct_order": [
+        2,
+        3,
+        1,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_bad_news_early_tf_why_001",
+    "concept_id": "comms.bad_news_early",
+    "type": "tf_why",
+    "prompt": "True or false: sitting on a known two-week slip until you have a confirmed recovery plan spares the stakeholder unnecessary noise. Say why.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "Says the stakeholder loses days they could have spent re-planning",
+          "Names the trust cost when they hear about it from someone else",
+          "States that options can be offered before a plan is confirmed",
+          "Separates a rough date with a caveat from giving no signal at all"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "Says the stakeholder loses days they could have spent re-planning",
+        "Names the trust cost when they hear about it from someone else",
+        "States that options can be offered before a plan is confirmed",
+        "Separates a rough date with a caveat from giving no signal at all"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_bad_news_early_to_stakeholder_001",
+    "concept_id": "comms.bad_news_early",
+    "type": "to_stakeholder",
+    "prompt": "It is Wednesday afternoon and you have just worked out that a migration promised for the end of the month will land about two weeks late. Write the short message you send to the sponsor today.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Leads with the date moving rather than with the explanation",
+        "Gives a revised date, or a date by which a firm date will exist",
+        "Offers at least two options the sponsor can choose between",
+        "Stays under five sentences with no apology preamble"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
     "id": "q_comms_closing_the_loop_mcq_001",
     "concept_id": "comms.closing_the_loop",
     "type": "mcq",
@@ -263,6 +352,463 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_comms_communicating_uncertainty_critique_001",
+    "concept_id": "comms.communicating_uncertainty",
+    "type": "critique",
+    "prompt": "Someone is asked how many active users the product has and replies: \"It depends what you mean by active, the event data has gaps in April, and the mobile SDK undercounts, so I'd rather not give a number until I've dug in.\" Critique that reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that the reply contains no figure at all",
+        "Says caveats belong after a number, not in place of one",
+        "Rewrites it as a figure with a range and a stated definition",
+        "Keeps only the caveat that would change what the asker does"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_communicating_uncertainty_estimate_001",
+    "concept_id": "comms.communicating_uncertainty",
+    "type": "estimate",
+    "prompt": "A product manager asks how much revenue a weekend checkout bug cost. You have order counts for the affected hours but no record of the sessions that failed. Give the answer you would say out loud, with the number and how sure you are of it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a low and a high figure rather than one number",
+        "Attaches a stated confidence or likelihood to that range",
+        "Names the single unknown that drives most of the spread",
+        "Says what would narrow the range and how long that would take"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_communicating_uncertainty_mcq_001",
+    "concept_id": "comms.communicating_uncertainty",
+    "type": "mcq",
+    "prompt": "You are about 80 percent sure that a data-quality problem touches between 2 and 5 percent of rows, and a director asks you how big it is. Which reply gives them the most to act on?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Somewhere between 2 and 5 percent of rows, and I'd be surprised if it fell outside that",
+        "Roughly 3.4 percent of rows",
+        "I can't say anything until the audit finishes next week",
+        "Hard to know — there are several known issues with that data"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_communicating_uncertainty_multi_001",
+    "concept_id": "comms.communicating_uncertainty",
+    "type": "multi",
+    "prompt": "Which of these turn a rough estimate into something a decision-maker can actually use? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Stating an explicit low and high figure",
+        "Saying how confident you are that the truth sits in that range",
+        "Listing every assumption you made before you state the number",
+        "Naming the one input that would move the number most",
+        "Rounding to a precision that matches what you actually know",
+        "Quoting the figure to two decimal places to show the work was careful"
+      ],
+      "correct": [
+        0,
+        1,
+        3,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_cutting_scope_cloze_001",
+    "concept_id": "comms.cutting_scope",
+    "type": "cloze",
+    "prompt": "Complete the sentence that turns a scope problem into someone else's decision rather than your private slip: \"Here's what I'd ___, and here's what that ___ you.\"",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "drop",
+            "cut",
+            "remove",
+            "leave out"
+          ]
+        },
+        {
+          "accept": [
+            "costs",
+            "cost",
+            "costs you"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_cutting_scope_matching_001",
+    "concept_id": "comms.cutting_scope",
+    "type": "matching",
+    "prompt": "Match each squeeze to the move that fits it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "The deadline is fixed by an outside commitment",
+        "The full list matters more than the launch date",
+        "One item waits on a source that arrives next month",
+        "Every item is required and the date cannot move"
+      ],
+      "right": [
+        "Hold the list and move the date",
+        "Split into two phases with that item in the second",
+        "Ask for another person, or knowingly drop a quality step",
+        "Cut the lowest-value items and say which ones went"
+      ],
+      "pairs": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          2
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_cutting_scope_push_back_001",
+    "concept_id": "comms.cutting_scope",
+    "type": "push_back",
+    "prompt": "Your lead says: \"Keep all six dashboards in the first release — we can't drop any of them.\" Two of the six depend on a data source that will not exist for another month. Write your reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names which specific items you would move out of the release",
+        "States what the lead gives up if those items are cut",
+        "Prices the alternative — a later date, or more people on it",
+        "Ends by asking for a decision rather than registering a complaint"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_cutting_scope_when_not_001",
+    "concept_id": "comms.cutting_scope",
+    "type": "when_not",
+    "prompt": "When is proposing a scope cut the wrong response to a schedule squeeze, and what do you put on the table instead?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where the item at risk is the point of the project",
+        "Says the tradeoff belongs to whoever owns the outcome, not to you",
+        "Gives an alternative such as re-sequencing or asking for help",
+        "States that a silent slip or a weekend push is still not the answer"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_definition_of_done_critique_001",
+    "concept_id": "comms.definition_of_done",
+    "type": "critique",
+    "prompt": "A ticket carries this as its finish line: \"Done when the numbers look right and the requester is happy with it.\" Pull that apart and give a version you would agree to.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that looks right names no check against anything",
+        "States that satisfaction has no end point, so revisions never stop",
+        "Adds a figure or source the output must reconcile against",
+        "Names a single person who does the accepting"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_definition_of_done_explain_001",
+    "concept_id": "comms.definition_of_done",
+    "type": "explain",
+    "prompt": "Someone asks you for \"a dashboard for churn\". Explain what you would pin down before writing any code, and name the later argument each one heads off.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the artifact that will exist at the end in concrete terms",
+        "Names the one person who accepts it as finished",
+        "Names a condition that would make the output wrong",
+        "Ties at least one item to a revision cycle it prevents"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_definition_of_done_multi_001",
+    "concept_id": "comms.definition_of_done",
+    "type": "multi",
+    "prompt": "Which of these belong in a finish line agreed with the requester before any work starts? Select all that apply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The exact artifact that will exist when the work stops",
+        "The named person who checks it and accepts it",
+        "A known figure the output has to reconcile against",
+        "The list of every function and query you plan to write",
+        "The condition under which the result would be wrong",
+        "The tool or language you intend to build it in"
+      ],
+      "correct": [
+        0,
+        1,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_definition_of_done_ordering_001",
+    "concept_id": "comms.definition_of_done",
+    "type": "ordering",
+    "prompt": "You have been handed a vague request. Order these four moves as you would make them in the kickoff conversation.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Restate the whole thing back and get a yes in writing",
+        "Name the single person who will accept the result",
+        "Ask what decision the output is going to feed",
+        "Agree the figure or check the output must match"
+      ],
+      "correct_order": [
+        2,
+        1,
+        3,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_describing_your_work_mcq_001",
+    "concept_id": "comms.describing_your_work",
+    "type": "mcq",
+    "prompt": "A hiring manager who has heard a lot of overclaiming asks what your reliability work achieved. Which phrasing survives their scepticism?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "I dramatically improved the reliability of our reporting",
+        "Failed runs went from about four a month to zero, and stayed there for a quarter",
+        "I owned the reporting reliability workstream",
+        "Reliability improved by more than 400 percent"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_describing_your_work_push_back_001",
+    "concept_id": "comms.describing_your_work",
+    "type": "push_back",
+    "prompt": "A manager drafting your review writes \"cut report runtime by 90%\". The real figure was 35 percent, and a colleague did the indexing that produced most of it. Write what you say to them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Corrects the number to the one you can defend if challenged",
+        "Names the colleague's contribution rather than absorbing it",
+        "Keeps the part of the claim that is yours instead of waving it all off",
+        "Says why the accurate figure is still worth putting in the review"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_describing_your_work_spot_error_001",
+    "concept_id": "comms.describing_your_work",
+    "type": "spot_error",
+    "prompt": "One line of this account of a past project undermines the rest of it. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "Our weekly finance report took six hours and failed overnight most weeks.",
+        "I profiled the job and found one join scanning the full history every run.",
+        "I rewrote it to read only the partitions that had changed.",
+        "Single-handedly, I saved the company millions of dollars a year.",
+        "Runtime went from six hours to twenty minutes and it has not failed since."
+      ],
+      "bad_line": 3,
+      "why": "It swaps a measurable result for an unverifiable claim and takes sole credit for it. The runtime figure on the next line is the part a listener can check, and the inflated line makes them doubt it."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_describing_your_work_to_stakeholder_001",
+    "concept_id": "comms.describing_your_work",
+    "type": "to_stakeholder",
+    "prompt": "An interviewer asks what you did on your last project, a pipeline rewrite. Give the answer in under ninety words: the situation, what you did, and what came of it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Opens with the situation and what was wrong with it",
+        "States what you personally did, separate from what the team did",
+        "Closes on a result carrying a specific measured number",
+        "Claims no credit for the parts other people delivered"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_design_docs_breaks_first_001",
+    "concept_id": "comms.design_docs",
+    "type": "breaks_first",
+    "prompt": "You circulate a document that opens with the proposed table layout and never states what is wrong today. What breaks first once people start commenting?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says reviewers argue over details instead of over the goal",
+        "Names the case where the wrong problem gets solved entirely",
+        "States that the choice cannot be judged without the problem",
+        "Says what the opening paragraph should have contained instead"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_design_docs_explain_001",
+    "concept_id": "comms.design_docs",
+    "type": "explain",
+    "prompt": "Two documents propose the same architecture. One lists only the chosen approach; the other also lists the approaches that were rejected and why. Explain why the second is easier to review.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a reader cannot disagree without knowing the alternatives",
+        "Says the rejected options reveal which constraints were weighed",
+        "Names the cost of re-arguing the same option months later",
+        "Ties the choice to a consequence the reader can attack directly"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_design_docs_matching_001",
+    "concept_id": "comms.design_docs",
+    "type": "matching",
+    "prompt": "Match each section of a design document to the question a reader opens it to answer.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Problem statement",
+        "Options considered",
+        "Decision",
+        "Consequences"
+      ],
+      "right": [
+        "Which one we picked, and on what grounds",
+        "What gets harder or more expensive once we do this",
+        "What is broken today, and for whom",
+        "What else we could have done, and why we did not"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
+  },
+  {
+    "id": "q_comms_design_docs_tf_why_001",
+    "concept_id": "comms.design_docs",
+    "type": "tf_why",
+    "prompt": "True or false: the downsides of the chosen approach are best left out of a design document, since naming them invites readers to reject the proposal. Say why.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that reviewers find the unnamed downsides anyway",
+          "Says naming the consequences is what makes the document reviewable",
+          "Notes the credibility cost when a hidden cost surfaces after the fact",
+          "Separates stating a cost from arguing against the choice"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that reviewers find the unnamed downsides anyway",
+        "Says naming the consequences is what makes the document reviewable",
+        "Notes the credibility cost when a hidden cost surfaces after the fact",
+        "Separates stating a cost from arguing against the choice"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-18"
   },
   {
     "id": "q_comms_explaining_tradeoffs_cloze_001",
