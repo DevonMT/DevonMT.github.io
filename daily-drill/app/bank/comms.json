@@ -811,6 +811,281 @@
     "created_at": "2026-09-18"
   },
   {
+    "id": "q_comms_eliciting_requirements_breaks_first_001",
+    "concept_id": "comms.eliciting_requirements",
+    "type": "breaks_first",
+    "prompt": "You take a fuzzy request, turn it into a detailed written spec, get a thumbs-up on the spec, then disappear for three weeks and build exactly that. What breaks first when you come back with the finished thing?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a sign-off on a spec is not the same as recognising the result",
+        "Names that the first real reaction arrives after the cost is already sunk",
+        "Gives a change that would have been an hour in week one and is days now",
+        "Notes that the requester skimmed the spec because it was hard to picture"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_eliciting_requirements_mcq_001",
+    "concept_id": "comms.eliciting_requirements",
+    "type": "mcq",
+    "prompt": "A stakeholder cannot say what they want from a new report, and you have one afternoon before you speak to them again. Which of these is most likely to surface a disagreement about what they actually want?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A written list of clarifying questions sent ahead of the meeting",
+        "A rough one-page mock with invented numbers, laid out the way you think they meant",
+        "A summary of what teams in similar roles usually track",
+        "A longer meeting, with their manager added so decisions can be made in the room"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_eliciting_requirements_tf_why_001",
+    "concept_id": "comms.eliciting_requirements",
+    "type": "tf_why",
+    "prompt": "True or false: building a mock on invented numbers wastes the afternoon, because nobody can judge the output until it is wired to real data. Say why.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that layout, grain and choice of measure can be judged before the data is real",
+          "Says people react to something concrete faster than they can specify it in advance",
+          "Names labelling the numbers as fake as the thing that keeps the mock honest",
+          "Weighs an afternoon of mocking against weeks of rework on a finished build"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that layout, grain and choice of measure can be judged before the data is real",
+        "Says people react to something concrete faster than they can specify it in advance",
+        "Names labelling the numbers as fake as the thing that keeps the mock honest",
+        "Weighs an afternoon of mocking against weeks of rework on a finished build"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_eliciting_requirements_to_stakeholder_001",
+    "concept_id": "comms.eliciting_requirements",
+    "type": "to_stakeholder",
+    "prompt": "A marketing lead asked for \"a report on campaign performance\" and could not say which campaigns or which measure of performance. Two hours in, you have a one-page mock with invented numbers sitting in the layout you think they meant. Write the message you send with it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the numbers in the mock are made up and must not be quoted",
+        "Asks one specific question the mock is built to settle, not an open-ended request for thoughts",
+        "Says what you would build next once they react to it",
+        "Stays short enough to read before they open the attachment"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_estimating_cloze_001",
+    "concept_id": "comms.estimating",
+    "type": "cloze",
+    "prompt": "Fill in the two blanks: an estimate that survives being repeated second-hand gives a ___ instead of a single date, and names the ___ that would push the work past the top end of it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "range",
+            "span",
+            "bracket",
+            "interval",
+            "window"
+          ]
+        },
+        {
+          "accept": [
+            "assumption",
+            "risk",
+            "dependency",
+            "unknown",
+            "blocker"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_estimating_critique_001",
+    "concept_id": "comms.estimating",
+    "type": "critique",
+    "prompt": "Asked for a delivery date, an engineer answers: \"Two weeks, assuming nothing surprising.\" Critique that as an estimate the asker is about to repeat to their own boss.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out it will be passed on as the single date two weeks",
+        "Says that assuming nothing surprising names no actual risk",
+        "Supplies a rewrite carrying a lower and an upper bound",
+        "Names one assumption specific enough to be checked this week"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_estimating_estimate_001",
+    "concept_id": "comms.estimating",
+    "type": "estimate",
+    "prompt": "You are asked on the spot how long it takes to add three new fields to an existing nightly load. You have never touched the upstream system those fields come from. Give the answer you would say out loud.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives two numbers as a range rather than one date",
+        "Names the specific thing that would push it past the top of the range",
+        "Says when you could replace the range with a firmer number",
+        "Keeps the spread tight enough to plan against, not one day to one month"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_estimating_multi_001",
+    "concept_id": "comms.estimating",
+    "type": "multi",
+    "prompt": "You have said a piece of work will take two to four weeks. Which of these make it harder for that to get repeated as \"two weeks\"?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Naming the specific thing that would make it four rather than two",
+        "Putting the range in writing after the conversation ends",
+        "Adding \"give or take\" without saying give or take what",
+        "Saying what you will know by the end of next week that narrows the range",
+        "Quietly planning for four while telling them two"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_explaining_to_nontechnical_explain_001",
+    "concept_id": "comms.explaining_to_nontechnical",
+    "type": "explain",
+    "prompt": "Someone in legal asks why a dashboard they opened this morning disagrees with the screenshot they took yesterday, when nobody touched it. The cause is a source that arrived late and restated the previous day. Explain it to them in three sentences, then say how you would check that the explanation landed.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Uses one analogy drawn from outside software",
+        "Avoids any term that would itself need explaining, such as backfill or upstream",
+        "Anchors it in one concrete figure or case the listener can look at",
+        "Checks understanding with something other than asking whether it makes sense"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_explaining_to_nontechnical_matching_001",
+    "concept_id": "comms.explaining_to_nontechnical",
+    "type": "matching",
+    "prompt": "Match each thing you might say at the end of an explanation to what it actually gets you.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "\"Does that make sense?\"",
+        "\"If your director asks you this tomorrow, what would you tell them?\"",
+        "\"I can go deeper on the mechanics, or stop here — which is more useful?\"",
+        "\"Sorry, this part is quite technical.\""
+      ],
+      "right": [
+        "Their own version of it, which shows you what survived",
+        "A hint that you expect them not to follow, which is what they hear",
+        "A nod that costs nothing and hides whatever is still missing",
+        "A read on how much detail they wanted in the first place"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_explaining_to_nontechnical_spot_error_001",
+    "concept_id": "comms.explaining_to_nontechnical",
+    "type": "spot_error",
+    "prompt": "One line of this explanation to a non-technical manager undoes the other four. Which line, and why?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "The report was empty this morning because the file we load from never showed up.",
+        "Think of it like a delivery that missed the truck: nothing was lost, it just was not there at pickup time.",
+        "In numbers: the 6am load found zero rows for yesterday, so the page had nothing to draw.",
+        "The root cause is that the upstream CDC stream lagged past the watermark and the partition got pruned.",
+        "It is back now, and tomorrow I can show you the one place to look to see whether the file landed."
+      ],
+      "bad_line": 3,
+      "why": "Every other line stays in words the manager already owns. This one is the sentence that is supposed to deliver the cause, and it spends three terms the listener cannot query without admitting they are lost — so the explanation fails exactly where it matters."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_explaining_to_nontechnical_when_not_001",
+    "concept_id": "comms.explaining_to_nontechnical",
+    "type": "when_not",
+    "prompt": "Reaching for an analogy is the standard move when explaining something technical. When is it the wrong move, and what do you reach for instead?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where the listener acts on the part of the analogy that does not hold",
+        "Says an audience that already has the vocabulary is slowed down by it",
+        "Offers an alternative such as a worked example with real figures",
+        "States that an analogy feeding a decision needs its limits said out loud"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
     "id": "q_comms_explaining_tradeoffs_cloze_001",
     "concept_id": "comms.explaining_tradeoffs",
     "type": "cloze",
@@ -904,6 +1179,264 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_comms_metric_to_decision_critique_001",
+    "concept_id": "comms.metric_to_decision",
+    "type": "critique",
+    "prompt": "A weekly analytics note ends: \"Mobile conversion fell 4% week over week; we will continue to monitor.\" Critique it as the person who owns the mobile funnel and has to decide what their team does on Monday.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says that continuing to monitor assigns no action to any person",
+        "Asks whether 4% sits outside normal week-to-week movement",
+        "Names the next cut of the data that would point at a cause",
+        "Supplies a rewrite that ends in something the owner does or decides"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_metric_to_decision_mcq_001",
+    "concept_id": "comms.metric_to_decision",
+    "type": "mcq",
+    "prompt": "A director reads that data-quality incidents rose from four to seven last quarter. Which follow-up sentence turns that count into something they can act on?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Seven incidents is a 75% increase on the previous quarter.",
+        "Six of the seven came from the same two ingest jobs, so a week spent hardening those two covers most of it.",
+        "Incident counts have been trending upward since this time last year.",
+        "We will keep reporting the incident count every week."
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_metric_to_decision_ordering_001",
+    "concept_id": "comms.metric_to_decision",
+    "type": "ordering",
+    "prompt": "These four sentences all belong in one short update. Put them in the order that ends somewhere the reader can act.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "The drop sits almost entirely with first-time visitors on Android.",
+        "I would pause the Android creative until someone has looked at the landing page.",
+        "Checkout conversion fell from 3.1% to 2.6% last week.",
+        "At this week's traffic that is roughly 400 fewer orders."
+      ],
+      "correct_order": [
+        2,
+        3,
+        0,
+        1
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_metric_to_decision_to_stakeholder_001",
+    "concept_id": "comms.metric_to_decision",
+    "type": "to_stakeholder",
+    "prompt": "Refund rate on one product line has climbed from 2% to 4% over six weeks while every other line held flat. Write the three sentences you send to the person who owns that line.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Opens with the finding rather than how the analysis was done",
+        "Puts the change in money, orders or customers, not only percentages",
+        "Closes with a specific thing for them to decide or do",
+        "Confines what you are unsure of to a single clause"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_pushing_back_matching_001",
+    "concept_id": "comms.pushing_back",
+    "type": "matching",
+    "prompt": "Match each way of opening a pushback to what the other person actually hears.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "\"That will not work.\"",
+        "\"I can have the rough version Thursday or the full one in three weeks — which do you need?\"",
+        "\"Sure, we can try\" — said about something you expect to fail",
+        "\"Adding this now moves the migration a week. Is that the trade you want?\""
+      ],
+      "right": [
+        "A choice between two things that both exist",
+        "A wall, with nothing to negotiate against",
+        "Agreement, until the failure arrives wearing your name",
+        "The decision handed back to them with a price on it"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_pushing_back_multi_001",
+    "concept_id": "comms.pushing_back",
+    "type": "multi",
+    "prompt": "Which of these belong in a refusal that leaves you still able to work with the person next week?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The specific commitment the request would break",
+        "An alternative that serves the need behind the request",
+        "A note of the last three times this person changed their mind",
+        "Your read on who should make the call, if it is not yours to make",
+        "A softening \"happy to do it either way\" at the end"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_pushing_back_push_back_001",
+    "concept_id": "comms.pushing_back",
+    "type": "push_back",
+    "prompt": "A product manager wants a \"real-time\" tile added to a dashboard that refreshes hourly, for a figure nobody checks more than once a day. Rebuilding the feed to stream would take most of a month. Write your reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Turns down the streaming rebuild in plain words instead of hedging",
+        "Names the need under the ask, such as knowing the number is not stale",
+        "Offers something concrete like a visible last-updated time on the tile",
+        "States the cost the refusal is protecting, in weeks or in work that would be dropped"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_pushing_back_when_not_001",
+    "concept_id": "comms.pushing_back",
+    "type": "when_not",
+    "prompt": "You have made your objection once and the decision went the other way. When do you drop it and do the thing as asked, even though you still think it is the wrong call?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where the decision is reversible and cheap to undo",
+        "Says that repeating an objection already heard costs more than it buys",
+        "Identifies who owns the call and what they can see that you cannot",
+        "States what you put in writing before going ahead anyway"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_question_behind_question_breaks_first_001",
+    "concept_id": "comms.question_behind_question",
+    "type": "breaks_first",
+    "prompt": "You adopt a policy of answering every request exactly as worded, on the grounds that grown adults know what they asked for. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the second request that arrives because the first answer missed the point",
+        "Says the asker cannot name a cut of the data they do not know exists",
+        "Identifies a decision made on a number that did not fit the question",
+        "Points out the re-asking loop costs more time than one question would have"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_question_behind_question_cloze_001",
+    "concept_id": "comms.question_behind_question",
+    "type": "cloze",
+    "prompt": "Complete the reframe: \"can I get last month's numbers\" is rarely a request for numbers — it is the visible edge of a ___ that is about to be made, and the useful reply starts by asking which one.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "decision",
+            "choice",
+            "call",
+            "judgment call"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_question_behind_question_explain_001",
+    "concept_id": "comms.question_behind_question",
+    "type": "explain",
+    "prompt": "Two messages land the same morning: \"send me last month's signup numbers\" and \"send me last month's signup numbers — we're deciding whether to renew the ad contract.\" Explain what changes in what you build, and how you get the second sentence out of the first person.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a concrete difference in the output, such as splitting by channel or comparing to the prior contract period",
+        "States that the pending decision determines which cut and which comparison matter",
+        "Gives a phrasing that asks about the decision without sounding like a gate on the request",
+        "Notes that the literal numbers can go out alongside the question rather than being withheld"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
+  },
+  {
+    "id": "q_comms_question_behind_question_mcq_001",
+    "concept_id": "comms.question_behind_question",
+    "type": "mcq",
+    "prompt": "A message arrives: \"Can you pull the churn numbers for last month?\" You get one question in before you start. Which one tells you the most about what to build?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Would you rather have it as a spreadsheet or a dashboard?",
+        "What are you going to do with it once you have it?",
+        "Do you mean the calendar month or the last thirty days?",
+        "How soon do you need it by?"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-19"
   },
   {
     "id": "q_comms_recommend_dont_present_breaks_first_001",
