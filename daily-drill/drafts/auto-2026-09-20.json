@@ -1,0 +1,334 @@
+[
+  {
+    "concept_id": "comms.surfacing_assumptions",
+    "type": "to_stakeholder",
+    "prompt": "A request arrives as one line: \"pull last quarter's active users.\" You have decided to start building now rather than wait for clarification. Write the two or three sentences you send back before you start.",
+    "criteria": [
+      "Names the specific definition taken for an active user, such as one session inside the window",
+      "States the exact date range being treated as last quarter",
+      "Says the work is already moving rather than waiting on a reply",
+      "Asks for a correction by a stated point, before the number gets used"
+    ]
+  },
+  {
+    "concept_id": "comms.surfacing_assumptions",
+    "type": "push_back",
+    "prompt": "A teammate tells you that writing down what you assumed is busywork, because you could just ask the requester instead. Give the reply you would make in stand-up.",
+    "criteria": [
+      "Names the cost of asking first: the work stalls until someone answers",
+      "Points out a written assumption is still answerable, just not blocking",
+      "Names the failure the note prevents, two people agreeing and building different things",
+      "Concedes a case where asking up front is the better move, such as an irreversible step"
+    ]
+  },
+  {
+    "concept_id": "comms.surfacing_assumptions",
+    "type": "tf_why",
+    "prompt": "True or false: once you have written your assumption in the thread and nobody objected, the assumption counts as agreed.",
+    "verdict": false,
+    "criteria": [
+      "States that silence is not the same as confirmation",
+      "Notes the assumption still needs a check before something expensive depends on it",
+      "Says the written note limits the damage by making the divergence findable later"
+    ]
+  },
+  {
+    "concept_id": "container.compose",
+    "type": "breaks_first",
+    "prompt": "Your compose file has worked on every laptop on the team for months. A new hire clones the repo and runs `docker compose up`. What breaks first for them, and why did it not break for anyone else?",
+    "criteria": [
+      "Names something the stack needs that lives outside the file, such as a .env file or a local secret",
+      "Explains that existing machines already carry state from setup steps nobody repeats",
+      "Says the fresh clone is the only honest test of whether the file is complete",
+      "Gives a fix, such as committing an example env file or folding the step into the compose file"
+    ]
+  },
+  {
+    "concept_id": "container.compose",
+    "type": "critique",
+    "prompt": "A project's compose file starts the API and the database, and the README adds: \"then run the migration script by hand, then load the seed rows from the wiki page.\" Critique that arrangement.",
+    "criteria": [
+      "Says the two manual steps belong in the compose file or a scripted entrypoint",
+      "Names the wiki as a place the seed data will drift out of step with the schema",
+      "Points out the stack cannot come up without a person reading prose first",
+      "Notes the database has to be accepting connections before the migration can run"
+    ]
+  },
+  {
+    "concept_id": "container.compose",
+    "type": "matching",
+    "prompt": "Match each compose key to the thing it is actually responsible for.",
+    "left": [
+      "depends_on",
+      "volumes",
+      "healthcheck",
+      "environment"
+    ],
+    "right": [
+      "Starts one service only after another has been started",
+      "Keeps data alive when a container is destroyed and recreated",
+      "Gives other services a readiness signal to wait on, not just a start signal",
+      "Passes configuration into the container at run time"
+    ],
+    "pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  {
+    "concept_id": "container.compose",
+    "type": "spot_error",
+    "prompt": "This stack comes up with no errors, but the API cannot reach the database. Exactly one line is wrong — which?",
+    "lines": [
+      "services:",
+      "  api:",
+      "    build: .",
+      "    environment:",
+      "      DATABASE_URL: postgres://app@localhost:5432/app",
+      "    depends_on:",
+      "      - db",
+      "  db:",
+      "    image: postgres:16",
+      "    volumes:",
+      "      - ./data:/var/lib/postgresql/data"
+    ],
+    "bad_line": 4,
+    "why": "Inside the api container, `localhost` is the api container itself. Compose puts both services on a shared network where each is reachable by its service name, so the host has to be `db`.",
+    "scope": "curriculum"
+  },
+  {
+    "concept_id": "container.layers",
+    "type": "explain",
+    "prompt": "You change one character in a source file and your image takes eight minutes to rebuild. A colleague makes the same size change to a service on the same base image and theirs is back in twelve seconds. Explain what is different about the two Dockerfiles.",
+    "criteria": [
+      "States that each instruction produces a layer that can be reused from cache",
+      "States that a changed layer invalidates every layer after it",
+      "Identifies copying the source before installing dependencies as the cause of the slow build",
+      "Names the fix: copy the dependency manifest, install, then copy the rest of the source"
+    ]
+  },
+  {
+    "concept_id": "container.layers",
+    "type": "when_not",
+    "prompt": "When is putting `COPY . .` near the top of a Dockerfile not worth arguing about?",
+    "criteria": [
+      "Gives a case where nothing expensive runs after the copy step",
+      "Notes that the ordering only pays off when the following step is slow",
+      "Mentions a build that starts with no cache to reuse, such as a fresh runner, gains nothing either way",
+      "States that the careful ordering costs nothing, so it stays the default"
+    ]
+  },
+  {
+    "concept_id": "container.layers",
+    "type": "ordering",
+    "prompt": "Put these Dockerfile instructions in the order that keeps a dependency install out of the path of everyday source changes.",
+    "items": [
+      "COPY . .",
+      "FROM node:20-slim",
+      "RUN npm run build",
+      "COPY package.json package-lock.json ./",
+      "RUN npm ci"
+    ],
+    "correct_order": [
+      1,
+      3,
+      4,
+      0,
+      2
+    ]
+  },
+  {
+    "concept_id": "container.layers",
+    "type": "mcq",
+    "prompt": "A Dockerfile copies the whole project directory and then runs `pip install -r requirements.txt`. You edit only `README.md` and rebuild. What happens?",
+    "options": [
+      "Every layer hits the cache, so only image metadata is rewritten",
+      "The copy layer is invalidated and pip reinstalls every dependency from scratch",
+      "Docker notices the requirements file is unchanged and reuses the install layer",
+      "pip finds its own download cache in the image and skips the install"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "craft.code_review",
+    "type": "critique",
+    "prompt": "A review comment on a pull request reads, in full: \"I wouldn't have written it this way.\" Critique the comment, then rewrite it into something the author can act on.",
+    "criteria": [
+      "Says the comment never names whether the issue is correctness, clarity or taste",
+      "Points out the author cannot tell whether the change is required or optional",
+      "Rewrite points at a specific line or behaviour rather than the whole approach",
+      "Rewrite says outright whether it blocks the merge"
+    ]
+  },
+  {
+    "concept_id": "craft.code_review",
+    "type": "push_back",
+    "prompt": "Your pull request fixes a bug that is live in production right now. The reviewer asks you to rename three variables and turn a loop into a comprehension. You want it merged today. Write your reply.",
+    "criteria": [
+      "Separates the fix for the live bug from the style requests",
+      "Offers the style changes as a follow-up rather than refusing them",
+      "States the cost of waiting in terms of the bug still affecting users",
+      "Asks the reviewer to say which comments block the merge"
+    ]
+  },
+  {
+    "concept_id": "craft.code_review",
+    "type": "multi",
+    "prompt": "Which of these review comments are raising a correctness problem, as opposed to clarity or taste?",
+    "options": [
+      "This retry loop has no upper bound, so a call that always fails spins forever",
+      "`tmp2` doesn't say anything about what it holds",
+      "This timestamp is parsed as local time, but everything downstream stores UTC",
+      "I'd lift the guard clause out instead of nesting the body two levels deep",
+      "On the empty-list path this returns None, and the caller indexes the result",
+      "There are four blank lines between these two methods"
+    ],
+    "correct_indices": [
+      0,
+      2,
+      4
+    ]
+  },
+  {
+    "concept_id": "craft.code_review",
+    "type": "cloze",
+    "prompt": "Complete the review convention: a comment you want addressed before the branch merges is labelled ___, while one you would be content to see ignored is prefixed ___.",
+    "blanks": [
+      {
+        "accept": [
+          "blocking",
+          "blocker",
+          "block"
+        ]
+      },
+      {
+        "accept": [
+          "nit",
+          "nitpick",
+          "non-blocking",
+          "nonblocking",
+          "optional"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "craft.refactoring_safety",
+    "type": "explain",
+    "prompt": "A branch that only moves code around goes in with 40 tests passing before and 40 passing after, and the feature is broken in production by morning. Explain how both of those can be true at once.",
+    "criteria": [
+      "States that the suite did not cover the behaviour that actually changed",
+      "Distinguishes a green suite from behaviour being pinned",
+      "Names a way to find the gap first, such as checking coverage of the code about to move",
+      "Says the change was never behaviour-preserving, whatever the commit message called it"
+    ]
+  },
+  {
+    "concept_id": "craft.refactoring_safety",
+    "type": "to_stakeholder",
+    "prompt": "Your manager asks why a two-day ticket now has a day of test-writing bolted onto the front, when you told them you were only moving code around. Make your case in three or four sentences.",
+    "criteria": [
+      "States that moving code is only safe once the current behaviour is captured",
+      "Names a concrete failure the tests would catch, such as an edge case quietly dropped",
+      "Gives the alternative cost: finding the same change in production instead",
+      "Lands on a recommendation rather than leaving the call open"
+    ]
+  },
+  {
+    "concept_id": "craft.refactoring_safety",
+    "type": "spot_error",
+    "prompt": "The second version of this function was written during a cleanup that was supposed to leave behaviour untouched. One line changes what it does — which?",
+    "lines": [
+      "# before",
+      "def discount(price, pct):",
+      "    if pct > 50:",
+      "        pct = 50",
+      "    return price * (1 - pct / 100)",
+      "# after",
+      "def discount(price, pct):",
+      "    pct = min(pct, 50)",
+      "    return price - price * pct // 100"
+    ],
+    "bad_line": 8,
+    "why": "`min(pct, 50)` is a faithful rewrite of the cap, but `//` floors the discount to a whole number: `discount(10, 25)` now returns 8 where the original returned 7.5. The structure moved and the numbers moved with it.",
+    "scope": "curriculum"
+  },
+  {
+    "concept_id": "craft.refactoring_safety",
+    "type": "mcq",
+    "prompt": "You have to restructure a module that has no tests at all. Which move buys the most safety for the least work before you touch the structure?",
+    "options": [
+      "Write unit tests for each private helper you are about to move",
+      "Record the module's outputs for a set of real inputs and assert the rewrite reproduces them",
+      "Rewrite first, then add tests once the new shape has settled",
+      "Wrap the module's entry point so failures are logged instead of raised"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "debug.logging",
+    "type": "critique",
+    "prompt": "A service writes one line per request: `INFO request handled`. A customer reports an order that vanished, and the on-call engineer cannot tell which of the day's lines were theirs. Critique the logging and say what the line should carry instead.",
+    "criteria": [
+      "Names an identifier that ties a line back to one request, such as a request id",
+      "Says the outcome and the duration belong on the line, not just that something happened",
+      "States that the customer must appear as an opaque id, not a name, email or address",
+      "Points out the current line cannot answer the question without rerunning the work"
+    ]
+  },
+  {
+    "concept_id": "debug.logging",
+    "type": "estimate",
+    "prompt": "A service handles about 2 million requests a day. Someone proposes one DEBUG line per database row touched, averaging 30 rows per request at roughly 200 bytes a line. Work out the daily volume and say whether you would turn it on in production.",
+    "criteria": [
+      "Arrives at roughly 60 million extra log lines a day",
+      "Gives a volume near 12 GB a day rather than calling it a lot",
+      "Lands on keeping it off by default in production, with a reason tied to the number",
+      "Names a middle path, such as sampling a fraction or enabling it for one request id"
+    ]
+  },
+  {
+    "concept_id": "debug.logging",
+    "type": "predict_output",
+    "prompt": "Exactly one of these two log calls reaches the handler. Give the message text that gets emitted.\n\n`import logging`\n`log = logging.getLogger(\"orders\")`\n`logging.basicConfig(level=logging.WARNING)`\n`log.info(\"loaded %d orders\", 12)`\n`log.warning(\"retrying payment for order %s\", 8812)`",
+    "accept": [
+      "retrying payment for order 8812",
+      "WARNING:orders:retrying payment for order 8812",
+      "WARNING retrying payment for order 8812"
+    ],
+    "explain": "The root level is set to WARNING, so the INFO call is dropped before formatting and never reaches a handler. Only the warning is emitted, with `%s` filled in as 8812.",
+    "scope": "curriculum"
+  },
+  {
+    "concept_id": "debug.logging",
+    "type": "multi",
+    "prompt": "A checkout service is about to write a log line for a failed payment. Which of these belong in it?",
+    "options": [
+      "The order id",
+      "The full card number the customer submitted",
+      "The name of the validation rule that rejected the request",
+      "The customer's email address",
+      "The upstream HTTP status and the request id",
+      "The complete request body exactly as received"
+    ],
+    "correct_indices": [
+      0,
+      2,
+      4
+    ]
+  }
+]
