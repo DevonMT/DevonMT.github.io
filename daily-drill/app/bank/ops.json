@@ -1,5 +1,110 @@
 [
   {
+    "id": "q_container_compose_breaks_first_001",
+    "concept_id": "container.compose",
+    "type": "breaks_first",
+    "prompt": "Your compose file has worked on every laptop on the team for months. A new hire clones the repo and runs `docker compose up`. What breaks first for them, and why did it not break for anyone else?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names something the stack needs that lives outside the file, such as a .env file or a local secret",
+        "Explains that existing machines already carry state from setup steps nobody repeats",
+        "Says the fresh clone is the only honest test of whether the file is complete",
+        "Gives a fix, such as committing an example env file or folding the step into the compose file"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_container_compose_critique_001",
+    "concept_id": "container.compose",
+    "type": "critique",
+    "prompt": "A project's compose file starts the API and the database, and the README adds: \"then run the migration script by hand, then load the seed rows from the wiki page.\" Critique that arrangement.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the two manual steps belong in the compose file or a scripted entrypoint",
+        "Names the wiki as a place the seed data will drift out of step with the schema",
+        "Points out the stack cannot come up without a person reading prose first",
+        "Notes the database has to be accepting connections before the migration can run"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_container_compose_matching_001",
+    "concept_id": "container.compose",
+    "type": "matching",
+    "prompt": "Match each compose key to the thing it is actually responsible for.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "depends_on",
+        "volumes",
+        "healthcheck",
+        "environment"
+      ],
+      "right": [
+        "Starts one service only after another has been started",
+        "Keeps data alive when a container is destroyed and recreated",
+        "Gives other services a readiness signal to wait on, not just a start signal",
+        "Passes configuration into the container at run time"
+      ],
+      "pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_container_compose_spot_error_001",
+    "concept_id": "container.compose",
+    "type": "spot_error",
+    "prompt": "This stack comes up with no errors, but the API cannot reach the database. Exactly one line is wrong — which?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "services:",
+        "  api:",
+        "    build: .",
+        "    environment:",
+        "      DATABASE_URL: postgres://app@localhost:5432/app",
+        "    depends_on:",
+        "      - db",
+        "  db:",
+        "    image: postgres:16",
+        "    volumes:",
+        "      - ./data:/var/lib/postgresql/data"
+      ],
+      "bad_line": 4,
+      "why": "Inside the api container, `localhost` is the api container itself. Compose puts both services on a shared network where each is reachable by its service name, so the host has to be `db`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
     "id": "q_container_image_vs_container_breaks_first_001",
     "concept_id": "container.image_vs_container",
     "type": "breaks_first",
@@ -77,6 +182,87 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_container_layers_explain_001",
+    "concept_id": "container.layers",
+    "type": "explain",
+    "prompt": "You change one character in a source file and your image takes eight minutes to rebuild. A colleague makes the same size change to a service on the same base image and theirs is back in twelve seconds. Explain what is different about the two Dockerfiles.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that each instruction produces a layer that can be reused from cache",
+        "States that a changed layer invalidates every layer after it",
+        "Identifies copying the source before installing dependencies as the cause of the slow build",
+        "Names the fix: copy the dependency manifest, install, then copy the rest of the source"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_container_layers_mcq_001",
+    "concept_id": "container.layers",
+    "type": "mcq",
+    "prompt": "A Dockerfile copies the whole project directory and then runs `pip install -r requirements.txt`. You edit only `README.md` and rebuild. What happens?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Every layer hits the cache, so only image metadata is rewritten",
+        "The copy layer is invalidated and pip reinstalls every dependency from scratch",
+        "Docker notices the requirements file is unchanged and reuses the install layer",
+        "pip finds its own download cache in the image and skips the install"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_container_layers_ordering_001",
+    "concept_id": "container.layers",
+    "type": "ordering",
+    "prompt": "Put these Dockerfile instructions in the order that keeps a dependency install out of the path of everyday source changes.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "COPY . .",
+        "FROM node:20-slim",
+        "RUN npm run build",
+        "COPY package.json package-lock.json ./",
+        "RUN npm ci"
+      ],
+      "correct_order": [
+        1,
+        3,
+        4,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_container_layers_when_not_001",
+    "concept_id": "container.layers",
+    "type": "when_not",
+    "prompt": "When is putting `COPY . .` near the top of a Dockerfile not worth arguing about?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a case where nothing expensive runs after the copy step",
+        "Notes that the ordering only pays off when the following step is slow",
+        "Mentions a build that starts with no cache to reuse, such as a fresh runner, gains nothing either way",
+        "States that the careful ordering costs nothing, so it stays the default"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
   },
   {
     "id": "q_container_volumes_cloze_001",

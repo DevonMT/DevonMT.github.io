@@ -1710,5 +1710,68 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_comms_surfacing_assumptions_push_back_001",
+    "concept_id": "comms.surfacing_assumptions",
+    "type": "push_back",
+    "prompt": "A teammate tells you that writing down what you assumed is busywork, because you could just ask the requester instead. Give the reply you would make in stand-up.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the cost of asking first: the work stalls until someone answers",
+        "Points out a written assumption is still answerable, just not blocking",
+        "Names the failure the note prevents, two people agreeing and building different things",
+        "Concedes a case where asking up front is the better move, such as an irreversible step"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_comms_surfacing_assumptions_tf_why_001",
+    "concept_id": "comms.surfacing_assumptions",
+    "type": "tf_why",
+    "prompt": "True or false: once you have written your assumption in the thread and nobody objected, the assumption counts as agreed.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that silence is not the same as confirmation",
+          "Notes the assumption still needs a check before something expensive depends on it",
+          "Says the written note limits the damage by making the divergence findable later"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that silence is not the same as confirmation",
+        "Notes the assumption still needs a check before something expensive depends on it",
+        "Says the written note limits the damage by making the divergence findable later"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_comms_surfacing_assumptions_to_stakeholder_001",
+    "concept_id": "comms.surfacing_assumptions",
+    "type": "to_stakeholder",
+    "prompt": "A request arrives as one line: \"pull last quarter's active users.\" You have decided to start building now rather than wait for clarification. Write the two or three sentences you send back before you start.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the specific definition taken for an active user, such as one session inside the window",
+        "States the exact date range being treated as last quarter",
+        "Says the work is already moving rather than waiting on a reply",
+        "Asks for a correction by a stated point, before the number gets used"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
   }
 ]

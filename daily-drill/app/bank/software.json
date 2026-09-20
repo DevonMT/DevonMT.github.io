@@ -775,6 +775,97 @@
     "created_at": "2026-09-17"
   },
   {
+    "id": "q_craft_code_review_cloze_001",
+    "concept_id": "craft.code_review",
+    "type": "cloze",
+    "prompt": "Complete the review convention: a comment you want addressed before the branch merges is labelled ___, while one you would be content to see ignored is prefixed ___.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "blocking",
+            "blocker",
+            "block"
+          ]
+        },
+        {
+          "accept": [
+            "nit",
+            "nitpick",
+            "non-blocking",
+            "nonblocking",
+            "optional"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_craft_code_review_critique_001",
+    "concept_id": "craft.code_review",
+    "type": "critique",
+    "prompt": "A review comment on a pull request reads, in full: \"I wouldn't have written it this way.\" Critique the comment, then rewrite it into something the author can act on.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the comment never names whether the issue is correctness, clarity or taste",
+        "Points out the author cannot tell whether the change is required or optional",
+        "Rewrite points at a specific line or behaviour rather than the whole approach",
+        "Rewrite says outright whether it blocks the merge"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_craft_code_review_multi_001",
+    "concept_id": "craft.code_review",
+    "type": "multi",
+    "prompt": "Which of these review comments are raising a correctness problem, as opposed to clarity or taste?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "This retry loop has no upper bound, so a call that always fails spins forever",
+        "`tmp2` doesn't say anything about what it holds",
+        "This timestamp is parsed as local time, but everything downstream stores UTC",
+        "I'd lift the guard clause out instead of nesting the body two levels deep",
+        "On the empty-list path this returns None, and the caller indexes the result",
+        "There are four blank lines between these two methods"
+      ],
+      "correct": [
+        0,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_craft_code_review_push_back_001",
+    "concept_id": "craft.code_review",
+    "type": "push_back",
+    "prompt": "Your pull request fixes a bug that is live in production right now. The reviewer asks you to rename three variables and turn a loop into a comprehension. You want it merged today. Write your reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Separates the fix for the live bug from the style requests",
+        "Offers the style changes as a follow-up rather than refusing them",
+        "States the cost of waiting in terms of the bug still affecting users",
+        "Asks the reviewer to say which comments block the merge"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
     "id": "q_craft_config_vs_code_explain_001",
     "concept_id": "craft.config_vs_code",
     "type": "explain",
@@ -854,6 +945,165 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_craft_refactoring_safety_explain_001",
+    "concept_id": "craft.refactoring_safety",
+    "type": "explain",
+    "prompt": "A branch that only moves code around goes in with 40 tests passing before and 40 passing after, and the feature is broken in production by morning. Explain how both of those can be true at once.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the suite did not cover the behaviour that actually changed",
+        "Distinguishes a green suite from behaviour being pinned",
+        "Names a way to find the gap first, such as checking coverage of the code about to move",
+        "Says the change was never behaviour-preserving, whatever the commit message called it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_craft_refactoring_safety_mcq_001",
+    "concept_id": "craft.refactoring_safety",
+    "type": "mcq",
+    "prompt": "You have to restructure a module that has no tests at all. Which move buys the most safety for the least work before you touch the structure?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Write unit tests for each private helper you are about to move",
+        "Record the module's outputs for a set of real inputs and assert the rewrite reproduces them",
+        "Rewrite first, then add tests once the new shape has settled",
+        "Wrap the module's entry point so failures are logged instead of raised"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_craft_refactoring_safety_spot_error_001",
+    "concept_id": "craft.refactoring_safety",
+    "type": "spot_error",
+    "prompt": "The second version of this function was written during a cleanup that was supposed to leave behaviour untouched. One line changes what it does — which?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "# before",
+        "def discount(price, pct):",
+        "    if pct > 50:",
+        "        pct = 50",
+        "    return price * (1 - pct / 100)",
+        "# after",
+        "def discount(price, pct):",
+        "    pct = min(pct, 50)",
+        "    return price - price * pct // 100"
+      ],
+      "bad_line": 8,
+      "why": "`min(pct, 50)` is a faithful rewrite of the cap, but `//` floors the discount to a whole number: `discount(10, 25)` now returns 8 where the original returned 7.5. The structure moved and the numbers moved with it."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_craft_refactoring_safety_to_stakeholder_001",
+    "concept_id": "craft.refactoring_safety",
+    "type": "to_stakeholder",
+    "prompt": "Your manager asks why a two-day ticket now has a day of test-writing bolted onto the front, when you told them you were only moving code around. Make your case in three or four sentences.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that moving code is only safe once the current behaviour is captured",
+        "Names a concrete failure the tests would catch, such as an edge case quietly dropped",
+        "Gives the alternative cost: finding the same change in production instead",
+        "Lands on a recommendation rather than leaving the call open"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_debug_logging_critique_001",
+    "concept_id": "debug.logging",
+    "type": "critique",
+    "prompt": "A service writes one line per request: `INFO request handled`. A customer reports an order that vanished, and the on-call engineer cannot tell which of the day's lines were theirs. Critique the logging and say what the line should carry instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names an identifier that ties a line back to one request, such as a request id",
+        "Says the outcome and the duration belong on the line, not just that something happened",
+        "States that the customer must appear as an opaque id, not a name, email or address",
+        "Points out the current line cannot answer the question without rerunning the work"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_debug_logging_estimate_001",
+    "concept_id": "debug.logging",
+    "type": "estimate",
+    "prompt": "A service handles about 2 million requests a day. Someone proposes one DEBUG line per database row touched, averaging 30 rows per request at roughly 200 bytes a line. Work out the daily volume and say whether you would turn it on in production.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Arrives at roughly 60 million extra log lines a day",
+        "Gives a volume near 12 GB a day rather than calling it a lot",
+        "Lands on keeping it off by default in production, with a reason tied to the number",
+        "Names a middle path, such as sampling a fraction or enabling it for one request id"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_debug_logging_multi_001",
+    "concept_id": "debug.logging",
+    "type": "multi",
+    "prompt": "A checkout service is about to write a log line for a failed payment. Which of these belong in it?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The order id",
+        "The full card number the customer submitted",
+        "The name of the validation rule that rejected the request",
+        "The customer's email address",
+        "The upstream HTTP status and the request id",
+        "The complete request body exactly as received"
+      ],
+      "correct": [
+        0,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
+  },
+  {
+    "id": "q_debug_logging_predict_output_001",
+    "concept_id": "debug.logging",
+    "type": "predict_output",
+    "prompt": "Exactly one of these two log calls reaches the handler. Give the message text that gets emitted.\n\n`import logging`\n`log = logging.getLogger(\"orders\")`\n`logging.basicConfig(level=logging.WARNING)`\n`log.info(\"loaded %d orders\", 12)`\n`log.warning(\"retrying payment for order %s\", 8812)`",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "retrying payment for order 8812",
+        "WARNING:orders:retrying payment for order 8812",
+        "WARNING retrying payment for order 8812"
+      ],
+      "explain": "The root level is set to WARNING, so the INFO call is dropped before formatting and never reaches a handler. Only the warning is emitted, with `%s` filled in as 8812."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-20"
   },
   {
     "id": "q_debug_method_critique_001",
