@@ -1192,6 +1192,109 @@
     "created_at": "2026-09-05"
   },
   {
+    "id": "q_git_commit_hygiene_critique_001",
+    "concept_id": "git.commit_hygiene",
+    "type": "critique",
+    "prompt": "A teammate's commit is titled `fix bug` and touches fourteen files: a renamed helper, a new retry around an upload, and a stray whitespace pass over an unrelated module. Critique that commit.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the mix of unrelated changes as the problem, not only the short title",
+        "Says the message should carry the reason for the retry, since the diff already shows the retry itself",
+        "Points out that the rename and whitespace churn bury the one real change during review",
+        "Says a revert of this commit would take back changes nobody wanted reverted",
+        "Suggests splitting it into separate commits, one per logical change"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_commit_hygiene_matching_001",
+    "concept_id": "git.commit_hygiene",
+    "type": "matching",
+    "prompt": "Match each commit message to what a reader six months later still has to go and find for themselves.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "`Fix flaky test`",
+        "`Raise the poll timeout to 90s: the vendor API stalls for about a minute after their deploys`",
+        "`Refactor the helpers and raise the retry count`",
+        "`Address review comments`"
+      ],
+      "right": [
+        "Nothing — the reason is already in the message",
+        "Why the test was flaky, which no diff can tell them",
+        "Which of the two unrelated changes in the diff they are allowed to revert",
+        "The review thread, which lives outside the repository and may be gone"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_commit_hygiene_multi_001",
+    "concept_id": "git.commit_hygiene",
+    "type": "multi",
+    "prompt": "A commit in the history reads, in full, `Update user_stats.py`. Which of these hold?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It repeats information the diff already carries",
+        "A reader a year from now gets no reason for the change out of the history",
+        "It is fine as long as the commit touches only a single file",
+        "It is only a problem in repositories that skip code review",
+        "Putting the reason in the message body would make it findable later with `git log --grep`"
+      ],
+      "correct": [
+        0,
+        1,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_commit_hygiene_when_not_001",
+    "concept_id": "git.commit_hygiene",
+    "type": "when_not",
+    "prompt": "You are an hour into a throwaway spike and have made eleven commits called `wip`. When is tidying that into one-logical-change commits not worth the time, and what would change your mind?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Ties the effort to whether anyone will read this history later",
+        "Names the case where the branch is squashed to a single commit on merge",
+        "Says a spike that turns into the shipped branch changes the answer",
+        "Notes that splitting gets more expensive once the commits are pushed and shared"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
     "id": "q_git_object_model_breaks_first_001",
     "concept_id": "git.object_model",
     "type": "breaks_first",
@@ -1272,6 +1375,90 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-05"
+  },
+  {
+    "id": "q_git_rebase_vs_merge_breaks_first_001",
+    "concept_id": "git.rebase_vs_merge",
+    "type": "breaks_first",
+    "prompt": "You rebase a twelve-commit branch onto a main that has moved on by two months. What breaks first, and what does that reveal about the difference between rebase and merge?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the same conflict is replayed commit by commit rather than resolved once",
+        "States that every rebased commit is a new object with a new hash",
+        "Contrasts this with a merge, which reconciles the two final states in one commit",
+        "Mentions that intermediate rebased commits can be left in a state that does not build or pass tests"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_rebase_vs_merge_mcq_001",
+    "concept_id": "git.rebase_vs_merge",
+    "type": "mcq",
+    "prompt": "You pulled a feature branch yesterday. Overnight someone rebased it and force-pushed. You run `git pull` with the default merge behaviour. What do you end up with?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A fast-forward onto the rewritten branch",
+        "A merge of your old copy with the rewritten one, so every rebased change appears twice in the history",
+        "An error that refuses the pull until you delete and re-clone the branch",
+        "Nothing — git detects the rewrite and resets your branch to match the remote"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_rebase_vs_merge_push_back_001",
+    "concept_id": "git.rebase_vs_merge",
+    "type": "push_back",
+    "prompt": "A colleague wants to force-push a rebased version of the shared integration branch tonight so the history reads cleanly before tomorrow's demo. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that everyone else's local copy of the branch diverges the moment it is force-pushed",
+        "Names the cleanup the rest of the team is handed, such as a hard reset onto the new branch",
+        "Offers an alternative, such as rebasing only unshared branches or merging into the shared one",
+        "Takes the readable-history goal seriously rather than dismissing it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_rebase_vs_merge_tf_why_001",
+    "concept_id": "git.rebase_vs_merge",
+    "type": "tf_why",
+    "prompt": "True or false: a rebase moves your existing commits onto the new base, keeping their hashes and changing only which commit they sit on top of.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that rebase writes new commit objects instead of moving the old ones",
+          "Says the hash changes because the parent is part of what the hash covers",
+          "Notes that the original commits remain reachable through the reflog until they are pruned",
+          "Connects the new hashes to why a shared branch is dangerous to rebase"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that rebase writes new commit objects instead of moving the old ones",
+        "Says the hash changes because the parent is part of what the hash covers",
+        "Notes that the original commits remain reachable through the reflog until they are pruned",
+        "Connects the new hashes to why a shared branch is dangerous to rebase"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
   },
   {
     "id": "q_py_environments_critique_001",

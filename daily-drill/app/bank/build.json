@@ -1,5 +1,89 @@
 [
   {
+    "id": "q_llm_checklist_not_score_critique_001",
+    "concept_id": "llm.checklist_not_score",
+    "type": "critique",
+    "prompt": "Proposal for a study app: after each written answer, ask a model to score it out of 100, store the number, and show the learner a trend line of their scores over the past month. Critique it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the same answer submitted twice can come back with different scores",
+        "Says the trend line then plots model noise rather than the learner's progress",
+        "Names the loss of trust the first time the learner notices an identical answer scored differently",
+        "Proposes checkable criteria the learner ticks off instead of a number"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_llm_checklist_not_score_estimate_001",
+    "concept_id": "llm.checklist_not_score",
+    "type": "estimate",
+    "prompt": "You feed one unchanged answer to the same grader on ten separate nights. Estimate the spread you would see in a 0-100 score, estimate it for a five-box checklist, and say which boxes would be the unstable ones.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a numeric range for the score that spans at least ten points",
+        "Gives a smaller spread for the checklist, such as one box flipping between nights",
+        "Says the unstable boxes are the ones whose wording leaves room for interpretation",
+        "Explains that a box asks whether one specific claim is present, which is a narrower judgment than a number"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_llm_checklist_not_score_mcq_001",
+    "concept_id": "llm.checklist_not_score",
+    "type": "mcq",
+    "prompt": "Which of these rubric lines can a learner check against their own written answer in two seconds?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Shows a firm grasp of the tradeoffs involved",
+        "Explains the idea at the right level for the audience",
+        "Says the retry is safe only because the write is idempotent",
+        "Covers the important points about idempotency"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_llm_checklist_not_score_tf_why_001",
+    "concept_id": "llm.checklist_not_score",
+    "type": "tf_why",
+    "prompt": "True or false: asking the model for three independent scores of the same answer and averaging them removes the instability that makes a 0-100 grade untrustworthy.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that averaging narrows the spread without removing it",
+          "Says the three samples share the same bias, so they are not independent the way averaging assumes",
+          "Names the cost of three calls for a number that still drifts between nights",
+          "Points out that a checkable criterion sidesteps the problem rather than shrinking it"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that averaging narrows the spread without removing it",
+        "Says the three samples share the same bias, so they are not independent the way averaging assumes",
+        "Names the cost of three calls for a number that still drifts between nights",
+        "Points out that a checkable criterion sidesteps the problem rather than shrinking it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-21"
+  },
+  {
     "id": "q_llm_review_vs_produce_explain_001",
     "concept_id": "llm.review_vs_produce",
     "type": "explain",

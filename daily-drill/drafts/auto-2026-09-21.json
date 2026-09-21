@@ -1,0 +1,328 @@
+[
+  {
+    "concept_id": "git.commit_hygiene",
+    "type": "critique",
+    "prompt": "A teammate's commit is titled `fix bug` and touches fourteen files: a renamed helper, a new retry around an upload, and a stray whitespace pass over an unrelated module. Critique that commit.",
+    "criteria": [
+      "Names the mix of unrelated changes as the problem, not only the short title",
+      "Says the message should carry the reason for the retry, since the diff already shows the retry itself",
+      "Points out that the rename and whitespace churn bury the one real change during review",
+      "Says a revert of this commit would take back changes nobody wanted reverted",
+      "Suggests splitting it into separate commits, one per logical change"
+    ]
+  },
+  {
+    "concept_id": "git.commit_hygiene",
+    "type": "when_not",
+    "prompt": "You are an hour into a throwaway spike and have made eleven commits called `wip`. When is tidying that into one-logical-change commits not worth the time, and what would change your mind?",
+    "criteria": [
+      "Ties the effort to whether anyone will read this history later",
+      "Names the case where the branch is squashed to a single commit on merge",
+      "Says a spike that turns into the shipped branch changes the answer",
+      "Notes that splitting gets more expensive once the commits are pushed and shared"
+    ]
+  },
+  {
+    "concept_id": "git.commit_hygiene",
+    "type": "multi",
+    "prompt": "A commit in the history reads, in full, `Update user_stats.py`. Which of these hold?",
+    "options": [
+      "It repeats information the diff already carries",
+      "A reader a year from now gets no reason for the change out of the history",
+      "It is fine as long as the commit touches only a single file",
+      "It is only a problem in repositories that skip code review",
+      "Putting the reason in the message body would make it findable later with `git log --grep`"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      4
+    ]
+  },
+  {
+    "concept_id": "git.commit_hygiene",
+    "type": "matching",
+    "prompt": "Match each commit message to what a reader six months later still has to go and find for themselves.",
+    "left": [
+      "`Fix flaky test`",
+      "`Raise the poll timeout to 90s: the vendor API stalls for about a minute after their deploys`",
+      "`Refactor the helpers and raise the retry count`",
+      "`Address review comments`"
+    ],
+    "right": [
+      "Nothing — the reason is already in the message",
+      "Why the test was flaky, which no diff can tell them",
+      "Which of the two unrelated changes in the diff they are allowed to revert",
+      "The review thread, which lives outside the repository and may be gone"
+    ],
+    "pairs": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  {
+    "concept_id": "git.rebase_vs_merge",
+    "type": "breaks_first",
+    "prompt": "You rebase a twelve-commit branch onto a main that has moved on by two months. What breaks first, and what does that reveal about the difference between rebase and merge?",
+    "criteria": [
+      "Says the same conflict is replayed commit by commit rather than resolved once",
+      "States that every rebased commit is a new object with a new hash",
+      "Contrasts this with a merge, which reconciles the two final states in one commit",
+      "Mentions that intermediate rebased commits can be left in a state that does not build or pass tests"
+    ]
+  },
+  {
+    "concept_id": "git.rebase_vs_merge",
+    "type": "push_back",
+    "prompt": "A colleague wants to force-push a rebased version of the shared integration branch tonight so the history reads cleanly before tomorrow's demo. Push back.",
+    "criteria": [
+      "States that everyone else's local copy of the branch diverges the moment it is force-pushed",
+      "Names the cleanup the rest of the team is handed, such as a hard reset onto the new branch",
+      "Offers an alternative, such as rebasing only unshared branches or merging into the shared one",
+      "Takes the readable-history goal seriously rather than dismissing it"
+    ]
+  },
+  {
+    "concept_id": "git.rebase_vs_merge",
+    "type": "tf_why",
+    "prompt": "True or false: a rebase moves your existing commits onto the new base, keeping their hashes and changing only which commit they sit on top of.",
+    "verdict": false,
+    "criteria": [
+      "States that rebase writes new commit objects instead of moving the old ones",
+      "Says the hash changes because the parent is part of what the hash covers",
+      "Notes that the original commits remain reachable through the reflog until they are pruned",
+      "Connects the new hashes to why a shared branch is dangerous to rebase"
+    ]
+  },
+  {
+    "concept_id": "git.rebase_vs_merge",
+    "type": "mcq",
+    "prompt": "You pulled a feature branch yesterday. Overnight someone rebased it and force-pushed. You run `git pull` with the default merge behaviour. What do you end up with?",
+    "options": [
+      "A fast-forward onto the rewritten branch",
+      "A merge of your old copy with the rewritten one, so every rebased change appears twice in the history",
+      "An error that refuses the pull until you delete and re-clone the branch",
+      "Nothing — git detects the rewrite and resets your branch to match the remote"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "incident.triage",
+    "type": "to_stakeholder",
+    "prompt": "Eight minutes ago the nightly load finished with half the rows it normally writes, and the morning dashboards are already showing the gap. You do not know why yet. Write the first message you post in the channel the business owners are watching.",
+    "criteria": [
+      "Opens with what is wrong for the reader, such as which numbers are unreliable",
+      "States the affected time window, not only the symptom right now",
+      "Says what people should avoid doing or trusting in the meantime",
+      "Commits to a time for the next update rather than to a fix time",
+      "Names no cause that has not been confirmed yet"
+    ]
+  },
+  {
+    "concept_id": "incident.triage",
+    "type": "push_back",
+    "prompt": "The pipeline has been failing for forty minutes. A senior engineer on the call wants to keep reading logs until the root cause is found before anyone touches the deployment. Push back.",
+    "criteria": [
+      "Argues for restoring service first, such as rolling back to the last release that worked",
+      "Says the cause can still be found afterwards from logs and artefacts kept aside",
+      "Names what is being lost for every further minute of searching",
+      "Concedes a case where continuing to investigate wins, such as a rollback that is unsafe to run"
+    ]
+  },
+  {
+    "concept_id": "incident.triage",
+    "type": "ordering",
+    "prompt": "A scheduled job has been quietly writing bad rows for two hours. Put these steps in the order a first responder should take them.",
+    "items": [
+      "Work out which code change introduced the bug",
+      "Stop the job from firing again on its next schedule",
+      "Backfill the two hours of bad rows once a fix has shipped",
+      "Confirm the output really is wrong and not a stale dashboard cache",
+      "Tell the people reading the affected numbers not to trust them"
+    ],
+    "correct_order": [
+      3,
+      1,
+      4,
+      0,
+      2
+    ]
+  },
+  {
+    "concept_id": "linux.cron",
+    "type": "breaks_first",
+    "prompt": "A shell script runs end to end from your terminal. You paste the identical command into `crontab -e`, and every night at 02:00 it fails leaving no output anywhere. What breaks first, and how would you prove it?",
+    "criteria": [
+      "Names the environment difference, such as a PATH that is not the one from your shell",
+      "Says your shell profile and its exports are never sourced for a cron job",
+      "Mentions the working directory being the home directory rather than the project",
+      "Gives a concrete check, such as running `env` from cron or redirecting both streams to a log file"
+    ]
+  },
+  {
+    "concept_id": "linux.cron",
+    "type": "when_not",
+    "prompt": "Someone wants to schedule a forty-minute data load with cron, running every thirty minutes. When is cron the wrong tool for a job, and what would you reach for instead?",
+    "criteria": [
+      "Points out that runs overlap because cron never waits for the previous one to finish",
+      "Names what cron does not give you, such as retries, alerting on failure, or dependencies between jobs",
+      "Offers a minimum fix such as a lock file or `flock` to prevent overlap",
+      "Names an alternative with run history and dependency handling"
+    ]
+  },
+  {
+    "concept_id": "linux.cron",
+    "type": "mcq",
+    "prompt": "When does the schedule `*/10 2 * * *` actually fire?",
+    "options": [
+      "Every ten minutes, around the clock",
+      "Every ten minutes from 02:00 to 02:50, once a day",
+      "At 02:10, once a day",
+      "Every ten hours, starting at 02:00"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "linux.cron",
+    "type": "spot_error",
+    "prompt": "One line in this crontab cannot do what its author intended. Which one, and why?",
+    "lines": [
+      "SHELL=/bin/bash",
+      "MAILTO=alerts@example.com",
+      "0 1 * * * /usr/local/bin/python3 /opt/jobs/extract.py >> /var/log/extract.log 2>&1",
+      "15 2 * * * cd /opt/jobs && ./transform.sh >> /var/log/transform.log 2>&1",
+      "30 3 * * * /opt/jobs/report.sh --date=$(date +%Y-%m-%d) >> /var/log/report.log 2>&1"
+    ],
+    "bad_line": 4,
+    "why": "cron reads an unescaped `%` as a newline: the command is cut off after `date +` and everything past it is handed to the job on stdin. Each percent sign has to be written `\\%`, or the date has to be computed inside the script instead."
+  },
+  {
+    "concept_id": "linux.processes",
+    "type": "when_not",
+    "prompt": "A deploy script sends SIGKILL to a worker because SIGTERM had not stopped it two seconds later. When is skipping straight to SIGKILL the right move, and what are you giving up by not waiting?",
+    "criteria": [
+      "States that SIGKILL cannot be caught, blocked, or handled by the process",
+      "Names cleanup the process now skips, such as flushing a buffer or releasing a lock or lease",
+      "Says two seconds is short for a worker still finishing an in-flight task",
+      "Gives a case where SIGKILL is the answer, such as a process that ignores SIGTERM or is wedged in uninterruptible work"
+    ]
+  },
+  {
+    "concept_id": "linux.processes",
+    "type": "critique",
+    "prompt": "A nightly wrapper script has `python load.py` on one line and `echo \"load complete\"` on the next, and the scheduler has reported success every morning for a year. Critique it.",
+    "criteria": [
+      "States that the script exits with the status of `echo`, which is always zero",
+      "Says the scheduler therefore records success on nights when the load failed",
+      "Names a fix such as `set -e`, or testing `$?` straight after the python call",
+      "Points out that a line printed on stdout is not evidence the step did anything"
+    ]
+  },
+  {
+    "concept_id": "linux.processes",
+    "type": "matching",
+    "prompt": "Match each exit status a job reports to what actually happened to the process.",
+    "left": [
+      "`0`",
+      "`127`",
+      "`130`",
+      "`137`"
+    ],
+    "right": [
+      "Killed by SIGKILL — often the out-of-memory killer rather than a person",
+      "The command was never found on PATH, so nothing ran at all",
+      "Ran to completion and reported no failure",
+      "Interrupted from the terminal with Ctrl-C"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        0
+      ]
+    ]
+  },
+  {
+    "concept_id": "linux.processes",
+    "type": "predict_output",
+    "prompt": "A bash script with no `set -o pipefail` runs `cat missing_file.csv | wc -l` and then `echo $?`. What does that second line print, and why does it matter to a scheduler?",
+    "accept": [
+      "0",
+      "zero",
+      "0 - the pipeline reports wc's status, not cat's",
+      "0, so the scheduler sees success even though cat failed"
+    ],
+    "explain": "A pipeline exits with the status of its last command. `cat` fails with 1 and writes to stderr, but `wc -l` succeeds on the empty stream, so the line reports 0 and any scheduler watching the exit code records a clean run. `set -o pipefail` makes the pipeline return the rightmost non-zero status instead."
+  },
+  {
+    "concept_id": "llm.checklist_not_score",
+    "type": "critique",
+    "prompt": "Proposal for a study app: after each written answer, ask a model to score it out of 100, store the number, and show the learner a trend line of their scores over the past month. Critique it.",
+    "criteria": [
+      "States that the same answer submitted twice can come back with different scores",
+      "Says the trend line then plots model noise rather than the learner's progress",
+      "Names the loss of trust the first time the learner notices an identical answer scored differently",
+      "Proposes checkable criteria the learner ticks off instead of a number"
+    ]
+  },
+  {
+    "concept_id": "llm.checklist_not_score",
+    "type": "estimate",
+    "prompt": "You feed one unchanged answer to the same grader on ten separate nights. Estimate the spread you would see in a 0-100 score, estimate it for a five-box checklist, and say which boxes would be the unstable ones.",
+    "criteria": [
+      "Gives a numeric range for the score that spans at least ten points",
+      "Gives a smaller spread for the checklist, such as one box flipping between nights",
+      "Says the unstable boxes are the ones whose wording leaves room for interpretation",
+      "Explains that a box asks whether one specific claim is present, which is a narrower judgment than a number"
+    ]
+  },
+  {
+    "concept_id": "llm.checklist_not_score",
+    "type": "tf_why",
+    "prompt": "True or false: asking the model for three independent scores of the same answer and averaging them removes the instability that makes a 0-100 grade untrustworthy.",
+    "verdict": false,
+    "criteria": [
+      "States that averaging narrows the spread without removing it",
+      "Says the three samples share the same bias, so they are not independent the way averaging assumes",
+      "Names the cost of three calls for a number that still drifts between nights",
+      "Points out that a checkable criterion sidesteps the problem rather than shrinking it"
+    ]
+  },
+  {
+    "concept_id": "llm.checklist_not_score",
+    "type": "mcq",
+    "prompt": "Which of these rubric lines can a learner check against their own written answer in two seconds?",
+    "options": [
+      "Shows a firm grasp of the tradeoffs involved",
+      "Explains the idea at the right level for the audience",
+      "Says the retry is safe only because the write is idempotent",
+      "Covers the important points about idempotency"
+    ],
+    "correct_index": 2
+  }
+]
