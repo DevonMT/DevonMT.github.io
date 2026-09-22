@@ -1,0 +1,336 @@
+[
+  {
+    "concept_id": "llm.prompt_versioning",
+    "type": "explain",
+    "prompt": "A nightly job generates a question bank from a prompt you edited three weeks ago, and tonight's batch reads noticeably worse than the ones from last month. Walk through what keeping that prompt in the repo lets you do next.",
+    "criteria": [
+      "Says the earlier prompt text can be recovered from history",
+      "Names diffing two revisions as the way to isolate what changed",
+      "States that each batch can be attributed to a specific prompt revision",
+      "Points out that a prompt living only in a chat window leaves no such record"
+    ]
+  },
+  {
+    "concept_id": "llm.prompt_versioning",
+    "type": "when_not",
+    "prompt": "Give a case where freezing a prompt at a committed revision and refusing to touch it leaves you with worse output than editing it freely.",
+    "criteria": [
+      "Names a case where the model or the input data changed underneath the prompt",
+      "States that reproducibility buys less when the inputs are not stable",
+      "Separates throwaway exploration from a run whose output gets committed",
+      "Lands on committing the new revision rather than never changing it"
+    ]
+  },
+  {
+    "concept_id": "llm.prompt_versioning",
+    "type": "mcq",
+    "prompt": "A prompt file under version control and a hand-written changelog line both record that a prompt changed. What does the file give you that the changelog line does not?",
+    "options": [
+      "The exact wording that produced each earlier batch",
+      "A guarantee that the same prompt returns the same text every time",
+      "Proof that the newer prompt scores higher than the old one",
+      "An automatic rollback when output quality drops"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "llm.prompt_versioning",
+    "type": "ordering",
+    "prompt": "Arrange these steps in the order that lets you pin a drop in generated-question quality to one specific prompt edit.",
+    "items": [
+      "Re-run the older prompt against today's model to tell prompt drift from model drift",
+      "Commit the prompt as a file so a revision can be named",
+      "Diff the two revisions to see exactly which wording moved",
+      "Stamp each generated batch with the prompt revision that produced it",
+      "Notice that a later batch scores worse than an earlier one"
+    ],
+    "correct_order": [
+      1,
+      3,
+      4,
+      2,
+      0
+    ]
+  },
+  {
+    "concept_id": "llm.rubric_design",
+    "type": "critique",
+    "prompt": "A free-text question about join fanout ships with this rubric: `Shows understanding of joins`, `Explains the problem`, `Gives a sensible answer`. Critique it as a tool for grading your own answer at 7am.",
+    "criteria": [
+      "Says none of the three can be answered yes or no by the person grading",
+      "Names the specifics they omit, such as duplicate rows from the many side",
+      "Rewrites at least one line as a claim the answer had to contain",
+      "Points out that a loose rubric inflates the score you give yourself"
+    ]
+  },
+  {
+    "concept_id": "llm.rubric_design",
+    "type": "breaks_first",
+    "prompt": "You grade yourself against the criterion `Mentions the risk` every night for a month. What breaks first, and how would it show up in your scores?",
+    "criteria": [
+      "Says the criterion gets scored as a hit on nearly every answer",
+      "Identifies scores staying high while the actual recall does not improve",
+      "Notes that the concept stops coming back for review because it looks learned",
+      "Fixes it by naming the specific risk inside the criterion text"
+    ]
+  },
+  {
+    "concept_id": "llm.rubric_design",
+    "type": "spot_error",
+    "prompt": "Four criteria for a free-text question about retry logic. One of them cannot be checked by the person grading their own answer — which line?",
+    "lines": [
+      "Says the retry is only safe because the write is idempotent",
+      "Names a case where retrying a failed charge would bill the customer twice",
+      "Handles the tradeoffs appropriately",
+      "States that the backoff must be bounded or the queue keeps growing"
+    ],
+    "bad_line": 2,
+    "why": "`Handles the tradeoffs appropriately` has no observable content: there is no sentence you could point to in your answer that either satisfies it or does not, so it scores a hit every time. The other three each name a specific claim that is either present or absent."
+  },
+  {
+    "concept_id": "llm.rubric_design",
+    "type": "matching",
+    "prompt": "Match each unusable rubric line on the left to the rewrite that turns it into something checkable in two seconds.",
+    "left": [
+      "Understands window functions",
+      "Discusses the tradeoffs",
+      "Gives a good estimate",
+      "Explains the incident"
+    ],
+    "right": [
+      "Gives a range with the assumption holding up each end",
+      "States that the default window frame is RANGE, not ROWS",
+      "Names when the alert fired and which metric was checked first",
+      "Names both the storage cost paid and the query time saved"
+    ],
+    "pairs": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        2
+      ]
+    ]
+  },
+  {
+    "concept_id": "net.dns",
+    "type": "explain",
+    "prompt": "A hostname has to point at a hosted service whose underlying IP address changes without notice. Explain which record type you would reach for and what you give up by choosing it.",
+    "criteria": [
+      "Chooses CNAME so the target name is resolved at lookup time",
+      "States that an A record pins an IP that would go stale on you",
+      "Names a limit of CNAME, such as it cannot sit at the zone apex",
+      "Mentions the extra resolution hop a CNAME introduces"
+    ]
+  },
+  {
+    "concept_id": "net.dns",
+    "type": "to_stakeholder",
+    "prompt": "A marketing lead messages you: the new landing page loads for you but they still get the old one, an hour after the switch went in. Write the reply.",
+    "criteria": [
+      "States that their machine is still holding a cached answer rather than the site being broken",
+      "Gives a waiting time anchored to the TTL instead of a vague soon",
+      "Offers a way for them to confirm, such as a phone on mobile data",
+      "Keeps terms like resolver and zone out of it, or explains them in passing"
+    ]
+  },
+  {
+    "concept_id": "net.dns",
+    "type": "cloze",
+    "prompt": "An ______ record points a hostname straight at an IPv4 address, while a ______ record points a hostname at another hostname and leaves the final lookup to the resolver.",
+    "blanks": [
+      {
+        "accept": [
+          "A",
+          "a",
+          "A record"
+        ]
+      },
+      {
+        "accept": [
+          "CNAME",
+          "cname",
+          "canonical name",
+          "CNAME record"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "net.dns",
+    "type": "mcq",
+    "prompt": "You are cutting a service over to a new host next Tuesday, and the record involved carries a 24-hour TTL. What is the most useful thing to do on the Friday before?",
+    "options": [
+      "Lower the TTL to a few minutes so the cutover can be undone quickly",
+      "Raise the TTL so fewer lookups reach the old server during the move",
+      "Delete the record now and create it fresh on Tuesday",
+      "Add a second A record pointing at the new host alongside the old one"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "net.tls",
+    "type": "push_back",
+    "prompt": "A colleague forwards a link and says it is safe to type card details in because the browser is showing a padlock. Push back.",
+    "criteria": [
+      "States that the padlock covers encryption between browser and server only",
+      "Says the certificate attests to the domain, not to the honesty of whoever runs it",
+      "Notes that anyone controlling a domain can obtain a certificate for it free",
+      "Redirects them to reading the domain name itself as the real check"
+    ]
+  },
+  {
+    "concept_id": "net.tls",
+    "type": "critique",
+    "prompt": "A vendor's security page reads: `All customer data is protected — our site uses 256-bit encryption.` Critique that sentence as a description of what a customer actually gets.",
+    "criteria": [
+      "Points out that it covers data in transit between browser and server",
+      "Says nothing in it speaks to data sitting in the vendor's database",
+      "Notes that the key size is not the part of the claim worth arguing about",
+      "Names a question left open, such as which staff can read the records"
+    ]
+  },
+  {
+    "concept_id": "net.tls",
+    "type": "tf_why",
+    "prompt": "True or false: because the connection is encrypted with TLS, somebody watching the same public Wi-Fi cannot tell which website you are visiting.",
+    "verdict": false,
+    "criteria": [
+      "States that the page contents and the URL path are hidden from the watcher",
+      "Names the hostname as still visible, through SNI or the DNS lookup",
+      "Separates what is encrypted from what leaks as metadata",
+      "Stops short of claiming the observer can read the page body"
+    ]
+  },
+  {
+    "concept_id": "net.tls",
+    "type": "multi",
+    "prompt": "Select every statement a completed TLS handshake actually supports.",
+    "options": [
+      "The server presented a certificate valid for the hostname you asked for",
+      "Traffic between your browser and that server cannot be read along the way",
+      "Somebody has vetted the company operating the site",
+      "The data stays encrypted once the server has stored it",
+      "The page is not a phishing page"
+    ],
+    "correct_indices": [
+      0,
+      1
+    ]
+  },
+  {
+    "concept_id": "ops.least_privilege",
+    "type": "push_back",
+    "prompt": "A developer asks for the admin role on the warehouse for a read-only dashboard, because the read-only role keeps missing tables created since it was granted. Push back.",
+    "criteria": [
+      "Names the real problem as grants that do not cover newly created tables",
+      "Proposes a default privilege or role grant that picks up future tables",
+      "States what a leaked admin credential in a dashboard config would reach",
+      "Offers a concrete alternative rather than only saying no"
+    ]
+  },
+  {
+    "concept_id": "ops.least_privilege",
+    "type": "breaks_first",
+    "prompt": "Every job, notebook and dashboard on a team connects with one shared warehouse account that has write access. Nothing has gone wrong in a year. What breaks first?",
+    "criteria": [
+      "Names an accidental write or drop from a tool that was only meant to read",
+      "Says the shared account makes it impossible to tell who ran it",
+      "Points out that rotating the credential takes everything down at once",
+      "Identifies one leaked secret as exposing every capability the account holds"
+    ]
+  },
+  {
+    "concept_id": "ops.least_privilege",
+    "type": "spot_error",
+    "prompt": "This grant script sets up an account for a BI tool that only ever runs SELECT. One line hands over more than the tool needs — which?",
+    "lines": [
+      "CREATE ROLE bi_reader;",
+      "GRANT USAGE ON SCHEMA reporting TO bi_reader;",
+      "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA reporting TO bi_reader;",
+      "GRANT bi_reader TO dashboard_service;"
+    ],
+    "bad_line": 2,
+    "why": "ALL PRIVILEGES includes INSERT, UPDATE, DELETE and TRUNCATE, so a dashboard credential that leaks can now destroy the reporting tables. The line the tool actually needs is `GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO bi_reader;`."
+  },
+  {
+    "concept_id": "ops.least_privilege",
+    "type": "tf_why",
+    "prompt": "True or false: once a service account is read-only, a leaked key for it is not really worth treating as an incident.",
+    "verdict": false,
+    "criteria": [
+      "States that reading is itself the breach when the tables hold personal data",
+      "Names a cost of unlimited reads, such as bulk copying or warehouse spend",
+      "Says the key still has to be rotated and the access reviewed",
+      "Grants that the damage is narrower than a write-capable key would be"
+    ]
+  },
+  {
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "estimate",
+    "prompt": "A team runs 40 dashboards over roughly 200 metrics, and every metric currently has a threshold wired to somebody's phone. Estimate how many of those should be allowed to wake a person at 3am, and show how you got there.",
+    "criteria": [
+      "Gives a number or a range rather than one confident figure",
+      "States the rule used to qualify, such as a human must act within minutes",
+      "Says where the rest belong, such as a dashboard or a morning digest",
+      "Acknowledges the count depends on how many services users touch directly"
+    ]
+  },
+  {
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "when_not",
+    "prompt": "Name a metric worth graphing every single day that should never have an alert attached to it, and say why.",
+    "criteria": [
+      "Names a concrete metric, such as daily signups or total query volume",
+      "States that it moves for reasons nobody can act on at night",
+      "Says a page that fires on it trains people to ignore the next one",
+      "Puts it somewhere else instead, such as a weekly review or a digest"
+    ]
+  },
+  {
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "ordering",
+    "prompt": "Arrange these steps in the order that turns a raw metric into an alert somebody is willing to be woken by.",
+    "items": [
+      "Write the first step whoever picks up the page is supposed to take",
+      "Watch the graph long enough to learn what its normal range looks like",
+      "Start recording the metric at all",
+      "Route it to a pager, once it has run quiet without firing falsely",
+      "Set a threshold tied to something a user would actually feel"
+    ],
+    "correct_order": [
+      2,
+      1,
+      4,
+      0,
+      3
+    ]
+  },
+  {
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "multi",
+    "prompt": "Select every condition that should hold before a check is allowed to page somebody overnight.",
+    "options": [
+      "A human can do something about it in the next few minutes",
+      "Users are affected right now, not merely at risk later",
+      "There is a written first step for whoever picks it up",
+      "The metric appears on the team's main dashboard",
+      "The metric ties to a quarterly goal the team cares about"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  }
+]

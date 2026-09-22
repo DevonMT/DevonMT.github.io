@@ -873,6 +873,90 @@
     "created_at": "2026-09-06"
   },
   {
+    "id": "q_net_dns_cloze_001",
+    "concept_id": "net.dns",
+    "type": "cloze",
+    "prompt": "An ______ record points a hostname straight at an IPv4 address, while a ______ record points a hostname at another hostname and leaves the final lookup to the resolver.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "A",
+            "a",
+            "A record"
+          ]
+        },
+        {
+          "accept": [
+            "CNAME",
+            "cname",
+            "canonical name",
+            "CNAME record"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_net_dns_explain_001",
+    "concept_id": "net.dns",
+    "type": "explain",
+    "prompt": "A hostname has to point at a hosted service whose underlying IP address changes without notice. Explain which record type you would reach for and what you give up by choosing it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Chooses CNAME so the target name is resolved at lookup time",
+        "States that an A record pins an IP that would go stale on you",
+        "Names a limit of CNAME, such as it cannot sit at the zone apex",
+        "Mentions the extra resolution hop a CNAME introduces"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_net_dns_mcq_001",
+    "concept_id": "net.dns",
+    "type": "mcq",
+    "prompt": "You are cutting a service over to a new host next Tuesday, and the record involved carries a 24-hour TTL. What is the most useful thing to do on the Friday before?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Lower the TTL to a few minutes so the cutover can be undone quickly",
+        "Raise the TTL so fewer lookups reach the old server during the move",
+        "Delete the record now and create it fresh on Tuesday",
+        "Add a second A record pointing at the new host alongside the old one"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_net_dns_to_stakeholder_001",
+    "concept_id": "net.dns",
+    "type": "to_stakeholder",
+    "prompt": "A marketing lead messages you: the new landing page loads for you but they still get the old one, an hour after the switch went in. Write the reply.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that their machine is still holding a cached answer rather than the site being broken",
+        "Gives a waiting time anchored to the TTL instead of a vague soon",
+        "Offers a way for them to confirm, such as a phone on mobile data",
+        "Keeps terms like resolver and zone out of it, or explains them in passing"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
     "id": "q_net_ports_breaks_first_001",
     "concept_id": "net.ports",
     "type": "breaks_first",
@@ -952,6 +1036,94 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_net_tls_critique_001",
+    "concept_id": "net.tls",
+    "type": "critique",
+    "prompt": "A vendor's security page reads: `All customer data is protected — our site uses 256-bit encryption.` Critique that sentence as a description of what a customer actually gets.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that it covers data in transit between browser and server",
+        "Says nothing in it speaks to data sitting in the vendor's database",
+        "Notes that the key size is not the part of the claim worth arguing about",
+        "Names a question left open, such as which staff can read the records"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_net_tls_multi_001",
+    "concept_id": "net.tls",
+    "type": "multi",
+    "prompt": "Select every statement a completed TLS handshake actually supports.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The server presented a certificate valid for the hostname you asked for",
+        "Traffic between your browser and that server cannot be read along the way",
+        "Somebody has vetted the company operating the site",
+        "The data stays encrypted once the server has stored it",
+        "The page is not a phishing page"
+      ],
+      "correct": [
+        0,
+        1
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_net_tls_push_back_001",
+    "concept_id": "net.tls",
+    "type": "push_back",
+    "prompt": "A colleague forwards a link and says it is safe to type card details in because the browser is showing a padlock. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the padlock covers encryption between browser and server only",
+        "Says the certificate attests to the domain, not to the honesty of whoever runs it",
+        "Notes that anyone controlling a domain can obtain a certificate for it free",
+        "Redirects them to reading the domain name itself as the real check"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_net_tls_tf_why_001",
+    "concept_id": "net.tls",
+    "type": "tf_why",
+    "prompt": "True or false: because the connection is encrypted with TLS, somebody watching the same public Wi-Fi cannot tell which website you are visiting.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that the page contents and the URL path are hidden from the watcher",
+          "Names the hostname as still visible, through SNI or the DNS lookup",
+          "Separates what is encrypted from what leaks as metadata",
+          "Stops short of claiming the observer can read the page body"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the page contents and the URL path are hidden from the watcher",
+        "Names the hostname as still visible, through SNI or the DNS lookup",
+        "Separates what is encrypted from what leaks as metadata",
+        "Stops short of claiming the observer can read the page body"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
   },
   {
     "id": "q_ops_backup_restore_estimate_001",
@@ -1039,6 +1211,177 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_ops_least_privilege_breaks_first_001",
+    "concept_id": "ops.least_privilege",
+    "type": "breaks_first",
+    "prompt": "Every job, notebook and dashboard on a team connects with one shared warehouse account that has write access. Nothing has gone wrong in a year. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names an accidental write or drop from a tool that was only meant to read",
+        "Says the shared account makes it impossible to tell who ran it",
+        "Points out that rotating the credential takes everything down at once",
+        "Identifies one leaked secret as exposing every capability the account holds"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_least_privilege_push_back_001",
+    "concept_id": "ops.least_privilege",
+    "type": "push_back",
+    "prompt": "A developer asks for the admin role on the warehouse for a read-only dashboard, because the read-only role keeps missing tables created since it was granted. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the real problem as grants that do not cover newly created tables",
+        "Proposes a default privilege or role grant that picks up future tables",
+        "States what a leaked admin credential in a dashboard config would reach",
+        "Offers a concrete alternative rather than only saying no"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_least_privilege_spot_error_001",
+    "concept_id": "ops.least_privilege",
+    "type": "spot_error",
+    "prompt": "This grant script sets up an account for a BI tool that only ever runs SELECT. One line hands over more than the tool needs — which?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "CREATE ROLE bi_reader;",
+        "GRANT USAGE ON SCHEMA reporting TO bi_reader;",
+        "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA reporting TO bi_reader;",
+        "GRANT bi_reader TO dashboard_service;"
+      ],
+      "bad_line": 2,
+      "why": "ALL PRIVILEGES includes INSERT, UPDATE, DELETE and TRUNCATE, so a dashboard credential that leaks can now destroy the reporting tables. The line the tool actually needs is `GRANT SELECT ON ALL TABLES IN SCHEMA reporting TO bi_reader;`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_least_privilege_tf_why_001",
+    "concept_id": "ops.least_privilege",
+    "type": "tf_why",
+    "prompt": "True or false: once a service account is read-only, a leaked key for it is not really worth treating as an incident.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that reading is itself the breach when the tables hold personal data",
+          "Names a cost of unlimited reads, such as bulk copying or warehouse spend",
+          "Says the key still has to be rotated and the access reviewed",
+          "Grants that the damage is narrower than a write-capable key would be"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that reading is itself the breach when the tables hold personal data",
+        "Names a cost of unlimited reads, such as bulk copying or warehouse spend",
+        "Says the key still has to be rotated and the access reviewed",
+        "Grants that the damage is narrower than a write-capable key would be"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_monitoring_vs_alerting_estimate_001",
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "estimate",
+    "prompt": "A team runs 40 dashboards over roughly 200 metrics, and every metric currently has a threshold wired to somebody's phone. Estimate how many of those should be allowed to wake a person at 3am, and show how you got there.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a number or a range rather than one confident figure",
+        "States the rule used to qualify, such as a human must act within minutes",
+        "Says where the rest belong, such as a dashboard or a morning digest",
+        "Acknowledges the count depends on how many services users touch directly"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_monitoring_vs_alerting_multi_001",
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "multi",
+    "prompt": "Select every condition that should hold before a check is allowed to page somebody overnight.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A human can do something about it in the next few minutes",
+        "Users are affected right now, not merely at risk later",
+        "There is a written first step for whoever picks it up",
+        "The metric appears on the team's main dashboard",
+        "The metric ties to a quarterly goal the team cares about"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_monitoring_vs_alerting_ordering_001",
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "ordering",
+    "prompt": "Arrange these steps in the order that turns a raw metric into an alert somebody is willing to be woken by.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Write the first step whoever picks up the page is supposed to take",
+        "Watch the graph long enough to learn what its normal range looks like",
+        "Start recording the metric at all",
+        "Route it to a pager, once it has run quiet without firing falsely",
+        "Set a threshold tied to something a user would actually feel"
+      ],
+      "correct_order": [
+        2,
+        1,
+        4,
+        0,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_monitoring_vs_alerting_when_not_001",
+    "concept_id": "ops.monitoring_vs_alerting",
+    "type": "when_not",
+    "prompt": "Name a metric worth graphing every single day that should never have an alert attached to it, and say why.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a concrete metric, such as daily signups or total query volume",
+        "States that it moves for reasons nobody can act on at night",
+        "Says a page that fires on it trains people to ignore the next one",
+        "Puts it somewhere else instead, such as a weekly review or a digest"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-22"
   },
   {
     "id": "q_ops_secrets_breaks_first_001",
