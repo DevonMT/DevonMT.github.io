@@ -1,0 +1,356 @@
+[
+  {
+    "concept_id": "orchestration.backfill_semantics",
+    "type": "breaks_first",
+    "prompt": "You launch a correction of three years of daily history as one query over the whole date range. Four hours in it is still running, the nightly refresh is queued behind it, and the morning dashboards are stale. What breaks first here, and what would you have done differently?",
+    "criteria": [
+      "Names warehouse contention with the production schedule as the first thing to give",
+      "Says a single unbounded rewrite has no partial progress to keep if it fails",
+      "States that the fix is to process one partition or a bounded batch at a time",
+      "Mentions isolating the backfill onto separate compute or a lower-priority queue"
+    ]
+  },
+  {
+    "concept_id": "orchestration.backfill_semantics",
+    "type": "critique",
+    "prompt": "A teammate's repair script truncates the target fact table and rebuilds every row from source, and it is scheduled to run alongside the normal nightly incremental job. Critique that design.",
+    "criteria": [
+      "Names the window where the table is empty but still queryable by readers",
+      "Says the full rebuild costs the whole history even though only part of it is wrong",
+      "Points out the repair and the nightly job can write the same table at once",
+      "Proposes per-partition replacement or an atomic swap instead of a truncate"
+    ]
+  },
+  {
+    "concept_id": "orchestration.backfill_semantics",
+    "type": "ordering",
+    "prompt": "Put these steps in the order you would carry them out when repairing two years of historical partitions after a logic bug.",
+    "items": [
+      "Promote the rebuilt partition into the production table",
+      "Choose one historical partition as a trial case",
+      "Write the recomputed rows for that partition to a staging location",
+      "Work through the remaining partitions in bounded batches",
+      "Diff the staged rows against what production currently holds for that day"
+    ],
+    "correct_order": [
+      1,
+      2,
+      4,
+      0,
+      3
+    ]
+  },
+  {
+    "concept_id": "orchestration.backfill_semantics",
+    "type": "mcq",
+    "prompt": "A model tags rows as recent by comparing a date column to `CURRENT_DATE`. Reprocessing last year's partitions today gives numbers that do not match what those partitions originally held. What is the root cause?",
+    "options": [
+      "The source data has drifted since the original run",
+      "The model's output depends on wall-clock time rather than only on the partition it processes",
+      "The warehouse changed its session time zone between the two runs",
+      "The partitions were reprocessed in a different order than they were first built"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "orchestration.retries_and_alerts",
+    "type": "explain",
+    "prompt": "A task that appends rows to a fact table has just been given three automatic retries. Explain what must be true about that task before the retries are safe, and what you would change if it is not.",
+    "criteria": [
+      "States that a plain append is not idempotent when the attempt is repeated",
+      "Names duplicated rows as the concrete damage a retry can do",
+      "Proposes a keyed merge, a delete-then-insert of the window, or a dedupe on a natural key",
+      "Says retry policy and write pattern have to be chosen together, not separately"
+    ]
+  },
+  {
+    "concept_id": "orchestration.retries_and_alerts",
+    "type": "push_back",
+    "prompt": "Your on-call lead wants every pipeline failure to send a phone-waking page, on the grounds that bad data is always urgent. Push back.",
+    "criteria": [
+      "Names alert fatigue and ignored pages as the cost of paging on everything",
+      "Gives a class of failure that can safely wait until the working day",
+      "Gives a class of failure that genuinely cannot wait",
+      "Ties the threshold to who reads the data and when they read it",
+      "Ends on a concrete policy rather than only on the objection"
+    ]
+  },
+  {
+    "concept_id": "orchestration.retries_and_alerts",
+    "type": "tf_why",
+    "prompt": "True or false: when a load task hits its 30-minute timeout and is killed, you can assume it wrote nothing, because it never reported success.",
+    "verdict": false,
+    "criteria": [
+      "States that a timeout kills the client or the orchestrator, not necessarily the write",
+      "Says the first attempt may have committed part of its rows before being cut off",
+      "Names duplicate or half-loaded data as the consequence of retrying blindly",
+      "Points to an idempotent write or a single transaction as what makes the assumption hold"
+    ]
+  },
+  {
+    "concept_id": "orchestration.retries_and_alerts",
+    "type": "matching",
+    "prompt": "Match each pipeline failure to the response it deserves.",
+    "left": [
+      "The source API starts returning HTTP 429 rate-limit responses",
+      "A transform aborts because a source column changed type overnight",
+      "The nightly run finishes 20 minutes late but still an hour before the 8am commitment",
+      "The revenue table behind the executive dashboard is empty at 7am"
+    ],
+    "right": [
+      "Retry automatically with exponential backoff",
+      "Stop the run and raise a ticket, since retrying reproduces it exactly",
+      "Log it and take no action beyond watching the trend",
+      "Page whoever is on call right now"
+    ],
+    "pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  {
+    "concept_id": "pipelines.batch_vs_stream",
+    "type": "estimate",
+    "prompt": "A stakeholder asks for a real-time view of warehouse inventory. Before you design anything, estimate how fresh that view actually has to be, and show how you would arrive at the number.",
+    "criteria": [
+      "Gives a range instead of a single confident point estimate",
+      "Anchors the number to how often someone acts on what they see",
+      "Names the question to put to the stakeholder to pin the figure down",
+      "Says the first-stated freshness requirement is usually tighter than the real one"
+    ]
+  },
+  {
+    "concept_id": "pipelines.batch_vs_stream",
+    "type": "when_not",
+    "prompt": "Under what circumstances would you leave a pipeline on its nightly schedule even after the business has asked for fresher data?",
+    "criteria": [
+      "Names a source that only exposes data in batches, so streaming buys nothing",
+      "Says the decision downstream is made on a slower cycle than the data arrives",
+      "Raises the ongoing operational and on-call burden of a continuous system",
+      "Offers a middle option such as running the same batch every 15 minutes"
+    ]
+  },
+  {
+    "concept_id": "pipelines.batch_vs_stream",
+    "type": "multi",
+    "prompt": "A nightly batch job is rewritten as a continuously running streaming pipeline. Which of the following become true as a result?",
+    "options": [
+      "Events that arrive after their window has closed must be handled explicitly instead of being swept up by the next full run",
+      "Reprocessing history after a logic change needs a replay mechanism of its own",
+      "A bad deploy corrupts data continuously as it arrives rather than once per night",
+      "Whole-day aggregates become cheaper to compute than they were in batch",
+      "The source system no longer needs to support incremental reads"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "pipelines.batch_vs_stream",
+    "type": "cloze",
+    "prompt": "A batch job can repair yesterday's numbers by re-running the whole window. A streaming job cannot, so events that show up after their window has closed are called ______ events, and the system bounds how long it waits for them with a ______.",
+    "blanks": [
+      {
+        "accept": [
+          "late-arriving",
+          "late arriving",
+          "late"
+        ]
+      },
+      {
+        "accept": [
+          "watermark",
+          "watermarks",
+          "a watermark"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "pipelines.dbt_materializations",
+    "type": "when_not",
+    "prompt": "A model built as a view takes 40 seconds to return and is queried a handful of times a week by two analysts. Someone proposes turning it into a table. When is that not worth doing?",
+    "criteria": [
+      "Says a table pays build cost on every run whether or not anyone queries it",
+      "Notes a view always reflects the current state of its upstream sources",
+      "Weighs how often it is queried against how often the project builds",
+      "Names storage or added pipeline runtime as the price being paid"
+    ]
+  },
+  {
+    "concept_id": "pipelines.dbt_materializations",
+    "type": "breaks_first",
+    "prompt": "A chain of six ephemeral models feeds a single final table, and the chain keeps growing as new logic is added. What breaks first?",
+    "criteria": [
+      "States that ephemeral models are inlined as CTEs into whatever consumes them",
+      "Names the single enormous compiled query as the thing that gives way",
+      "Says there is no materialized intermediate left to inspect when debugging",
+      "Notes the planner may handle the fused query worse than separate staged relations"
+    ]
+  },
+  {
+    "concept_id": "pipelines.dbt_materializations",
+    "type": "matching",
+    "prompt": "Match each model to the materialization that fits it.",
+    "left": [
+      "A small lookup transformation queried about once a month",
+      "A two-billion-row event table where only yesterday's rows are new",
+      "A staging step that only renames and casts columns and is read by one model",
+      "A heavy aggregate rebuilt nightly and hit all day by a BI tool"
+    ],
+    "right": [
+      "view",
+      "incremental",
+      "ephemeral",
+      "table"
+    ],
+    "pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  {
+    "concept_id": "pipelines.dbt_materializations",
+    "type": "mcq",
+    "prompt": "The nightly project run has grown to 90 minutes, and the biggest single contributor rebuilds an 800-million-row fact table from scratch each night even though only the last day of source data ever changes. Which change attacks that runtime most directly?",
+    "options": [
+      "Change the model from a table to a view",
+      "Change the model to incremental and filter the source on its load timestamp",
+      "Make the model ephemeral so it is inlined into its consumers",
+      "Raise the thread count so the model runs in parallel with itself"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "pipelines.dbt_tests",
+    "type": "critique",
+    "prompt": "A project has 400 tests. Every one of them is a `unique` or `not_null` check on a primary key, and all 400 pass on every run. Critique that coverage.",
+    "criteria": [
+      "Says key tests catch structural breakage but say nothing about whether values are right",
+      "Names a bug that passes all 400, such as a dropped join filter or mixed currencies",
+      "Suggests relationships tests for referential breaks and accepted_values for domain drift",
+      "Raises row-count or reconciliation checks against an independently known total"
+    ]
+  },
+  {
+    "concept_id": "pipelines.dbt_tests",
+    "type": "to_stakeholder",
+    "prompt": "A product manager asks why you spent a day adding tests to the warehouse when not one number on their dashboard changed. Give them your answer.",
+    "criteria": [
+      "Frames the payoff as what will no longer reach the dashboard unnoticed",
+      "Gives a concrete incident, real or plausible, that the tests would have caught",
+      "Avoids tooling jargon the manager has no use for",
+      "States what the manager will see differently, such as a stopped run instead of a wrong number"
+    ]
+  },
+  {
+    "concept_id": "pipelines.dbt_tests",
+    "type": "spot_error",
+    "prompt": "This model runs and returns rows, but its place in the build graph is wrong. Which line is the problem?",
+    "lines": [
+      "with orders as (",
+      "    select * from analytics.stg_orders",
+      "),",
+      "items as (",
+      "    select * from {{ ref('stg_order_items') }}",
+      ")",
+      "select o.order_id, sum(i.line_total) as order_total",
+      "from orders o",
+      "join items i using (order_id)",
+      "group by 1"
+    ],
+    "bad_line": 1,
+    "why": "Naming the schema-qualified relation directly instead of `{{ ref('stg_orders') }}` keeps that dependency out of the DAG, so nothing guarantees stg_orders is rebuilt or tested before this model reads it."
+  },
+  {
+    "concept_id": "pipelines.dbt_tests",
+    "type": "tf_why",
+    "prompt": "True or false: a `relationships` test pointing a fact table's customer_id at the customer dimension will fail when the fact contains rows whose customer_id is NULL.",
+    "verdict": false,
+    "criteria": [
+      "States that the relationships test filters NULLs out of the child column before comparing",
+      "Says a NULL foreign key therefore passes and needs a separate not_null test",
+      "Names the gap this leaves, such as rows that silently vanish from an inner join"
+    ]
+  },
+  {
+    "concept_id": "pipelines.incremental_loads",
+    "type": "explain",
+    "prompt": "Each night you pull new rows by filtering the source on `created_at >= current_date - 1`. Explain what that filter never sees, and what signal you would switch to.",
+    "criteria": [
+      "States that rows edited after creation are never picked up again",
+      "Names hard deletes in the source as a second class of change it misses",
+      "Proposes an update timestamp, a change-data-capture feed, or a row version column",
+      "Says the chosen signal has to be guaranteed by the source rather than assumed"
+    ]
+  },
+  {
+    "concept_id": "pipelines.incremental_loads",
+    "type": "push_back",
+    "prompt": "A teammate insists that filtering the source on a value greater than the maximum timestamp already in the target is all any incremental model ever needs. Push back on that.",
+    "criteria": [
+      "Names rows that land late carrying a timestamp behind the current maximum",
+      "Points out that clock skew or commit ordering can place a row behind the watermark",
+      "Says a strict greater-than drops rows sharing the exact boundary value",
+      "Proposes a lookback window combined with a merge on the key",
+      "Concedes the pattern holds for an append-only source with a trustworthy clock"
+    ]
+  },
+  {
+    "concept_id": "pipelines.incremental_loads",
+    "type": "predict_output",
+    "prompt": "An incremental model reloads a three-day lookback window and has no unique key configured, so its write is a plain insert. Monday's run inserts 1,000 rows. Someone then re-runs that same job twice more that afternoon, with no new data in the source. How many rows have the three runs added to the target in total?",
+    "accept": [
+      "3000",
+      "3,000",
+      "3000 rows"
+    ],
+    "explain": "With no unique key there is nothing to merge on, so each run inserts the same 1,000 rows again: 3,000 rows added, 2,000 of them duplicates. A replay-safe load needs a merge on a key, or a delete of the window before the insert."
+  },
+  {
+    "concept_id": "pipelines.incremental_loads",
+    "type": "multi",
+    "prompt": "Which of these actually make an incremental load safe to re-run over a window it has already processed?",
+    "options": [
+      "Configuring a unique key so the write becomes a merge rather than an insert",
+      "Deleting the target rows for that window before inserting the new ones",
+      "Filtering the source on a column that is stamped at insert and never updated",
+      "Wrapping the insert in a transaction so it either commits fully or rolls back",
+      "Granting the task three automatic retries"
+    ],
+    "correct_indices": [
+      0,
+      1
+    ]
+  }
+]
