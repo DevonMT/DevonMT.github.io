@@ -2640,6 +2640,109 @@
     "created_at": "2026-09-23"
   },
   {
+    "id": "q_quality_data_contracts_matching_001",
+    "concept_id": "quality.data_contracts",
+    "type": "matching",
+    "prompt": "Match each element of a data contract to the specific failure it exists to prevent.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Declared column types and nullability",
+        "A written definition of what counts as an active user",
+        "A two-week notice window on breaking changes",
+        "A named owner on the producing team"
+      ],
+      "right": [
+        "A field disappears overnight with no time to adapt",
+        "A load silently accepts text into a column the warehouse reads as numeric",
+        "An incident stalls because nobody can say who may approve the fix",
+        "Two teams report different totals and both are defensible"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          2
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_quality_data_contracts_multi_001",
+    "concept_id": "quality.data_contracts",
+    "type": "multi",
+    "prompt": "Which of these statements about data contracts hold up?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The agreement covers what fields mean, not only what type they are",
+        "A contract with no named owner on the producing side is a document, not an agreement",
+        "Enforcement in practice means the producer's build fails before the change ships",
+        "A contract removes the need for monitoring on the consumer side",
+        "Adding a new nullable column is normally treated as a breaking change"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_quality_data_contracts_push_back_001",
+    "concept_id": "quality.data_contracts",
+    "type": "push_back",
+    "prompt": "An upstream service owner tells you: \"We can't commit to a notice period. We ship daily, and the schema is an implementation detail of our service.\" Write your push-back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Concedes that fields they do not publish stay theirs to change freely",
+        "Names the specific narrow subset of fields the agreement would cover",
+        "Asks for notice only on breaking changes, with a stated window such as two weeks",
+        "Offers something in return, such as a check they can run in their own CI",
+        "Ends on a concrete next step rather than a statement of principle"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_quality_data_contracts_to_stakeholder_001",
+    "concept_id": "quality.data_contracts",
+    "type": "to_stakeholder",
+    "prompt": "Your director asks what a data contract buys that a schema validation step in your own pipeline does not. Answer in plain language, without pitching a tool.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a validation step detects the break only after it has already shipped",
+        "Says the agreement moves responsibility to the producer, before they merge",
+        "Names meaning or definitions, not only column types, as part of what is agreed",
+        "Gives a concrete outcome such as fewer overnight incidents or shorter recovery"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
     "id": "q_quality_freshness_estimate_001",
     "concept_id": "quality.freshness",
     "type": "estimate",
@@ -2717,6 +2820,93 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_quality_null_rate_monitoring_breaks_first_001",
+    "concept_id": "quality.null_rate_monitoring",
+    "type": "breaks_first",
+    "prompt": "A left join onto a dimension table starts matching only 60% of rows after the upstream team renames its key. No job fails and the output row count is unchanged. Which downstream number goes visibly wrong first, and what would a null-rate check have shown that morning?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a metric or a segment breakdown built from the joined-in column as the first visible break",
+        "States that the null rate on that column jumps in the same load",
+        "Explains that the row count stays flat because a left join keeps unmatched rows",
+        "Says the nulls get read as genuinely missing data unless someone checks the join"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_quality_null_rate_monitoring_cloze_001",
+    "concept_id": "quality.null_rate_monitoring",
+    "type": "cloze",
+    "prompt": "Complete the identity a null-rate monitor rests on: `COUNT(col)` counts only the ___ values of `col`, so `1 - COUNT(col) / COUNT(*)` is the fraction of rows where `col` is ___.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "non-null",
+            "nonnull",
+            "not null",
+            "non null"
+          ]
+        },
+        {
+          "accept": [
+            "null",
+            "nulls"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_quality_null_rate_monitoring_estimate_001",
+    "concept_id": "quality.null_rate_monitoring",
+    "type": "estimate",
+    "prompt": "A column that has sat between 1.8% and 2.3% null for a year reads 41% this morning. Before opening any code, estimate how much of that jump a real change in user behaviour could account for, and say what the remainder implies.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Puts plausible day-over-day organic drift at a few percentage points at most",
+        "States that a roughly 39-point move in a single day is not behavioural",
+        "Names a broken join, a renamed upstream field, or a partial load as the likely cause",
+        "Says the next check is whether the nulls cluster by partition, source system, or hour"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_quality_null_rate_monitoring_spot_error_001",
+    "concept_id": "quality.null_rate_monitoring",
+    "type": "spot_error",
+    "prompt": "This daily null-rate check reports 1.0 on every day that contains at least one null and NULL on days that contain none. Which line is at fault?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT",
+        "  event_date,",
+        "  COUNT(*) AS row_count,",
+        "  AVG(CASE WHEN user_id IS NULL THEN 1 END) AS null_rate",
+        "FROM events",
+        "GROUP BY event_date",
+        "ORDER BY event_date"
+      ],
+      "bad_line": 3,
+      "why": "The CASE has no ELSE, so it evaluates to NULL for every row where `user_id` is present — and AVG skips NULLs. The average is therefore taken only over the rows that were null, which is always 1.0, or NULL when no such row exists. It needs `ELSE 0`, or the ratio written as `1 - COUNT(user_id) * 1.0 / COUNT(*)`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
   },
   {
     "id": "q_sql_conditional_aggregation_critique_001",
