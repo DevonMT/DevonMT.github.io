@@ -1461,6 +1461,62 @@
     "created_at": "2026-09-21"
   },
   {
+    "id": "q_py_context_managers_explain_001",
+    "concept_id": "py.context_managers",
+    "type": "explain",
+    "prompt": "A colleague says `with open(path) as f:` is just a tidier way to remember to call `f.close()`. Explain what the `with` block guarantees that a manual open / process / close sequence does not.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the exit hook runs even when the body raises",
+        "Names the manual failure case: an exception skips the close call",
+        "Says try/finally is the equivalent the with block is replacing",
+        "Notes that the handle is released at a defined point rather than whenever the object is collected"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_context_managers_predict_output_001",
+    "concept_id": "py.context_managers",
+    "type": "predict_output",
+    "prompt": "What does this script print?\n\n```\nclosed = []\nclass Conn:\n    def __enter__(self): return self\n    def __exit__(self, *exc): closed.append(1)\n\nfor i in range(3):\n    try:\n        with Conn():\n            if i == 1: raise ValueError(\"bad row\")\n    except ValueError:\n        pass\nprint(len(closed))\n```",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "3"
+      ],
+      "explain": "3. `__exit__` runs on every iteration including the one that raises — the exception propagates out of the `with` only after cleanup has already happened. That is the whole point: the count of exits matches the count of enters no matter how the body ends."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_context_managers_spot_error_001",
+    "concept_id": "py.context_managers",
+    "type": "spot_error",
+    "prompt": "This helper leaks a file handle whenever `format_row` raises. Which line is the bug?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "def write_report(path, rows):",
+        "    f = open(path, \"w\")",
+        "    for r in rows:",
+        "        f.write(format_row(r) + \"\\n\")",
+        "    f.close()",
+        "    return path"
+      ],
+      "bad_line": 1,
+      "why": "The file is acquired outside any `with` block, so the `f.close()` on the second-to-last line is reachable only on the happy path. If `format_row` raises on row 900, the exception propagates and the handle is never released. Writing `with open(path, \"w\") as f:` makes cleanup a guarantee of the language rather than a line the author remembered to add."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
     "id": "q_py_environments_critique_001",
     "concept_id": "py.environments",
     "type": "critique",
@@ -1534,5 +1590,247 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-14"
+  },
+  {
+    "id": "q_py_exceptions_critique_001",
+    "concept_id": "py.exceptions",
+    "type": "critique",
+    "prompt": "Critique this choice: a nightly loader wraps the entire body of `run()` in `try: ... except Exception: logger.warning(\"load failed\"); return []`, and the scheduler has reported the job green every night for a month.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the silent failure: an empty result looks identical to no new data",
+        "Says the job should raise so the scheduler marks the run red",
+        "Points out the log line carries no traceback or exception detail",
+        "States that catching Exception at the top also swallows plain bugs such as a misspelled attribute"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_exceptions_mcq_001",
+    "concept_id": "py.exceptions",
+    "type": "mcq",
+    "prompt": "A parser calls `int(row[\"qty\"])` inside `try: ... except ValueError: skip(row)`. A row arrives where the `qty` key is absent from the dict entirely. What happens?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The handler runs and the row is skipped",
+        "A KeyError propagates out uncaught",
+        "`int()` receives None and returns 0",
+        "The handler runs, because KeyError is a subclass of ValueError"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_exceptions_multi_001",
+    "concept_id": "py.exceptions",
+    "type": "multi",
+    "prompt": "Which of these are true of a bare `except:` clause in Python 3?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It catches KeyboardInterrupt, so Ctrl-C will not break out of the loop",
+        "It catches SystemExit, so a `sys.exit()` inside the block is swallowed",
+        "It is exactly equivalent to writing `except Exception:`",
+        "It makes a misspelled name inside the block look like an expected failure",
+        "It leaves you with no bound exception object to log",
+        "It is a syntax error and will not compile"
+      ],
+      "correct": [
+        0,
+        1,
+        3,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_exceptions_when_not_001",
+    "concept_id": "py.exceptions",
+    "type": "when_not",
+    "prompt": "Catching narrowly is the standing advice. Describe a case where catching broadly is the right call, and say what the handler must do to stay honest.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a boundary such as a worker loop, request handler, or plugin call",
+        "States that the goal is isolating one unit of work, not hiding the error",
+        "Requires logging the traceback or re-raising rather than passing silently",
+        "Says the failed item must be recorded as failed rather than counted as processed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_generators_estimate_001",
+    "concept_id": "py.generators",
+    "type": "estimate",
+    "prompt": "You need the sum of one numeric column from a 40 GB CSV on a laptop with 16 GB of RAM. Estimate peak memory for a line-at-a-time generator sum against reading every parsed row into a list first, and say which one actually finishes.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Puts the generator peak at roughly one row plus a running total, on the order of kilobytes",
+        "States the list version needs more than 40 GB and exceeds the machine",
+        "Mentions that Python object overhead makes the in-memory copy larger than the file on disk",
+        "Concludes that only the streaming version completes on this hardware"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_generators_explain_001",
+    "concept_id": "py.generators",
+    "type": "explain",
+    "prompt": "A teammate changes `rows = [parse(l) for l in lines]` to `rows = (parse(l) for l in lines)` and the memory graph flattens out. Two days later, a report that reads `rows` twice starts showing zeros in its second section. Explain the connection.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a generator is consumed once and yields nothing on a second pass",
+        "Says the first loop or aggregation exhausted it",
+        "Notes that len() and indexing are not available on a generator",
+        "Gives the fix as materializing a list or building the generator again"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_generators_predict_output_001",
+    "concept_id": "py.generators",
+    "type": "predict_output",
+    "prompt": "What does the final line print?\n\n```\nnums = (n * 2 for n in range(5))\ntotal = sum(nums)\nagain = sum(nums)\nprint(total, again)\n```",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "20 0",
+        "20, 0"
+      ],
+      "explain": "20 0. The first `sum` walks the generator to exhaustion; the second finds it already spent and sums an empty sequence, which is 0. A list would have given 20 twice — laziness buys memory and costs reuse."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_generators_tf_why_001",
+    "concept_id": "py.generators",
+    "type": "tf_why",
+    "prompt": "True or false: writing `rows = (r for r in cursor.fetchall())` lowers the peak memory of reading a large result set.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that fetchall materializes every row into a list before the generator exists",
+          "Says the peak has already been paid by the time the expression is evaluated",
+          "Names iterating the cursor directly or using fetchmany as the actual fix",
+          "Notes that wrapping an existing list in a generator never reduces its peak"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that fetchall materializes every row into a list before the generator exists",
+        "Says the peak has already been paid by the time the expression is evaluated",
+        "Names iterating the cursor directly or using fetchmany as the actual fix",
+        "Notes that wrapping an existing list in a generator never reduces its peak"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_vectorization_critique_001",
+    "concept_id": "py.vectorization",
+    "type": "critique",
+    "prompt": "Critique this: to flag oversized orders, an analyst writes `for idx, row in df.iterrows(): df.at[idx, \"flag\"] = row[\"amount\"] > row[\"limit\"]`, and reports it finishing in nine minutes over 2 million rows.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names iterrows as the cost: one Python interpreter step per row",
+        "States that each row is boxed into a Series, so column dtypes are lost",
+        "Gives `df[\"flag\"] = df[\"amount\"] > df[\"limit\"]` as the replacement",
+        "Says the replacement runs in the library's compiled loop and finishes in seconds"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_vectorization_mcq_001",
+    "concept_id": "py.vectorization",
+    "type": "mcq",
+    "prompt": "A four-minute `iterrows` loop is replaced by a single column expression and now runs in 0.8 seconds. Which explanation of the speedup is the real one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The column version skips rows whose value would not change",
+        "One compiled loop over a contiguous buffer replaces one interpreter step per row",
+        "pandas caches the expression result and reuses it across the frame",
+        "iterrows holds the GIL, while column operations release it and run in parallel"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_vectorization_ordering_001",
+    "concept_id": "py.vectorization",
+    "type": "ordering",
+    "prompt": "Put these steps in the order you would actually take them when replacing a slow per-row dataframe loop with a column expression.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Rewrite the loop body as expressions over whole columns",
+        "Profile to confirm the row loop, not the surrounding I/O, holds the time",
+        "Compare the new column against the old output on a sample of rows",
+        "Check that no iteration depends on a value computed in the previous one"
+      ],
+      "correct_order": [
+        1,
+        3,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_py_vectorization_to_stakeholder_001",
+    "concept_id": "py.vectorization",
+    "type": "to_stakeholder",
+    "prompt": "A product manager asks why the nightly enrichment step went from 40 minutes to under a minute after a change that touched twelve lines. Write the answer you would give them out loud, in two or three sentences.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the old code handled one row at a time in Python",
+        "Says the new code hands whole columns to compiled library code in one call",
+        "Uses no unexplained jargon such as iterrows, dtype, or vectorization",
+        "Lands on what it means for them, such as the same numbers available earlier"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-24"
   }
 ]
