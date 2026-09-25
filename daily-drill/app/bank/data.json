@@ -2909,6 +2909,262 @@
     "created_at": "2026-09-24"
   },
   {
+    "id": "q_quality_reconciliation_explain_001",
+    "concept_id": "quality.reconciliation",
+    "type": "explain",
+    "prompt": "Your monthly revenue total comes out $38k under the figure another team publishes as official. Describe how you turn that one gap into a written list of named causes, each carrying an amount.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says both sides must agree on grain and on which date defines the period before comparing",
+        "Names a timing cause such as a cutoff or timezone boundary",
+        "Separates definitional differences from actual data errors",
+        "Requires each cause to carry a dollar figure, with the leftover residual stated"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_reconciliation_mcq_001",
+    "concept_id": "quality.reconciliation",
+    "type": "mcq",
+    "prompt": "Your warehouse revenue and the official ledger agree for the full year to the dollar, but differ in ten of the twelve months. Which explanation fits that pattern best?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A join in your model is dropping rows",
+        "The two systems assign each transaction to a period using different dates",
+        "The ledger is denominated in a different currency than your model",
+        "Refunds are being counted twice in your model"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_reconciliation_ordering_001",
+    "concept_id": "quality.reconciliation",
+    "type": "ordering",
+    "prompt": "You have been asked to reconcile your revenue figure against the one another team publishes. Put these steps in the order you would carry them out.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Split the remaining gap by a shared dimension to see where it concentrates",
+        "Agree with the other team on which date field defines the period",
+        "Write down each identified cause next to the amount it explains",
+        "Compare the two totals for a single closed period",
+        "Trace the concentrated slice down to individual transactions"
+      ],
+      "correct_order": [
+        1,
+        3,
+        0,
+        4,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_reconciliation_push_back_001",
+    "concept_id": "quality.reconciliation",
+    "type": "push_back",
+    "prompt": "A director says the reconciliation is finished because the two totals now agree to within one percent, and asks you to move on to the next request. What do you say?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that two offsetting errors can net to a small gap",
+        "Asks whether the remaining one percent has a named cause",
+        "Proposes checking at a lower grain than the headline total",
+        "Offers a time-boxed next step instead of refusing to move on"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_schema_drift_breaks_first_001",
+    "concept_id": "quality.schema_drift",
+    "type": "breaks_first",
+    "prompt": "An upstream team renames `signup_channel` to `acquisition_channel` overnight and leaves the old column in place, now always NULL. Trace what breaks first on the way to a dashboard tile, and what stays quiet.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the pipeline keeps running with no error raised",
+        "Notes the segment collapses to NULL or Unknown rather than failing",
+        "Identifies the dashboard breakdown or filter as the first visible symptom",
+        "Points out the overall total can stay unchanged while the split is wrong"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_schema_drift_multi_001",
+    "concept_id": "quality.schema_drift",
+    "type": "multi",
+    "prompt": "Which of these would let you notice a silently renamed or retyped upstream column before a stakeholder does?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A daily comparison of the incoming column list against the last known set",
+        "A test asserting each key column's NULL rate stays inside its historical band",
+        "Listing columns explicitly in the staging model instead of `SELECT *`",
+        "Raising the dashboard's refresh frequency from hourly to every ten minutes",
+        "Pinning the dashboard to a cached extract so its numbers stop moving"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_schema_drift_spot_error_001",
+    "concept_id": "quality.schema_drift",
+    "type": "spot_error",
+    "prompt": "This nightly guard was meant to catch an upstream rename of the channel column. One line is the reason it will never fire. Which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "-- nightly guard on the channel dimension",
+        "SELECT",
+        "  COUNT(*) AS rows_loaded,",
+        "  COUNT(signup_channel) AS channel_filled",
+        "FROM staging.sessions",
+        "WHERE loaded_at >= CURRENT_DATE - 1",
+        "-- alert when rows_loaded = 0"
+      ],
+      "bad_line": 6,
+      "why": "The alert condition only fires on an empty load. A rename that leaves `signup_channel` present but entirely NULL still loads a normal number of rows, so rows_loaded stays high and nothing triggers. The query already computes channel_filled — the alert should compare it against rows_loaded."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_schema_drift_to_stakeholder_001",
+    "concept_id": "quality.schema_drift",
+    "type": "to_stakeholder",
+    "prompt": "A marketing lead noticed their channel breakdown went blank three days ago. Draft what you tell them, in language that does not assume they know what a column is.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States which numbers were affected and which were still trustworthy",
+        "Gives the date range over which the breakdown was wrong",
+        "Names the upstream change as the cause without blaming a person",
+        "Ends with what will stop the same thing happening again, and by when"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_volume_anomalies_cloze_001",
+    "concept_id": "quality.volume_anomalies",
+    "type": "cloze",
+    "prompt": "Fill both blanks: because load volume swings on a weekly cycle, a count alarm should compare each day against the same ______ in earlier weeks rather than against a fixed floor — and a count-only alarm stays blind to any change in the ______ of the values themselves.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "weekday",
+            "day of week",
+            "day-of-week",
+            "dow"
+          ]
+        },
+        {
+          "accept": [
+            "distribution",
+            "distributions",
+            "shape"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_volume_anomalies_critique_001",
+    "concept_id": "quality.volume_anomalies",
+    "type": "critique",
+    "prompt": "A teammate's monitor alerts whenever a daily table loads fewer than 100,000 rows — a number they read off last Tuesday's load. Critique that design.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that weekday and seasonal variation break a single fixed number",
+        "Says the threshold goes stale as volume trends up or down",
+        "Predicts the alert gets muted or ignored once it fires on a normal day",
+        "Proposes comparing against a trailing window or against the same weekday"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_volume_anomalies_estimate_001",
+    "concept_id": "quality.volume_anomalies",
+    "type": "estimate",
+    "prompt": "A table has loaded between 80,000 and 120,000 rows a day for a year, with Mondays running roughly double Sundays. Estimate a band you would actually alert on, and say how many false alarms a month you are accepting.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Derives the band from history rather than naming one fixed floor",
+        "Handles the weekly cycle by comparing like days against like days",
+        "States a rough number of expected false alarms per month",
+        "Names something the band would still miss, such as a slow ten percent decay"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_quality_volume_anomalies_tf_why_001",
+    "concept_id": "quality.volume_anomalies",
+    "type": "tf_why",
+    "prompt": "True or false: a monitor that checks only row counts will catch a load where an upstream bug set 30 percent of the amount column to zero.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that the row count is unchanged when values are corrupted",
+          "Notes the column's sum or mean would move even though the count held",
+          "Names a value-level check, such as a null rate or a sum against history, that would fire"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the row count is unchanged when values are corrupted",
+        "Notes the column's sum or mean would move even though the count held",
+        "Names a value-level check, such as a null rate or a sum against history, that would fire"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
     "id": "q_sql_conditional_aggregation_critique_001",
     "concept_id": "sql.conditional_aggregation",
     "type": "critique",

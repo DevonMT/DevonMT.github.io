@@ -342,6 +342,269 @@
     "created_at": "2026-09-22"
   },
   {
+    "id": "q_srs_concept_keyed_state_explain_001",
+    "concept_id": "srs.concept_keyed_state",
+    "type": "explain",
+    "prompt": "Review scheduling in this app hangs off the concept, not the individual question. Explain what would change about a user's nightly load if every question carried its own interval and ease instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that one concept with eight questions becomes eight separate schedules",
+        "Says review load then grows with question count rather than with material",
+        "Points out the same memory gets asked repeatedly at short intervals",
+        "Notes that adding a question would silently increase the user's daily work"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_concept_keyed_state_matching_001",
+    "concept_id": "srs.concept_keyed_state",
+    "type": "matching",
+    "prompt": "Match each place review state could be stored against the effect that choice has on what a person sees at night.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "State keyed to the concept",
+        "State keyed to each question",
+        "State keyed to the whole domain",
+        "State keyed to the question type"
+      ],
+      "right": [
+        "Daily load grows every time an author adds another variant",
+        "A mastered idea keeps returning because a neighbouring idea is shaky",
+        "One schedule per idea, and any question can serve as the rep",
+        "Answering the multiple choice leaves the same idea's explain rep untouched"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_concept_keyed_state_mcq_001",
+    "concept_id": "srs.concept_keyed_state",
+    "type": "mcq",
+    "prompt": "A concept has six questions in the bank. You are shown one of them, rate yourself a miss, and close the app. What happens to the other five?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The concept's interval shortens and all six become eligible again at that time",
+        "Only the question you missed comes back sooner; the other five keep their own dates",
+        "The concept's interval shortens and the five unseen questions are retired",
+        "Nothing moves until every question in the concept has been seen at least once"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_concept_keyed_state_when_not_001",
+    "concept_id": "srs.concept_keyed_state",
+    "type": "when_not",
+    "prompt": "Give a case where keying review state to the concept is the wrong call, and say what you would do about it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where two questions test genuinely different skills",
+        "Explains that the concept was drawn too broadly to be one memory",
+        "Prefers splitting the concept in two over adding per-question state",
+        "Gives a signal that would tell you a concept is too broad"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_forgetting_rule_breaks_first_001",
+    "concept_id": "srs.forgetting_rule",
+    "type": "breaks_first",
+    "prompt": "A user drills for two months, stops for five, then opens the app again. With no forgetting rule in place, walk through what breaks first over their next few sessions.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a large backlog of overdue concepts arrives at once",
+        "Notes the intervals are still long, so misses recur at long gaps",
+        "Explains that misses compound because scheduling assumes memory that is gone",
+        "Identifies the user abandoning the app as the real failure"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_forgetting_rule_critique_001",
+    "concept_id": "srs.forgetting_rule",
+    "type": "critique",
+    "prompt": "Someone proposes that instead of dropping a concept more than 60 days overdue back to new, the app should simply halve its interval. Critique the proposal.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a halved interval is still far longer than recall supports",
+        "Says the person misses the card anyway and loses the time spent on it",
+        "Points out that a reset restores the short early intervals that rebuild memory",
+        "Names what halving gets right, such as not discarding the review history"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_forgetting_rule_predict_output_001",
+    "concept_id": "srs.forgetting_rule",
+    "type": "predict_output",
+    "prompt": "A scheduler returns the number of days until a concept is next shown:\n\n`const LAPSE_DAYS = 60;`\n`function nextInterval(card, daysOverdue) {`\n`  if (daysOverdue > LAPSE_DAYS) return 1;`\n`  return Math.round(card.interval * card.ease);`\n`}`\n\nWhat does `nextInterval({ interval: 90, ease: 2.1 }, 74)` return?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "1",
+        "1 day"
+      ],
+      "explain": "74 days overdue is past the 60-day lapse threshold, so the concept is treated as new again and gets a 1-day interval. The 90-day interval and the 2.1 ease are discarded rather than multiplied — 189 is what you get only if the lapse branch never runs."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_forgetting_rule_tf_why_001",
+    "concept_id": "srs.forgetting_rule",
+    "type": "tf_why",
+    "prompt": "True or false: dropping a concept that is 60 days overdue back to new throws away the learning the person already did on it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that the reset discards the interval, not the record of past reviews",
+          "Says relearning something once known is faster than the first pass was",
+          "Names the cost of skipping the reset: repeated misses at long intervals"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the reset discards the interval, not the record of past reviews",
+        "Says relearning something once known is faster than the first pass was",
+        "Names the cost of skipping the reset: repeated misses at long intervals"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_return_path_multi_001",
+    "concept_id": "srs.return_path",
+    "type": "multi",
+    "prompt": "You open the app after 24 days away. Which behaviours belong to a return path that keeps the night feeling ordinary?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Tonight's session runs its usual length, drawn partly from the overdue pile",
+        "The rest of the overdue concepts are spread across coming nights without announcement",
+        "A banner reports the overdue count so the user can plan their catch-up",
+        "Anything more than 60 days overdue is dropped back to new",
+        "The session grows in proportion to the number of days missed"
+      ],
+      "correct": [
+        0,
+        1,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_return_path_ordering_001",
+    "concept_id": "srs.return_path",
+    "type": "ordering",
+    "prompt": "Someone opens the app for the first time in 24 days. Put what the app does for that session in order.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Fill the remainder of tonight's session from concepts coming due normally",
+        "Reset anything more than 60 days overdue back to new",
+        "Work out which concepts fell due during the absence",
+        "Take a handful of those overdue concepts, capped at the usual session size",
+        "Leave the untouched overdue concepts to be picked up over the following nights"
+      ],
+      "correct_order": [
+        2,
+        1,
+        3,
+        0,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_return_path_push_back_001",
+    "concept_id": "srs.return_path",
+    "type": "push_back",
+    "prompt": "A reviewer of your app argues that after a three-week absence you should show the user exactly how many reviews they owe, because honesty builds trust. Make your case.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the abandonment risk of putting a large backlog number on screen",
+        "Separates being honest about state from displaying a raw count",
+        "Says the backlog is still worked through, only spread across nights",
+        "Concedes somewhere the number does belong, such as a stats screen"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
+    "id": "q_srs_return_path_to_stakeholder_001",
+    "concept_id": "srs.return_path",
+    "type": "to_stakeholder",
+    "prompt": "A friend you talked into trying the app comes back after three weeks away and asks whether they have to catch up first. Write what you tell them, without mentioning intervals or queues.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Tells them tonight is the same size as any other night",
+        "Says the older material comes back a little at a time",
+        "Avoids quoting any number of items owed",
+        "Sets the expectation that a few nights puts them back on footing"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-25"
+  },
+  {
     "id": "q_srs_spacing_effect_estimate_001",
     "concept_id": "srs.spacing_effect",
     "type": "estimate",

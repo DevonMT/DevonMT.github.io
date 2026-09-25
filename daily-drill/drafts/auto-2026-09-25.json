@@ -1,0 +1,335 @@
+[
+  {
+    "concept_id": "quality.reconciliation",
+    "type": "explain",
+    "prompt": "Your monthly revenue total comes out $38k under the figure another team publishes as official. Describe how you turn that one gap into a written list of named causes, each carrying an amount.",
+    "criteria": [
+      "Says both sides must agree on grain and on which date defines the period before comparing",
+      "Names a timing cause such as a cutoff or timezone boundary",
+      "Separates definitional differences from actual data errors",
+      "Requires each cause to carry a dollar figure, with the leftover residual stated"
+    ]
+  },
+  {
+    "concept_id": "quality.reconciliation",
+    "type": "push_back",
+    "prompt": "A director says the reconciliation is finished because the two totals now agree to within one percent, and asks you to move on to the next request. What do you say?",
+    "criteria": [
+      "Points out that two offsetting errors can net to a small gap",
+      "Asks whether the remaining one percent has a named cause",
+      "Proposes checking at a lower grain than the headline total",
+      "Offers a time-boxed next step instead of refusing to move on"
+    ]
+  },
+  {
+    "concept_id": "quality.reconciliation",
+    "type": "mcq",
+    "prompt": "Your warehouse revenue and the official ledger agree for the full year to the dollar, but differ in ten of the twelve months. Which explanation fits that pattern best?",
+    "options": [
+      "A join in your model is dropping rows",
+      "The two systems assign each transaction to a period using different dates",
+      "The ledger is denominated in a different currency than your model",
+      "Refunds are being counted twice in your model"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "quality.reconciliation",
+    "type": "ordering",
+    "prompt": "You have been asked to reconcile your revenue figure against the one another team publishes. Put these steps in the order you would carry them out.",
+    "items": [
+      "Split the remaining gap by a shared dimension to see where it concentrates",
+      "Agree with the other team on which date field defines the period",
+      "Write down each identified cause next to the amount it explains",
+      "Compare the two totals for a single closed period",
+      "Trace the concentrated slice down to individual transactions"
+    ],
+    "correct_order": [
+      1,
+      3,
+      0,
+      4,
+      2
+    ]
+  },
+  {
+    "concept_id": "quality.schema_drift",
+    "type": "breaks_first",
+    "prompt": "An upstream team renames `signup_channel` to `acquisition_channel` overnight and leaves the old column in place, now always NULL. Trace what breaks first on the way to a dashboard tile, and what stays quiet.",
+    "criteria": [
+      "Says the pipeline keeps running with no error raised",
+      "Notes the segment collapses to NULL or Unknown rather than failing",
+      "Identifies the dashboard breakdown or filter as the first visible symptom",
+      "Points out the overall total can stay unchanged while the split is wrong"
+    ]
+  },
+  {
+    "concept_id": "quality.schema_drift",
+    "type": "to_stakeholder",
+    "prompt": "A marketing lead noticed their channel breakdown went blank three days ago. Draft what you tell them, in language that does not assume they know what a column is.",
+    "criteria": [
+      "States which numbers were affected and which were still trustworthy",
+      "Gives the date range over which the breakdown was wrong",
+      "Names the upstream change as the cause without blaming a person",
+      "Ends with what will stop the same thing happening again, and by when"
+    ]
+  },
+  {
+    "concept_id": "quality.schema_drift",
+    "type": "spot_error",
+    "prompt": "This nightly guard was meant to catch an upstream rename of the channel column. One line is the reason it will never fire. Which one?",
+    "lines": [
+      "-- nightly guard on the channel dimension",
+      "SELECT",
+      "  COUNT(*) AS rows_loaded,",
+      "  COUNT(signup_channel) AS channel_filled",
+      "FROM staging.sessions",
+      "WHERE loaded_at >= CURRENT_DATE - 1",
+      "-- alert when rows_loaded = 0"
+    ],
+    "bad_line": 6,
+    "why": "The alert condition only fires on an empty load. A rename that leaves `signup_channel` present but entirely NULL still loads a normal number of rows, so rows_loaded stays high and nothing triggers. The query already computes channel_filled — the alert should compare it against rows_loaded."
+  },
+  {
+    "concept_id": "quality.schema_drift",
+    "type": "multi",
+    "prompt": "Which of these would let you notice a silently renamed or retyped upstream column before a stakeholder does?",
+    "options": [
+      "A daily comparison of the incoming column list against the last known set",
+      "A test asserting each key column's NULL rate stays inside its historical band",
+      "Listing columns explicitly in the staging model instead of `SELECT *`",
+      "Raising the dashboard's refresh frequency from hourly to every ten minutes",
+      "Pinning the dashboard to a cached extract so its numbers stop moving"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "quality.volume_anomalies",
+    "type": "critique",
+    "prompt": "A teammate's monitor alerts whenever a daily table loads fewer than 100,000 rows — a number they read off last Tuesday's load. Critique that design.",
+    "criteria": [
+      "Points out that weekday and seasonal variation break a single fixed number",
+      "Says the threshold goes stale as volume trends up or down",
+      "Predicts the alert gets muted or ignored once it fires on a normal day",
+      "Proposes comparing against a trailing window or against the same weekday"
+    ]
+  },
+  {
+    "concept_id": "quality.volume_anomalies",
+    "type": "estimate",
+    "prompt": "A table has loaded between 80,000 and 120,000 rows a day for a year, with Mondays running roughly double Sundays. Estimate a band you would actually alert on, and say how many false alarms a month you are accepting.",
+    "criteria": [
+      "Derives the band from history rather than naming one fixed floor",
+      "Handles the weekly cycle by comparing like days against like days",
+      "States a rough number of expected false alarms per month",
+      "Names something the band would still miss, such as a slow ten percent decay"
+    ]
+  },
+  {
+    "concept_id": "quality.volume_anomalies",
+    "type": "tf_why",
+    "prompt": "True or false: a monitor that checks only row counts will catch a load where an upstream bug set 30 percent of the amount column to zero.",
+    "verdict": false,
+    "criteria": [
+      "States that the row count is unchanged when values are corrupted",
+      "Notes the column's sum or mean would move even though the count held",
+      "Names a value-level check, such as a null rate or a sum against history, that would fire"
+    ]
+  },
+  {
+    "concept_id": "quality.volume_anomalies",
+    "type": "cloze",
+    "prompt": "Fill both blanks: because load volume swings on a weekly cycle, a count alarm should compare each day against the same ______ in earlier weeks rather than against a fixed floor — and a count-only alarm stays blind to any change in the ______ of the values themselves.",
+    "blanks": [
+      {
+        "accept": [
+          "weekday",
+          "day of week",
+          "day-of-week",
+          "dow"
+        ]
+      },
+      {
+        "accept": [
+          "distribution",
+          "distributions",
+          "shape"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "srs.concept_keyed_state",
+    "type": "explain",
+    "prompt": "Review scheduling in this app hangs off the concept, not the individual question. Explain what would change about a user's nightly load if every question carried its own interval and ease instead.",
+    "criteria": [
+      "States that one concept with eight questions becomes eight separate schedules",
+      "Says review load then grows with question count rather than with material",
+      "Points out the same memory gets asked repeatedly at short intervals",
+      "Notes that adding a question would silently increase the user's daily work"
+    ]
+  },
+  {
+    "concept_id": "srs.concept_keyed_state",
+    "type": "when_not",
+    "prompt": "Give a case where keying review state to the concept is the wrong call, and say what you would do about it.",
+    "criteria": [
+      "Names a case where two questions test genuinely different skills",
+      "Explains that the concept was drawn too broadly to be one memory",
+      "Prefers splitting the concept in two over adding per-question state",
+      "Gives a signal that would tell you a concept is too broad"
+    ]
+  },
+  {
+    "concept_id": "srs.concept_keyed_state",
+    "type": "mcq",
+    "prompt": "A concept has six questions in the bank. You are shown one of them, rate yourself a miss, and close the app. What happens to the other five?",
+    "options": [
+      "The concept's interval shortens and all six become eligible again at that time",
+      "Only the question you missed comes back sooner; the other five keep their own dates",
+      "The concept's interval shortens and the five unseen questions are retired",
+      "Nothing moves until every question in the concept has been seen at least once"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "srs.concept_keyed_state",
+    "type": "matching",
+    "prompt": "Match each place review state could be stored against the effect that choice has on what a person sees at night.",
+    "left": [
+      "State keyed to the concept",
+      "State keyed to each question",
+      "State keyed to the whole domain",
+      "State keyed to the question type"
+    ],
+    "right": [
+      "Daily load grows every time an author adds another variant",
+      "A mastered idea keeps returning because a neighbouring idea is shaky",
+      "One schedule per idea, and any question can serve as the rep",
+      "Answering the multiple choice leaves the same idea's explain rep untouched"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  {
+    "concept_id": "srs.forgetting_rule",
+    "type": "critique",
+    "prompt": "Someone proposes that instead of dropping a concept more than 60 days overdue back to new, the app should simply halve its interval. Critique the proposal.",
+    "criteria": [
+      "States that a halved interval is still far longer than recall supports",
+      "Says the person misses the card anyway and loses the time spent on it",
+      "Points out that a reset restores the short early intervals that rebuild memory",
+      "Names what halving gets right, such as not discarding the review history"
+    ]
+  },
+  {
+    "concept_id": "srs.forgetting_rule",
+    "type": "breaks_first",
+    "prompt": "A user drills for two months, stops for five, then opens the app again. With no forgetting rule in place, walk through what breaks first over their next few sessions.",
+    "criteria": [
+      "Says a large backlog of overdue concepts arrives at once",
+      "Notes the intervals are still long, so misses recur at long gaps",
+      "Explains that misses compound because scheduling assumes memory that is gone",
+      "Identifies the user abandoning the app as the real failure"
+    ]
+  },
+  {
+    "concept_id": "srs.forgetting_rule",
+    "type": "predict_output",
+    "prompt": "A scheduler returns the number of days until a concept is next shown:\n\n`const LAPSE_DAYS = 60;`\n`function nextInterval(card, daysOverdue) {`\n`  if (daysOverdue > LAPSE_DAYS) return 1;`\n`  return Math.round(card.interval * card.ease);`\n`}`\n\nWhat does `nextInterval({ interval: 90, ease: 2.1 }, 74)` return?",
+    "accept": [
+      "1",
+      "1 day"
+    ],
+    "explain": "74 days overdue is past the 60-day lapse threshold, so the concept is treated as new again and gets a 1-day interval. The 90-day interval and the 2.1 ease are discarded rather than multiplied — 189 is what you get only if the lapse branch never runs."
+  },
+  {
+    "concept_id": "srs.forgetting_rule",
+    "type": "tf_why",
+    "prompt": "True or false: dropping a concept that is 60 days overdue back to new throws away the learning the person already did on it.",
+    "verdict": false,
+    "criteria": [
+      "States that the reset discards the interval, not the record of past reviews",
+      "Says relearning something once known is faster than the first pass was",
+      "Names the cost of skipping the reset: repeated misses at long intervals"
+    ]
+  },
+  {
+    "concept_id": "srs.return_path",
+    "type": "push_back",
+    "prompt": "A reviewer of your app argues that after a three-week absence you should show the user exactly how many reviews they owe, because honesty builds trust. Make your case.",
+    "criteria": [
+      "Names the abandonment risk of putting a large backlog number on screen",
+      "Separates being honest about state from displaying a raw count",
+      "Says the backlog is still worked through, only spread across nights",
+      "Concedes somewhere the number does belong, such as a stats screen"
+    ]
+  },
+  {
+    "concept_id": "srs.return_path",
+    "type": "to_stakeholder",
+    "prompt": "A friend you talked into trying the app comes back after three weeks away and asks whether they have to catch up first. Write what you tell them, without mentioning intervals or queues.",
+    "criteria": [
+      "Tells them tonight is the same size as any other night",
+      "Says the older material comes back a little at a time",
+      "Avoids quoting any number of items owed",
+      "Sets the expectation that a few nights puts them back on footing"
+    ]
+  },
+  {
+    "concept_id": "srs.return_path",
+    "type": "multi",
+    "prompt": "You open the app after 24 days away. Which behaviours belong to a return path that keeps the night feeling ordinary?",
+    "options": [
+      "Tonight's session runs its usual length, drawn partly from the overdue pile",
+      "The rest of the overdue concepts are spread across coming nights without announcement",
+      "A banner reports the overdue count so the user can plan their catch-up",
+      "Anything more than 60 days overdue is dropped back to new",
+      "The session grows in proportion to the number of days missed"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      3
+    ]
+  },
+  {
+    "concept_id": "srs.return_path",
+    "type": "ordering",
+    "prompt": "Someone opens the app for the first time in 24 days. Put what the app does for that session in order.",
+    "items": [
+      "Fill the remainder of tonight's session from concepts coming due normally",
+      "Reset anything more than 60 days overdue back to new",
+      "Work out which concepts fell due during the absence",
+      "Take a handful of those overdue concepts, capped at the usual session size",
+      "Leave the untouched overdue concepts to be picked up over the following nights"
+    ],
+    "correct_order": [
+      2,
+      1,
+      3,
+      0,
+      4
+    ]
+  }
+]
