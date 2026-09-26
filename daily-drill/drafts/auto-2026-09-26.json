@@ -1,0 +1,329 @@
+[
+  {
+    "concept_id": "srs.rubric_to_quality",
+    "type": "matching",
+    "prompt": "Match each rubric ratio to what the scheduler does with the item that produced it.",
+    "left": [
+      "A ratio of 0.85",
+      "A ratio of 0.60",
+      "A ratio of 0.40",
+      "A ratio of 0.25"
+    ],
+    "right": [
+      "quality 4",
+      "a lapse: the interval drops back to 1 day",
+      "quality 5",
+      "quality 3, the lowest passing grade"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        1
+      ]
+    ]
+  },
+  {
+    "concept_id": "srs.rubric_to_quality",
+    "type": "predict_output",
+    "prompt": "A rubric carries five criteria and you tick three of them. Which SM-2 quality does that self-grade turn into?",
+    "accept": [
+      "4",
+      "q4",
+      "quality 4"
+    ],
+    "explain": "Three of five is 0.6, which sits exactly on the 0.6 boundary, so it maps to quality 4 rather than 3. Ticking one fewer gives 0.4 and quality 3; one more gives 0.8 and quality 5."
+  },
+  {
+    "concept_id": "srs.rubric_to_quality",
+    "type": "critique",
+    "prompt": "A rubric with three criteria can only ever score 0, one-third, two-thirds or 1. Critique the threshold ladder — 0.8, 0.6, 0.4 — against that fact.",
+    "criteria": [
+      "Works out that two of three is 0.67 and lands on quality 4",
+      "Works out that one of three is 0.33 and counts as a lapse",
+      "States that quality 5 needs every criterion ticked on a three-item rubric",
+      "Concludes that rubric length decides which qualities are reachable at all",
+      "Names writing four or five criteria as the way to widen the range"
+    ]
+  },
+  {
+    "concept_id": "srs.rubric_to_quality",
+    "type": "breaks_first",
+    "prompt": "Someone tidies the threshold ladder and writes `>` where `>=` used to be. Nothing crashes and no test file is touched. What breaks first, and how would you find out?",
+    "criteria": [
+      "Notes that exact ratios such as 0.6 and 0.8 are the common case, not the edge",
+      "Says a ratio of exactly 0.4 now grades as a lapse instead of passing",
+      "Names the visible effect: a passing answer resets to a one-day interval",
+      "Says a boundary-value unit test on each threshold is what catches it"
+    ]
+  },
+  {
+    "concept_id": "srs.slot_reservation",
+    "type": "mcq",
+    "prompt": "Nine concepts are due tonight and thirty have never been introduced. In a four-question session with one slot held for new material, how many of tonight's questions come from concepts you have never seen?",
+    "options": [
+      "None, because nine due concepts already fill the session",
+      "One",
+      "Two",
+      "Four"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "srs.slot_reservation",
+    "type": "tf_why",
+    "prompt": "True or false: on a night when no new concept is eligible, holding a slot for new material leaves the session one question short.",
+    "verdict": false,
+    "criteria": [
+      "States that the held slot backfills from the remaining due concepts",
+      "Says the night still presents its full four questions",
+      "Describes the reservation as a cap on new material, not a gap kept open",
+      "Names a reason nothing new is eligible, such as unmet prerequisites"
+    ]
+  },
+  {
+    "concept_id": "srs.slot_reservation",
+    "type": "push_back",
+    "prompt": "A reviewer calls the new-material slot over-engineering: sort every concept by due date, take the top four, and untouched material will surface whenever there is room. Argue back.",
+    "criteria": [
+      "States that due volume reaches four a night within a few weeks",
+      "Says the starvation is permanent from then on, not a passing dip",
+      "Points out that room never opens up because each review schedules another",
+      "Names the cost of reserving as at most one question a night"
+    ]
+  },
+  {
+    "concept_id": "srs.slot_reservation",
+    "type": "when_not",
+    "prompt": "Name the circumstances in which you would stop introducing something new each night, and say what happens to that slot instead.",
+    "criteria": [
+      "Names the case where no untouched concept has its prerequisites met",
+      "Names the case where the catalog has nothing left to introduce",
+      "Says the freed slot goes to due material rather than shortening the night",
+      "Names a return after a long absence as a reason to hold off on new load"
+    ]
+  },
+  {
+    "concept_id": "srs.sm2",
+    "type": "cloze",
+    "prompt": "Fill in the two fixed steps: a brand-new item answered above the lapse threshold returns in ___ day, and after the next success it returns in ___ days.",
+    "blanks": [
+      {
+        "accept": [
+          "1",
+          "one"
+        ]
+      },
+      {
+        "accept": [
+          "6",
+          "six"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "srs.sm2",
+    "type": "predict_output",
+    "prompt": "An item has two successful reviews behind it, sits on a 6-day interval and carries an ease factor of 2.5. You answer it at quality 4. How many days until it comes back?",
+    "accept": [
+      "15",
+      "15 days"
+    ],
+    "explain": "Past the two fixed steps the next interval is the old interval times the ease factor: 6 × 2.5 = 15. Quality 4 leaves the ease untouched, so nothing else moves."
+  },
+  {
+    "concept_id": "srs.sm2",
+    "type": "explain",
+    "prompt": "Each item carries a repetition count and an ease factor, and both climb while you keep getting it right. Explain what each one is actually for, and what a failure does to each.",
+    "criteria": [
+      "Says the repetition count only selects which interval rule applies",
+      "Says the ease factor is the multiplier that grows the interval",
+      "States that a failure resets the repetition count to zero",
+      "States that a failure nudges the ease down rather than erasing it",
+      "Names the one day, six days, then interval times ease progression"
+    ]
+  },
+  {
+    "concept_id": "srs.sm2",
+    "type": "estimate",
+    "prompt": "Starting from a brand-new item and answering every review at quality 4, roughly how many reviews before the interval passes a year — and roughly how much calendar time has gone by when you get there? Show the arithmetic.",
+    "criteria": [
+      "Multiplies by about 2.5 per step after the one-day and six-day steps",
+      "Lands somewhere between six and eight reviews",
+      "Gives a range rather than a single exact figure",
+      "Notes that over a year of calendar time has already passed by then"
+    ]
+  },
+  {
+    "concept_id": "storage.export_import",
+    "type": "ordering",
+    "prompt": "A phone and a laptop share progress only through an exported JSON file, and importing overwrites whatever the receiving device held. Put the steps in the one order that loses nothing.",
+    "items": [
+      "Import the file on the laptop, overwriting what that device held",
+      "Finish tonight's session on the phone",
+      "Start drilling on the laptop",
+      "Export the JSON file from the phone",
+      "Move the file across to the laptop"
+    ],
+    "correct_order": [
+      1,
+      3,
+      4,
+      0,
+      2
+    ]
+  },
+  {
+    "concept_id": "storage.export_import",
+    "type": "multi",
+    "prompt": "Which of these statements hold for a sync scheme where importing a file replaces the receiving device's state?",
+    "options": [
+      "A session done on the receiving device disappears with no record of it",
+      "It needs no server, no account and no conflict-resolution code",
+      "Importing two files in the opposite order leaves you somewhere different",
+      "Each concept ends up with whichever of the two intervals is longer",
+      "The two attempt logs are unioned, so no rep is lost in either direction"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "storage.export_import",
+    "type": "explain",
+    "prompt": "Three machines, no server, and the only way progress crosses between them is a blob you download from one and hand to another. Describe the failure this cannot recover from, and why neither blob holds enough to repair it.",
+    "criteria": [
+      "Describes two devices both answering questions before either one exports",
+      "States that importing replaces whatever the receiving device was holding",
+      "Says the overwritten session is gone with nothing left to recover it from",
+      "Notes that two snapshots carry no information for reconciling them"
+    ]
+  },
+  {
+    "concept_id": "storage.export_import",
+    "type": "critique",
+    "prompt": "Critique shipping a Download button, an Import button and a replace-on-import rule as the entire backup and sync story for one person across three devices.",
+    "criteria": [
+      "Names the dependence on remembering to export before switching device",
+      "Names the loss happening with no prompt showing what is about to go",
+      "Concedes it needs no server, no account and no merge logic",
+      "States that the honest framing is a stopgap rather than a sync design",
+      "Asks for at least a warning or the incoming file's date before it lands"
+    ]
+  },
+  {
+    "concept_id": "storage.json_roundtrip",
+    "type": "mcq",
+    "prompt": "Which of these comes back from `JSON.parse(JSON.stringify(x))` indistinguishable from what went in?",
+    "options": [
+      "A `Date` recording when the item was introduced",
+      "A nested array of plain integers",
+      "A `Set` of question ids",
+      "A key whose value is `undefined`"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "storage.json_roundtrip",
+    "type": "spot_error",
+    "prompt": "Exactly one line below throws at runtime. Which line is it?",
+    "lines": [
+      "const state = { seen: new Map(), version: 2 };",
+      "state.seen.set('srs.sm2', ['q_srs_sm2_001']);",
+      "localStorage.setItem(KEY, JSON.stringify(state));",
+      "const back = JSON.parse(localStorage.getItem(KEY));",
+      "return back.seen.get('srs.sm2');"
+    ],
+    "bad_line": 4,
+    "why": "A Map has no own enumerable properties, so `JSON.stringify` writes it as `{}`. After the round trip `back.seen` is a plain object with no `.get`, and the call is a TypeError. The write on line 2 succeeds in silence, which is why the failure only shows up after a reload."
+  },
+  {
+    "concept_id": "storage.json_roundtrip",
+    "type": "explain",
+    "prompt": "A colleague calls `JSON.parse(JSON.stringify(x))` a deep clone. Explain what it really is, naming three concrete types that come back changed or not at all.",
+    "criteria": [
+      "States that Dates come back as ISO strings rather than Date objects",
+      "States that keys holding undefined vanish from the output entirely",
+      "States that a Map or Set serializes to an empty object",
+      "Names NaN and Infinity becoming null, or functions being dropped",
+      "Says the loss is silent: the stringify call raises nothing"
+    ]
+  },
+  {
+    "concept_id": "storage.json_roundtrip",
+    "type": "breaks_first",
+    "prompt": "Your export format grows one field: the Date an item was first introduced. Everything passes on the machine that wrote the file. What breaks first once someone imports it elsewhere, and at which step?",
+    "criteria": [
+      "Says the field arrives as a string and the parse itself succeeds",
+      "Locates the failure at the first date method call or subtraction on it",
+      "Says it surfaces only after an import or reload, never at write time",
+      "Names storing an ISO string and parsing at the boundary as the fix"
+    ]
+  },
+  {
+    "concept_id": "testing.pure_functions",
+    "type": "multi",
+    "prompt": "Which of these make a scheduling function impure?",
+    "options": [
+      "It reads `Date.now()` to work out the next due date",
+      "It calls `Math.random()` to scatter overdue items across a fortnight",
+      "It pushes the new row onto an array it was handed as an argument",
+      "It takes the current day as a parameter and returns a new object",
+      "It returns a fresh object each call, so no two results are the same reference",
+      "It reads an interval table declared as a constant at the top of the module"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "testing.pure_functions",
+    "type": "tf_why",
+    "prompt": "True or false: a function that scatters items using a pseudo-random generator seeded from the day plus the item's id is still a pure function.",
+    "verdict": true,
+    "criteria": [
+      "States that the same seed always yields the same sequence of numbers",
+      "Says purity is about determinism and effects, not about looking random",
+      "Names the seed as an input, so the function reads nothing hidden",
+      "Notes that two devices computing the same scatter is the payoff"
+    ]
+  },
+  {
+    "concept_id": "testing.pure_functions",
+    "type": "push_back",
+    "prompt": "A teammate insists their function is pure because it never touches its arguments — it builds and returns a new object every time. It also reads the clock to decide what counts as due. Make the case that this is not purity.",
+    "criteria": [
+      "States that reading the clock is a hidden input to the function",
+      "Says the same arguments can yield two different results on two days",
+      "Says leaving arguments alone is necessary but not sufficient",
+      "Suggests passing the day in as a parameter instead"
+    ]
+  },
+  {
+    "concept_id": "testing.pure_functions",
+    "type": "critique",
+    "prompt": "Critique this signature: one function grades an answer, writes the updated schedule to storage, and returns nothing.",
+    "criteria": [
+      "Says a test can assert nothing without stubbing or reading storage",
+      "Points out the computed grade never reaches the caller",
+      "Splits the arithmetic and the write into two separate functions",
+      "Keeps the effectful half thin, with the scheduling maths outside it"
+    ]
+  }
+]
