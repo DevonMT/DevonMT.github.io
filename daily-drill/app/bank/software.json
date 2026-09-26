@@ -1832,5 +1832,95 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-24"
+  },
+  {
+    "id": "q_testing_pure_functions_critique_001",
+    "concept_id": "testing.pure_functions",
+    "type": "critique",
+    "prompt": "Critique this signature: one function grades an answer, writes the updated schedule to storage, and returns nothing.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says a test can assert nothing without stubbing or reading storage",
+        "Points out the computed grade never reaches the caller",
+        "Splits the arithmetic and the write into two separate functions",
+        "Keeps the effectful half thin, with the scheduling maths outside it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-26"
+  },
+  {
+    "id": "q_testing_pure_functions_multi_001",
+    "concept_id": "testing.pure_functions",
+    "type": "multi",
+    "prompt": "Which of these make a scheduling function impure?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It reads `Date.now()` to work out the next due date",
+        "It calls `Math.random()` to scatter overdue items across a fortnight",
+        "It pushes the new row onto an array it was handed as an argument",
+        "It takes the current day as a parameter and returns a new object",
+        "It returns a fresh object each call, so no two results are the same reference",
+        "It reads an interval table declared as a constant at the top of the module"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-26"
+  },
+  {
+    "id": "q_testing_pure_functions_push_back_001",
+    "concept_id": "testing.pure_functions",
+    "type": "push_back",
+    "prompt": "A teammate insists their function is pure because it never touches its arguments — it builds and returns a new object every time. It also reads the clock to decide what counts as due. Make the case that this is not purity.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that reading the clock is a hidden input to the function",
+        "Says the same arguments can yield two different results on two days",
+        "Says leaving arguments alone is necessary but not sufficient",
+        "Suggests passing the day in as a parameter instead"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-26"
+  },
+  {
+    "id": "q_testing_pure_functions_tf_why_001",
+    "concept_id": "testing.pure_functions",
+    "type": "tf_why",
+    "prompt": "True or false: a function that scatters items using a pseudo-random generator seeded from the day plus the item's id is still a pure function.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": true,
+      "rubric": {
+        "criteria": [
+          "States that the same seed always yields the same sequence of numbers",
+          "Says purity is about determinism and effects, not about looking random",
+          "Names the seed as an input, so the function reads nothing hidden",
+          "Notes that two devices computing the same scatter is the payoff"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that the same seed always yields the same sequence of numbers",
+        "Says purity is about determinism and effects, not about looking random",
+        "Names the seed as an input, so the function reads nothing hidden",
+        "Notes that two devices computing the same scatter is the payoff"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-26"
   }
 ]
