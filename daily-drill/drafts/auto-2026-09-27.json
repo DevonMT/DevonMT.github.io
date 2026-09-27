@@ -1,0 +1,326 @@
+[
+  {
+    "concept_id": "testing.pyramid",
+    "type": "matching",
+    "prompt": "Match each failure to the cheapest level of test that would have caught it.",
+    "left": [
+      "A currency helper rounds 0.125 down when the rule says round up",
+      "One module writes a date as a string and the module that reads it expects a number",
+      "Login still works, but after a route rename the button that starts a session does nothing"
+    ],
+    "right": [
+      "an integration test that runs the two modules together",
+      "an end-to-end test driving the real interface",
+      "a unit test on a single function"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ]
+    ]
+  },
+  {
+    "concept_id": "testing.pyramid",
+    "type": "mcq",
+    "prompt": "A suite is 200 browser-driven tests, and each one independently fails about 1% of the time for reasons unrelated to any real bug. Roughly what share of runs come back fully green?",
+    "options": [
+      "About 99%",
+      "About 87%",
+      "About 13%",
+      "About 1%"
+    ],
+    "correct_index": 2
+  },
+  {
+    "concept_id": "testing.pyramid",
+    "type": "push_back",
+    "prompt": "A teammate wants to delete every unit test, arguing that only the end-to-end suite proves a user can complete a task. Make the case for keeping them without claiming the end-to-end tests are worthless.",
+    "criteria": [
+      "Names the feedback loop: a unit test fails in seconds, a full end-to-end run takes minutes",
+      "Says an end-to-end failure tells you something broke but not which line broke it",
+      "Concedes that only the top level exercises the real wiring between parts",
+      "Argues for keeping both levels with most of the count sitting at the fastest one"
+    ]
+  },
+  {
+    "concept_id": "testing.pyramid",
+    "type": "breaks_first",
+    "prompt": "A team keeps its 40 slow interface tests exactly as they are but goes from shipping once a week to shipping eight times a day. What gives way first, and what do people start doing about it?",
+    "criteria": [
+      "Says total run time becomes the bottleneck on every single release",
+      "Predicts that intermittent failures get re-run rather than investigated",
+      "Names the moment a red suite stops being treated as a reason to stop",
+      "Proposes moving coverage down to faster levels instead of deleting tests"
+    ]
+  },
+  {
+    "concept_id": "testing.regression_tests",
+    "type": "ordering",
+    "prompt": "Put the steps of turning a reported bug into a permanent test into the order you would actually do them.",
+    "items": [
+      "Change the code until the new test passes",
+      "Reproduce the bug by hand and pin down the exact input that triggers it",
+      "Write a test asserting the behaviour you wanted, and watch it fail",
+      "Leave the test in the suite so the same bug cannot come back unnoticed"
+    ],
+    "correct_order": [
+      1,
+      2,
+      0,
+      3
+    ]
+  },
+  {
+    "concept_id": "testing.regression_tests",
+    "type": "spot_error",
+    "prompt": "This test was added to lock in a fix for a bug where paying twice charged the card twice. Which line means it would have passed before the fix as well?",
+    "lines": [
+      "def test_second_payment_does_not_charge_again():",
+      "    order = make_order(total=10)",
+      "    take_payment(order)",
+      "    take_payment(order)",
+      "    assert charge_count(order) >= 1"
+    ],
+    "bad_line": 4,
+    "why": "`>= 1` is satisfied whether the second charge was suppressed or not, so the buggy code passes this test too. The assertion has to be `== 1` for the test to have anything to do with the bug."
+  },
+  {
+    "concept_id": "testing.regression_tests",
+    "type": "explain",
+    "prompt": "Why is a test written after a fix, and green on its very first run, weaker evidence than one that was seen to fail?",
+    "criteria": [
+      "States that a test green on the first run may never touch the buggy path",
+      "Says the red-then-green transition is what proves the test is wired to the bug",
+      "Notes that such a test can stay green even if the fix is later reverted",
+      "Says running it against the unfixed code is how you check it is real"
+    ]
+  },
+  {
+    "concept_id": "testing.regression_tests",
+    "type": "critique",
+    "prompt": "A ticket says a report double-counted rows for one account. The engineer fixes the join, then adds a test that loads the full fixture and asserts the report total equals 41,208. Critique that test as protection against the bug returning.",
+    "criteria": [
+      "Says the bare total gives no hint which behaviour is under test",
+      "Notes the assertion will fail on any unrelated change to the fixture",
+      "Says it never isolates the duplicated rows that caused the bug",
+      "Proposes a minimal case: one account with the key that duplicated"
+    ]
+  },
+  {
+    "concept_id": "testing.what_to_test",
+    "type": "multi",
+    "prompt": "You have one hour to add tests to a module. Which of these are worth spending it on?",
+    "options": [
+      "A function that turns a score ratio into a grade across four thresholds",
+      "A getter that returns a stored name unchanged",
+      "The branch that decides whether a due item or a brand-new item fills a slot",
+      "A wrapper that calls one library function and returns its result untouched",
+      "The date arithmetic that turns an interval in days into a next-due date"
+    ],
+    "correct_indices": [
+      0,
+      2,
+      4
+    ]
+  },
+  {
+    "concept_id": "testing.what_to_test",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: tests earn their keep on ______ logic — the `if` and the `else` — and on ______ values, where a comparison such as `>=` flips from one result to the other.",
+    "blanks": [
+      {
+        "accept": [
+          "branching",
+          "branch",
+          "conditional",
+          "conditionals"
+        ]
+      },
+      {
+        "accept": [
+          "boundary",
+          "boundaries",
+          "edge",
+          "edge case",
+          "limit"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "testing.what_to_test",
+    "type": "when_not",
+    "prompt": "Coverage on a module reads 94% and someone asks you to spend the afternoon on the last 6%. Describe when that is the wrong use of the afternoon, and what you would write instead.",
+    "criteria": [
+      "Names pass-through or generated lines as uncovered code not worth a test",
+      "States that coverage counts lines executed, not assertions made",
+      "Gives an already-covered branch or boundary as the better target",
+      "Says a line can be covered by a test that asserts nothing about it"
+    ]
+  },
+  {
+    "concept_id": "testing.what_to_test",
+    "type": "estimate",
+    "prompt": "A scheduling function takes a grade from 0 to 5 plus the current interval, and takes a different path on a failing grade. Estimate how many test cases it takes to pin its behaviour down, and say what each one is for.",
+    "criteria": [
+      "Lands on a count somewhere around 6 to 12 rather than one per input value",
+      "Includes a case on each side of the pass/fail grade boundary",
+      "Names a first-review case where the interval starts from zero",
+      "Treats the failing path as needing its own case, not a variant of the passing one",
+      "Says adding cases that only re-check the same branch does not raise the count"
+    ]
+  },
+  {
+    "concept_id": "ux.capture_friction",
+    "type": "mcq",
+    "prompt": "A save-it-for-later box asks for the text, a topic, a source link and a priority before the save button turns on. What is the most likely state of things six weeks later?",
+    "options": [
+      "A tidy archive, because the metadata got filled in while the context was fresh",
+      "The same number of saves as a one-field box, since four fields take only a few seconds",
+      "Almost nothing saved, with the few entries arriving in bursts when someone feels dutiful",
+      "Plenty of saves, but with the priority field always left on its default"
+    ],
+    "correct_index": 2
+  },
+  {
+    "concept_id": "ux.capture_friction",
+    "type": "tf_why",
+    "prompt": "True or false: requiring one tag on every capture is a cheap addition, because typing a single word takes about three seconds.",
+    "verdict": false,
+    "criteria": [
+      "Says the real cost is deciding which tag, not typing the word",
+      "States that a required field turns a reflex into a small task",
+      "Notes the cost is paid again on every capture, not once",
+      "Says the tag can be added later, when the item is actually reviewed"
+    ]
+  },
+  {
+    "concept_id": "ux.capture_friction",
+    "type": "to_stakeholder",
+    "prompt": "A product owner asks you to add three required fields to the capture screen so the data is clean from day one. Write the reply you would send.",
+    "criteria": [
+      "Names the tradeoff between fields required and captures that happen at all",
+      "States the owner's real concern: usable data rather than a pile of loose text",
+      "Offers to infer or backfill the fields after the save instead of before",
+      "Lands on one recommendation rather than handing back a list of options"
+    ]
+  },
+  {
+    "concept_id": "ux.capture_friction",
+    "type": "critique",
+    "prompt": "A screen for jotting things down opens with the cursor in a title field, has a category dropdown defaulting to Uncategorised, and saves from a button below the fold. Critique it for someone who wants to stash a paragraph in two seconds.",
+    "criteria": [
+      "Says the cursor should start in the body field, not the title",
+      "Names the scroll or pointer trip to the save button as a cost paid every time",
+      "Says a keyboard save such as Ctrl+Enter removes that trip",
+      "Argues the title and category can be filled in silently and edited later"
+    ]
+  },
+  {
+    "concept_id": "viz.axis_integrity",
+    "type": "predict_output",
+    "prompt": "A bar chart compares 51% against 53%, and its vertical axis runs from 50% to 54%. How many times taller is the second bar as drawn?",
+    "accept": [
+      "3",
+      "3x",
+      "three",
+      "three times",
+      "3 times"
+    ],
+    "explain": "Bar height is measured from the axis floor, so the bars are 1 point and 3 points tall: the second is three times the first. A two-point gap on a scale that starts at zero would have looked like a 4% difference in height."
+  },
+  {
+    "concept_id": "viz.axis_integrity",
+    "type": "mcq",
+    "prompt": "A line chart tracks a response time that sits between 240 ms and 260 ms all quarter. What does forcing its vertical axis to start at zero do?",
+    "options": [
+      "Removes distortion, since a zero baseline is what makes any chart honest",
+      "Flattens the line into a near-straight band and hides the variation that matters",
+      "Nothing, because the shape of a line does not depend on the scale",
+      "Doubles the apparent size of every change"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "viz.axis_integrity",
+    "type": "explain",
+    "prompt": "A colleague says \"always start the axis at zero\" is the only rule needed for honest charts. What does that rule get right, and where does it fall down?",
+    "criteria": [
+      "States that a bar encodes its value as length, so it needs the zero baseline",
+      "Says a line carries change through slope rather than through length",
+      "Gives a case where a zero baseline hides variation that is the whole point",
+      "Names labelling the axis range as what keeps a truncated scale honest"
+    ]
+  },
+  {
+    "concept_id": "viz.axis_integrity",
+    "type": "push_back",
+    "prompt": "A stakeholder asks you to crop the vertical axis on a bar chart so a 2% lift \"reads as the win it is\" in tomorrow's deck. Give your response.",
+    "criteria": [
+      "Names that cropping the axis multiplies the apparent size of the difference",
+      "States the risk: the whole slide is doubted the moment someone reads the axis",
+      "Offers an alternative such as charting the change itself with the scale labelled",
+      "Does not stop at refusing — gives a way to make the 2% land as a win"
+    ]
+  },
+  {
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "mcq",
+    "prompt": "A screen carries 22 tiles, everyone calls it useful, and nobody can say what it is for. What is the first move?",
+    "options": [
+      "Move the least-viewed tiles onto a second tab",
+      "Ask what decision the screen is meant to support, then cut to the tiles that answer it",
+      "Add a filter bar so each team sees only the tiles it cares about",
+      "Sort the tiles by how often each one is looked at"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "ordering",
+    "prompt": "Arrange these four elements from the top of a single-question screen down to what sits behind a click.",
+    "items": [
+      "A table of individual records",
+      "One number answering the question, next to its comparison with last period",
+      "A breakdown of that number by the two or three dimensions people ask about next",
+      "The question the screen answers, written out as the title"
+    ],
+    "correct_order": [
+      3,
+      1,
+      2,
+      0
+    ]
+  },
+  {
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "when_not",
+    "prompt": "When is a dense grid of twenty small charts on one screen the right design rather than the wrong one?",
+    "criteria": [
+      "Names live monitoring for anomalies as the case where scanning beats reading",
+      "States that the viewer already knows the normal shape of each panel",
+      "Says no single decision hangs on any one of the panels",
+      "Contrasts it with a screen built to answer one question for a reader"
+    ]
+  },
+  {
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "to_stakeholder",
+    "prompt": "Four teams each want their two favourite charts on the one screen the leadership group looks at. Write what you say to all four of them.",
+    "criteria": [
+      "Names the tradeoff: each tile added lowers the odds any tile gets read",
+      "States each team's real concern, which is their metric being ignored",
+      "Proposes a per-team screen plus one shared headline screen",
+      "Closes on a recommendation instead of a menu for them to pick from"
+    ]
+  }
+]
