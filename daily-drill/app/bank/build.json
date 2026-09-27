@@ -1271,6 +1271,90 @@
     "created_at": "2026-09-15"
   },
   {
+    "id": "q_ux_capture_friction_critique_001",
+    "concept_id": "ux.capture_friction",
+    "type": "critique",
+    "prompt": "A screen for jotting things down opens with the cursor in a title field, has a category dropdown defaulting to Uncategorised, and saves from a button below the fold. Critique it for someone who wants to stash a paragraph in two seconds.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the cursor should start in the body field, not the title",
+        "Names the scroll or pointer trip to the save button as a cost paid every time",
+        "Says a keyboard save such as Ctrl+Enter removes that trip",
+        "Argues the title and category can be filled in silently and edited later"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_ux_capture_friction_mcq_001",
+    "concept_id": "ux.capture_friction",
+    "type": "mcq",
+    "prompt": "A save-it-for-later box asks for the text, a topic, a source link and a priority before the save button turns on. What is the most likely state of things six weeks later?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A tidy archive, because the metadata got filled in while the context was fresh",
+        "The same number of saves as a one-field box, since four fields take only a few seconds",
+        "Almost nothing saved, with the few entries arriving in bursts when someone feels dutiful",
+        "Plenty of saves, but with the priority field always left on its default"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_ux_capture_friction_tf_why_001",
+    "concept_id": "ux.capture_friction",
+    "type": "tf_why",
+    "prompt": "True or false: requiring one tag on every capture is a cheap addition, because typing a single word takes about three seconds.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "Says the real cost is deciding which tag, not typing the word",
+          "States that a required field turns a reflex into a small task",
+          "Notes the cost is paid again on every capture, not once",
+          "Says the tag can be added later, when the item is actually reviewed"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "Says the real cost is deciding which tag, not typing the word",
+        "States that a required field turns a reflex into a small task",
+        "Notes the cost is paid again on every capture, not once",
+        "Says the tag can be added later, when the item is actually reviewed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_ux_capture_friction_to_stakeholder_001",
+    "concept_id": "ux.capture_friction",
+    "type": "to_stakeholder",
+    "prompt": "A product owner asks you to add three required fields to the capture screen so the data is clean from day one. Write the reply you would send.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the tradeoff between fields required and captures that happen at all",
+        "States the owner's real concern: usable data rather than a pile of loose text",
+        "Offers to infer or backfill the fields after the save instead of before",
+        "Lands on one recommendation rather than handing back a list of options"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
     "id": "q_ux_no_loss_states_critique_001",
     "concept_id": "ux.no_loss_states",
     "type": "critique",

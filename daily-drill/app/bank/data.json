@@ -4121,6 +4121,81 @@
     "created_at": "2026-09-03"
   },
   {
+    "id": "q_viz_axis_integrity_explain_001",
+    "concept_id": "viz.axis_integrity",
+    "type": "explain",
+    "prompt": "A colleague says \"always start the axis at zero\" is the only rule needed for honest charts. What does that rule get right, and where does it fall down?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a bar encodes its value as length, so it needs the zero baseline",
+        "Says a line carries change through slope rather than through length",
+        "Gives a case where a zero baseline hides variation that is the whole point",
+        "Names labelling the axis range as what keeps a truncated scale honest"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_viz_axis_integrity_mcq_001",
+    "concept_id": "viz.axis_integrity",
+    "type": "mcq",
+    "prompt": "A line chart tracks a response time that sits between 240 ms and 260 ms all quarter. What does forcing its vertical axis to start at zero do?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Removes distortion, since a zero baseline is what makes any chart honest",
+        "Flattens the line into a near-straight band and hides the variation that matters",
+        "Nothing, because the shape of a line does not depend on the scale",
+        "Doubles the apparent size of every change"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_viz_axis_integrity_predict_output_001",
+    "concept_id": "viz.axis_integrity",
+    "type": "predict_output",
+    "prompt": "A bar chart compares 51% against 53%, and its vertical axis runs from 50% to 54%. How many times taller is the second bar as drawn?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "3",
+        "3x",
+        "three",
+        "three times",
+        "3 times"
+      ],
+      "explain": "Bar height is measured from the axis floor, so the bars are 1 point and 3 points tall: the second is three times the first. A two-point gap on a scale that starts at zero would have looked like a 4% difference in height."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_viz_axis_integrity_push_back_001",
+    "concept_id": "viz.axis_integrity",
+    "type": "push_back",
+    "prompt": "A stakeholder asks you to crop the vertical axis on a bar chart so a 2% lift \"reads as the win it is\" in tomorrow's deck. Give your response.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names that cropping the axis multiplies the apparent size of the difference",
+        "States the risk: the whole slide is doubted the moment someone reads the axis",
+        "Offers an alternative such as charting the change itself with the scale labelled",
+        "Does not stop at refusing — gives a way to make the 2% land as a win"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
     "id": "q_viz_chart_choice_matching_001",
     "concept_id": "viz.chart_choice",
     "type": "matching",
@@ -4216,6 +4291,85 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-15"
+  },
+  {
+    "id": "q_viz_dashboard_hierarchy_mcq_001",
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "mcq",
+    "prompt": "A screen carries 22 tiles, everyone calls it useful, and nobody can say what it is for. What is the first move?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Move the least-viewed tiles onto a second tab",
+        "Ask what decision the screen is meant to support, then cut to the tiles that answer it",
+        "Add a filter bar so each team sees only the tiles it cares about",
+        "Sort the tiles by how often each one is looked at"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_viz_dashboard_hierarchy_ordering_001",
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "ordering",
+    "prompt": "Arrange these four elements from the top of a single-question screen down to what sits behind a click.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "A table of individual records",
+        "One number answering the question, next to its comparison with last period",
+        "A breakdown of that number by the two or three dimensions people ask about next",
+        "The question the screen answers, written out as the title"
+      ],
+      "correct_order": [
+        3,
+        1,
+        2,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_viz_dashboard_hierarchy_to_stakeholder_001",
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "to_stakeholder",
+    "prompt": "Four teams each want their two favourite charts on the one screen the leadership group looks at. Write what you say to all four of them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the tradeoff: each tile added lowers the odds any tile gets read",
+        "States each team's real concern, which is their metric being ignored",
+        "Proposes a per-team screen plus one shared headline screen",
+        "Closes on a recommendation instead of a menu for them to pick from"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_viz_dashboard_hierarchy_when_not_001",
+    "concept_id": "viz.dashboard_hierarchy",
+    "type": "when_not",
+    "prompt": "When is a dense grid of twenty small charts on one screen the right design rather than the wrong one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names live monitoring for anomalies as the case where scanning beats reading",
+        "States that the viewer already knows the normal shape of each panel",
+        "Says no single decision hangs on any one of the panels",
+        "Contrasts it with a screen built to answer one question for a reader"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
   },
   {
     "id": "q_warehouse_columnar_critique_001",

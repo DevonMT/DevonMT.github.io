@@ -1922,5 +1922,269 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-26"
+  },
+  {
+    "id": "q_testing_pyramid_breaks_first_001",
+    "concept_id": "testing.pyramid",
+    "type": "breaks_first",
+    "prompt": "A team keeps its 40 slow interface tests exactly as they are but goes from shipping once a week to shipping eight times a day. What gives way first, and what do people start doing about it?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says total run time becomes the bottleneck on every single release",
+        "Predicts that intermittent failures get re-run rather than investigated",
+        "Names the moment a red suite stops being treated as a reason to stop",
+        "Proposes moving coverage down to faster levels instead of deleting tests"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_pyramid_matching_001",
+    "concept_id": "testing.pyramid",
+    "type": "matching",
+    "prompt": "Match each failure to the cheapest level of test that would have caught it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "A currency helper rounds 0.125 down when the rule says round up",
+        "One module writes a date as a string and the module that reads it expects a number",
+        "Login still works, but after a route rename the button that starts a session does nothing"
+      ],
+      "right": [
+        "an integration test that runs the two modules together",
+        "an end-to-end test driving the real interface",
+        "a unit test on a single function"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_pyramid_mcq_001",
+    "concept_id": "testing.pyramid",
+    "type": "mcq",
+    "prompt": "A suite is 200 browser-driven tests, and each one independently fails about 1% of the time for reasons unrelated to any real bug. Roughly what share of runs come back fully green?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "About 99%",
+        "About 87%",
+        "About 13%",
+        "About 1%"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_pyramid_push_back_001",
+    "concept_id": "testing.pyramid",
+    "type": "push_back",
+    "prompt": "A teammate wants to delete every unit test, arguing that only the end-to-end suite proves a user can complete a task. Make the case for keeping them without claiming the end-to-end tests are worthless.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the feedback loop: a unit test fails in seconds, a full end-to-end run takes minutes",
+        "Says an end-to-end failure tells you something broke but not which line broke it",
+        "Concedes that only the top level exercises the real wiring between parts",
+        "Argues for keeping both levels with most of the count sitting at the fastest one"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_regression_tests_critique_001",
+    "concept_id": "testing.regression_tests",
+    "type": "critique",
+    "prompt": "A ticket says a report double-counted rows for one account. The engineer fixes the join, then adds a test that loads the full fixture and asserts the report total equals 41,208. Critique that test as protection against the bug returning.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the bare total gives no hint which behaviour is under test",
+        "Notes the assertion will fail on any unrelated change to the fixture",
+        "Says it never isolates the duplicated rows that caused the bug",
+        "Proposes a minimal case: one account with the key that duplicated"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_regression_tests_explain_001",
+    "concept_id": "testing.regression_tests",
+    "type": "explain",
+    "prompt": "Why is a test written after a fix, and green on its very first run, weaker evidence than one that was seen to fail?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a test green on the first run may never touch the buggy path",
+        "Says the red-then-green transition is what proves the test is wired to the bug",
+        "Notes that such a test can stay green even if the fix is later reverted",
+        "Says running it against the unfixed code is how you check it is real"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_regression_tests_ordering_001",
+    "concept_id": "testing.regression_tests",
+    "type": "ordering",
+    "prompt": "Put the steps of turning a reported bug into a permanent test into the order you would actually do them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Change the code until the new test passes",
+        "Reproduce the bug by hand and pin down the exact input that triggers it",
+        "Write a test asserting the behaviour you wanted, and watch it fail",
+        "Leave the test in the suite so the same bug cannot come back unnoticed"
+      ],
+      "correct_order": [
+        1,
+        2,
+        0,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_regression_tests_spot_error_001",
+    "concept_id": "testing.regression_tests",
+    "type": "spot_error",
+    "prompt": "This test was added to lock in a fix for a bug where paying twice charged the card twice. Which line means it would have passed before the fix as well?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "def test_second_payment_does_not_charge_again():",
+        "    order = make_order(total=10)",
+        "    take_payment(order)",
+        "    take_payment(order)",
+        "    assert charge_count(order) >= 1"
+      ],
+      "bad_line": 4,
+      "why": "`>= 1` is satisfied whether the second charge was suppressed or not, so the buggy code passes this test too. The assertion has to be `== 1` for the test to have anything to do with the bug."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_what_to_test_cloze_001",
+    "concept_id": "testing.what_to_test",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: tests earn their keep on ______ logic — the `if` and the `else` — and on ______ values, where a comparison such as `>=` flips from one result to the other.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "branching",
+            "branch",
+            "conditional",
+            "conditionals"
+          ]
+        },
+        {
+          "accept": [
+            "boundary",
+            "boundaries",
+            "edge",
+            "edge case",
+            "limit"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_what_to_test_estimate_001",
+    "concept_id": "testing.what_to_test",
+    "type": "estimate",
+    "prompt": "A scheduling function takes a grade from 0 to 5 plus the current interval, and takes a different path on a failing grade. Estimate how many test cases it takes to pin its behaviour down, and say what each one is for.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Lands on a count somewhere around 6 to 12 rather than one per input value",
+        "Includes a case on each side of the pass/fail grade boundary",
+        "Names a first-review case where the interval starts from zero",
+        "Treats the failing path as needing its own case, not a variant of the passing one",
+        "Says adding cases that only re-check the same branch does not raise the count"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_what_to_test_multi_001",
+    "concept_id": "testing.what_to_test",
+    "type": "multi",
+    "prompt": "You have one hour to add tests to a module. Which of these are worth spending it on?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "A function that turns a score ratio into a grade across four thresholds",
+        "A getter that returns a stored name unchanged",
+        "The branch that decides whether a due item or a brand-new item fills a slot",
+        "A wrapper that calls one library function and returns its result untouched",
+        "The date arithmetic that turns an interval in days into a next-due date"
+      ],
+      "correct": [
+        0,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
+  },
+  {
+    "id": "q_testing_what_to_test_when_not_001",
+    "concept_id": "testing.what_to_test",
+    "type": "when_not",
+    "prompt": "Coverage on a module reads 94% and someone asks you to spend the afternoon on the last 6%. Describe when that is the wrong use of the afternoon, and what you would write instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names pass-through or generated lines as uncovered code not worth a test",
+        "States that coverage counts lines executed, not assertions made",
+        "Gives an already-covered branch or boundary as the better target",
+        "Says a line can be covered by a test that asserts nothing about it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-27"
   }
 ]
