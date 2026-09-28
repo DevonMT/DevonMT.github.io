@@ -1517,6 +1517,172 @@
     "created_at": "2026-09-15"
   },
   {
+    "id": "q_web_accessibility_cloze_001",
+    "concept_id": "web.accessibility",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a label is tied to its field either by wrapping the field or by pointing the label's ______ attribute at the field's ______ value, which is what makes clicking the label text move focus into the field.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "for",
+            "htmlFor",
+            "for=",
+            "the for"
+          ]
+        },
+        {
+          "accept": [
+            "id",
+            "id=",
+            "the id"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_accessibility_critique_001",
+    "concept_id": "web.accessibility",
+    "type": "critique",
+    "prompt": "A teammate adds `*:focus { outline: none; }` to the stylesheet because the blue ring looked out of place on the cards, and ships it. Critique that change.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the keyboard user who can no longer tell where they are on the page",
+        "States that focus still moves, only the indicator of it is gone",
+        "Proposes restyling the ring, such as with :focus-visible, instead of deleting it",
+        "Notes that a mouse user never sees the problem, which is why it ships unnoticed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_accessibility_explain_001",
+    "concept_id": "web.accessibility",
+    "type": "explain",
+    "prompt": "Someone hands you a drill app and takes the mouse away. Describe how you would get through one card using only the keyboard, and what each step tells you about the markup underneath.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names Tab as the way focus moves between interactive elements",
+        "States that Enter or Space activates a real button element",
+        "Says an element that never receives focus is not a button in the markup",
+        "Mentions tab order following document order unless tabindex overrides it"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_accessibility_spot_error_001",
+    "concept_id": "web.accessibility",
+    "type": "spot_error",
+    "prompt": "One line below leaves a control that a person without a mouse can never reach or fire. Which line?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "<div class=\"btn\" onclick=\"submitAnswer()\">Submit</div>",
+        "<button type=\"button\" onclick=\"skipCard()\">Skip</button>",
+        "<label for=\"answer\">Your answer</label>",
+        "<textarea id=\"answer\"></textarea>",
+        ".btn:focus { outline: 2px solid #0af; }"
+      ],
+      "bad_line": 0,
+      "why": "A `div` is not in the tab order and does not fire its click handler on Enter or Space, so Submit can never be reached or activated from the keyboard — and the `.btn:focus` rule never matches anything, because the element never takes focus. The Skip control gets the tab stop, the key handling and the announced role for free by being a `<button>`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_async_await_breaks_first_001",
+    "concept_id": "web.async_await",
+    "type": "breaks_first",
+    "prompt": "A loader walks 5,000 ids, calls an async `fetchRow(id)` for each without awaiting it, pushes each return value into an array, and hands that array back. What breaks first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States the array holds pending Promises rather than rows",
+        "Names 5,000 requests all in flight at once as the load problem",
+        "Mentions rate limiting, connection limits or memory as the first visible failure",
+        "Names batching with Promise.all, or awaiting in the loop, as the fix"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_async_await_explain_001",
+    "concept_id": "web.async_await",
+    "type": "explain",
+    "prompt": "JavaScript runs your code on a single thread, yet a page stays responsive while three network requests are in flight. Explain how both of those are true at the same time.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the network wait is handed to the runtime, not run on the JS thread",
+        "Says callbacks are queued and run only when the call stack empties",
+        "Names a long synchronous loop as the thing that does freeze the page",
+        "Draws the line between waiting on I/O and doing CPU work"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_async_await_ordering_001",
+    "concept_id": "web.async_await",
+    "type": "ordering",
+    "prompt": "A script runs these four lines top to bottom:\n\n`console.log('one');`\n`setTimeout(() => console.log('two'), 0);`\n`Promise.resolve().then(() => console.log('three'));`\n`console.log('four');`\n\nPut the four logs in the order their output actually appears.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "`two`, from the setTimeout callback",
+        "`three`, from the resolved Promise callback",
+        "`one`, the first synchronous log",
+        "`four`, the last synchronous log"
+      ],
+      "correct_order": [
+        2,
+        3,
+        1,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_async_await_predict_output_001",
+    "concept_id": "web.async_await",
+    "type": "predict_output",
+    "prompt": "A helper is defined and called without `await`:\n\n`async function load() {`\n`  return 42;`\n`}`\n`const value = load();`\n`console.log(typeof value, value instanceof Promise);`\n\nWhat gets logged?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "object true",
+        "object, true",
+        "\"object\" true",
+        "'object' true",
+        "object true — it is a Promise, not 42"
+      ],
+      "explain": "An async function always returns a Promise, even when its body returns a plain number. Without `await`, `value` is that Promise wrapper: `typeof` reports `object` and the `instanceof` check is `true`. The 42 is only reachable through `await load()` or `load().then(...)`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
     "id": "q_web_client_secrets_breaks_first_001",
     "concept_id": "web.client_secrets",
     "type": "breaks_first",
@@ -1599,6 +1765,91 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_web_css_layout_critique_001",
+    "concept_id": "web.css_layout",
+    "type": "critique",
+    "prompt": "A teammate builds a card by giving it `position: relative` and placing its title, body and footer with `position: absolute` at fixed pixel offsets, on the grounds that it lines up pixel for pixel with the mock. Critique that.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that absolutely positioned children are taken out of normal flow",
+        "Names longer or translated text as what then overflows or overlaps",
+        "Mentions that the card can no longer size itself to its own content",
+        "Names a flex column or grid rows as the layout that grows with the text"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_css_layout_multi_001",
+    "concept_id": "web.css_layout",
+    "type": "multi",
+    "prompt": "Which of these are reasons to reach for CSS grid rather than flexbox?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Items have to line up across rows and down columns at the same time",
+        "You want to name regions of a page and drop children into them by name",
+        "A row of items should size to its content and wrap onto a second line",
+        "Two items need to sit at opposite ends of one bar with the gap in between",
+        "You want to declare the track sizes up front and have children land in them"
+      ],
+      "correct": [
+        0,
+        1,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_css_layout_spot_error_001",
+    "concept_id": "web.css_layout",
+    "type": "spot_error",
+    "prompt": "A row of fixed-size progress pips looks right on a wide screen, but the pips squash into slivers as the window narrows. One line causes it — which?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        ".pip-row {",
+        "  display: flex;",
+        "  justify-content: space-between;",
+        "}",
+        ".pip-row > .pip {",
+        "  width: 12px;",
+        "  height: 12px;",
+        "  flex-shrink: 1;",
+        "}"
+      ],
+      "bad_line": 7,
+      "why": "`flex-shrink: 1` is the default, and it lets every pip give up width once the line runs short, so the declared `12px` is only a starting size rather than a floor. `flex-shrink: 0` pins each pip at 12px and forces the row to wrap or scroll instead of shrinking its children."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_web_css_layout_when_not_001",
+    "concept_id": "web.css_layout",
+    "type": "when_not",
+    "prompt": "Give a layout where reaching for CSS grid is the wrong call, and say what flexbox does better there.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a one-dimensional case such as a toolbar or a row of pips",
+        "States that flexbox sizes items from their content rather than from declared tracks",
+        "Mentions that grid makes you commit to tracks the content may not fit",
+        "Names wrapping or space distribution along one axis as the flex strength"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
   },
   {
     "id": "q_web_dom_events_explain_001",
