@@ -237,8 +237,21 @@ function renderEmpty() {
 
 // ---------------------------------------------------------------- question
 
+/**
+ * The current question's keyboard handler, so the next question can remove it.
+ *
+ * `el` outlives every question, and each one used to add a keydown listener to
+ * it that nothing took off. From question two on, the previous question's
+ * handler — whose phase was already 'done' — caught Enter and clicked its own
+ * Next, so pressing Enter while typing an answer skipped the question and
+ * recorded nothing.
+ */
+let questionKeys = null;
+
 function renderQuestion() {
   const { question: q, concept_id } = queue[index];
+  questionKeys?.abort();
+  questionKeys = new AbortController();
   const concept = conceptById.get(concept_id);
   renderPips();
   clear(el);
@@ -345,7 +358,7 @@ function renderQuestion() {
       ev.preventDefault();
       primary.click();
     }
-  });
+  }, { signal: questionKeys.signal });
 }
 
 function buildPrior(attempts) {
@@ -621,6 +634,7 @@ function freeTextControl() {
 
 /** A hard stop. No "keep going?" nag; the extra reps are opt-in and quiet. */
 function renderDone() {
+  questionKeys?.abort();
   clear(el);
   renderPipsAllDone();
   syncInBackground();
