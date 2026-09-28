@@ -1,0 +1,349 @@
+[
+  {
+    "concept_id": "warehouse.file_formats",
+    "type": "explain",
+    "prompt": "A nightly export is switched from a 40 GB CSV to Parquet. The same `SELECT customer_id, amount FROM export WHERE amount > 500` drops from 90 seconds to 4, on the same hardware. Walk through what about the file layout produced that drop.",
+    "criteria": [
+      "Names columnar storage as why only the two requested columns are read",
+      "Mentions compression reducing the bytes pulled off disk",
+      "States that CSV forces a read of every row and every column",
+      "Says typed columns remove per-value string parsing at read time"
+    ]
+  },
+  {
+    "concept_id": "warehouse.file_formats",
+    "type": "when_not",
+    "prompt": "Name a situation where handing someone a CSV is the better call than Parquet, and say what you are giving up by doing it.",
+    "criteria": [
+      "Names a consumer that cannot read Parquet, such as a spreadsheet or a shell tool",
+      "States that a person can open CSV and read it with no library",
+      "Names what is lost: declared types, compression, column pruning",
+      "Mentions the file growing much larger as the price paid"
+    ]
+  },
+  {
+    "concept_id": "warehouse.file_formats",
+    "type": "mcq",
+    "prompt": "A Parquet file keeps the minimum and maximum value of each column for every row group. A query filters `WHERE order_date = '2026-03-01'`. What does the reader do with those statistics?",
+    "options": [
+      "Skips whole row groups whose min/max range cannot contain that date",
+      "Rewrites the filter as a range scan across the entire file",
+      "Sorts the rows by order_date before applying the filter",
+      "Uses them to pick a faster decompression algorithm"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "warehouse.file_formats",
+    "type": "multi",
+    "prompt": "Which of these statements are true of a Parquet file but not of a CSV file holding the same rows?",
+    "options": [
+      "Every column carries a declared data type stored in the file itself",
+      "The values of a single column sit contiguously rather than scattered across rows",
+      "The reader can skip a block of rows without decoding it, using stored min/max values",
+      "A text editor shows you the contents with no extra tooling",
+      "Adding one record means appending a single line to the end of the file"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "warehouse.materialized_views",
+    "type": "to_stakeholder",
+    "prompt": "A product manager notices that one dashboard shows signups as of four hours ago while another shows them as of a minute ago, and both are described as reading the same table. Explain the difference without assuming they know SQL.",
+    "criteria": [
+      "States that one reads saved results while the other runs the query fresh",
+      "Names the refresh schedule as the source of the four-hour gap",
+      "Gives the reason the saved copy exists, such as speed or query cost",
+      "Ends on a decision for them to make, such as how fresh the number needs to be"
+    ]
+  },
+  {
+    "concept_id": "warehouse.materialized_views",
+    "type": "breaks_first",
+    "prompt": "A team swaps a heavily used view for a materialized view refreshed nightly at 02:00, and the morning numbers match exactly. What breaks first, and who is the first person to notice?",
+    "criteria": [
+      "Names staleness: anything changing between refreshes stays invisible until the next one",
+      "Identifies a consumer who needs intraday numbers as the first to complain",
+      "Mentions a refresh that fails silently while yesterday's rows keep serving",
+      "Says an upstream schema change can break the refresh without breaking the reads"
+    ]
+  },
+  {
+    "concept_id": "warehouse.materialized_views",
+    "type": "tf_why",
+    "prompt": "True or false: wrapping an expensive query in a view makes that query cheaper for everyone who then selects from the view.",
+    "verdict": false,
+    "criteria": [
+      "States that a view stores the query text and no result rows",
+      "Says the underlying query executes again on every reference to the view",
+      "Names materialization as the thing that would actually save the repeated work",
+      "Notes the view still earns its keep by keeping the logic in one place"
+    ]
+  },
+  {
+    "concept_id": "warehouse.materialized_views",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a ______ holds only the query definition and re-executes it on every read, while a ______ holds the query's output and shows new rows only once it has been refreshed.",
+    "blanks": [
+      {
+        "accept": [
+          "view",
+          "standard view",
+          "regular view",
+          "logical view",
+          "plain view"
+        ]
+      },
+      {
+        "accept": [
+          "materialized view",
+          "materialised view",
+          "mv",
+          "materialized table"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "warehouse.storage_compute",
+    "type": "estimate",
+    "prompt": "A team keeps 8 TB in warehouse storage and runs roughly 300 analyst queries a day on a warehouse that auto-suspends after one minute of idle time. Storage bills at about $23 per TB-month and compute at about $3 per credit-hour. Rough out where the monthly bill lands and name the lever worth pulling.",
+    "criteria": [
+      "Puts storage near $180 to $200 a month at that rate",
+      "States an assumption about how many hours a day the warehouse is active",
+      "Gives compute as a range rather than one precise figure",
+      "Names the lever as idle time or bytes scanned, not deleting stored data"
+    ]
+  },
+  {
+    "concept_id": "warehouse.storage_compute",
+    "type": "push_back",
+    "prompt": "A manager reads the warehouse invoice, decides it is too high, and asks the team to start deleting raw history to bring it down. Push back.",
+    "criteria": [
+      "States that storage and compute are billed as two separate lines",
+      "Names query compute as the larger share of that invoice",
+      "Names what deleting raw history costs: no backfill, no reprocessing after a bug",
+      "Offers a concrete alternative such as a shorter auto-suspend or pruning scans"
+    ]
+  },
+  {
+    "concept_id": "warehouse.storage_compute",
+    "type": "mcq",
+    "prompt": "Two teams query the same 5 TB table. One runs a single query an hour, the other runs a hundred. On a warehouse that separates storage from compute, how do their bills differ?",
+    "options": [
+      "Storage is billed once for the table regardless of reads, so the busier team's extra cost is all compute time",
+      "The busier team pays more for storage, because each read re-charges the bytes it touched",
+      "Both bills come out the same, since the table is one size and both read all of it",
+      "The busier team's queries are free, because the storage charge already covers reading the data"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "warehouse.storage_compute",
+    "type": "matching",
+    "prompt": "Match each thing a team does in the warehouse to the bill it actually lands on.",
+    "left": [
+      "Keeping seven years of raw event files that nobody has queried since",
+      "An analyst kicking off a full-table scan over 2 TB at noon",
+      "A warehouse left running with no query submitted for ten minutes",
+      "Cloning a 2 TB table to give a test environment its own copy"
+    ],
+    "right": [
+      "Compute billed for the seconds the query spends executing",
+      "Almost nothing extra, because only blocks that change are stored twice",
+      "Storage, which grows slowly and stays cheap per terabyte",
+      "Compute billed for idle seconds until auto-suspend takes effect"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        1
+      ]
+    ]
+  },
+  {
+    "concept_id": "web.accessibility",
+    "type": "critique",
+    "prompt": "A teammate adds `*:focus { outline: none; }` to the stylesheet because the blue ring looked out of place on the cards, and ships it. Critique that change.",
+    "criteria": [
+      "Names the keyboard user who can no longer tell where they are on the page",
+      "States that focus still moves, only the indicator of it is gone",
+      "Proposes restyling the ring, such as with :focus-visible, instead of deleting it",
+      "Notes that a mouse user never sees the problem, which is why it ships unnoticed"
+    ]
+  },
+  {
+    "concept_id": "web.accessibility",
+    "type": "explain",
+    "prompt": "Someone hands you a drill app and takes the mouse away. Describe how you would get through one card using only the keyboard, and what each step tells you about the markup underneath.",
+    "criteria": [
+      "Names Tab as the way focus moves between interactive elements",
+      "States that Enter or Space activates a real button element",
+      "Says an element that never receives focus is not a button in the markup",
+      "Mentions tab order following document order unless tabindex overrides it"
+    ]
+  },
+  {
+    "concept_id": "web.accessibility",
+    "type": "spot_error",
+    "prompt": "One line below leaves a control that a person without a mouse can never reach or fire. Which line?",
+    "lines": [
+      "<div class=\"btn\" onclick=\"submitAnswer()\">Submit</div>",
+      "<button type=\"button\" onclick=\"skipCard()\">Skip</button>",
+      "<label for=\"answer\">Your answer</label>",
+      "<textarea id=\"answer\"></textarea>",
+      ".btn:focus { outline: 2px solid #0af; }"
+    ],
+    "bad_line": 0,
+    "why": "A `div` is not in the tab order and does not fire its click handler on Enter or Space, so Submit can never be reached or activated from the keyboard — and the `.btn:focus` rule never matches anything, because the element never takes focus. The Skip control gets the tab stop, the key handling and the announced role for free by being a `<button>`.",
+    "scope": "curriculum"
+  },
+  {
+    "concept_id": "web.accessibility",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a label is tied to its field either by wrapping the field or by pointing the label's ______ attribute at the field's ______ value, which is what makes clicking the label text move focus into the field.",
+    "blanks": [
+      {
+        "accept": [
+          "for",
+          "htmlFor",
+          "for=",
+          "the for"
+        ]
+      },
+      {
+        "accept": [
+          "id",
+          "id=",
+          "the id"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "web.async_await",
+    "type": "explain",
+    "prompt": "JavaScript runs your code on a single thread, yet a page stays responsive while three network requests are in flight. Explain how both of those are true at the same time.",
+    "criteria": [
+      "States that the network wait is handed to the runtime, not run on the JS thread",
+      "Says callbacks are queued and run only when the call stack empties",
+      "Names a long synchronous loop as the thing that does freeze the page",
+      "Draws the line between waiting on I/O and doing CPU work"
+    ]
+  },
+  {
+    "concept_id": "web.async_await",
+    "type": "breaks_first",
+    "prompt": "A loader walks 5,000 ids, calls an async `fetchRow(id)` for each without awaiting it, pushes each return value into an array, and hands that array back. What breaks first?",
+    "criteria": [
+      "States the array holds pending Promises rather than rows",
+      "Names 5,000 requests all in flight at once as the load problem",
+      "Mentions rate limiting, connection limits or memory as the first visible failure",
+      "Names batching with Promise.all, or awaiting in the loop, as the fix"
+    ]
+  },
+  {
+    "concept_id": "web.async_await",
+    "type": "predict_output",
+    "prompt": "A helper is defined and called without `await`:\n\n`async function load() {`\n`  return 42;`\n`}`\n`const value = load();`\n`console.log(typeof value, value instanceof Promise);`\n\nWhat gets logged?",
+    "accept": [
+      "object true",
+      "object, true",
+      "\"object\" true",
+      "'object' true",
+      "object true — it is a Promise, not 42"
+    ],
+    "explain": "An async function always returns a Promise, even when its body returns a plain number. Without `await`, `value` is that Promise wrapper: `typeof` reports `object` and the `instanceof` check is `true`. The 42 is only reachable through `await load()` or `load().then(...)`."
+  },
+  {
+    "concept_id": "web.async_await",
+    "type": "ordering",
+    "prompt": "A script runs these four lines top to bottom:\n\n`console.log('one');`\n`setTimeout(() => console.log('two'), 0);`\n`Promise.resolve().then(() => console.log('three'));`\n`console.log('four');`\n\nPut the four logs in the order their output actually appears.",
+    "items": [
+      "`two`, from the setTimeout callback",
+      "`three`, from the resolved Promise callback",
+      "`one`, the first synchronous log",
+      "`four`, the last synchronous log"
+    ],
+    "correct_order": [
+      2,
+      3,
+      1,
+      0
+    ]
+  },
+  {
+    "concept_id": "web.css_layout",
+    "type": "when_not",
+    "prompt": "Give a layout where reaching for CSS grid is the wrong call, and say what flexbox does better there.",
+    "criteria": [
+      "Names a one-dimensional case such as a toolbar or a row of pips",
+      "States that flexbox sizes items from their content rather than from declared tracks",
+      "Mentions that grid makes you commit to tracks the content may not fit",
+      "Names wrapping or space distribution along one axis as the flex strength"
+    ]
+  },
+  {
+    "concept_id": "web.css_layout",
+    "type": "critique",
+    "prompt": "A teammate builds a card by giving it `position: relative` and placing its title, body and footer with `position: absolute` at fixed pixel offsets, on the grounds that it lines up pixel for pixel with the mock. Critique that.",
+    "criteria": [
+      "States that absolutely positioned children are taken out of normal flow",
+      "Names longer or translated text as what then overflows or overlaps",
+      "Mentions that the card can no longer size itself to its own content",
+      "Names a flex column or grid rows as the layout that grows with the text"
+    ]
+  },
+  {
+    "concept_id": "web.css_layout",
+    "type": "multi",
+    "prompt": "Which of these are reasons to reach for CSS grid rather than flexbox?",
+    "options": [
+      "Items have to line up across rows and down columns at the same time",
+      "You want to name regions of a page and drop children into them by name",
+      "A row of items should size to its content and wrap onto a second line",
+      "Two items need to sit at opposite ends of one bar with the gap in between",
+      "You want to declare the track sizes up front and have children land in them"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      4
+    ]
+  },
+  {
+    "concept_id": "web.css_layout",
+    "type": "spot_error",
+    "prompt": "A row of fixed-size progress pips looks right on a wide screen, but the pips squash into slivers as the window narrows. One line causes it — which?",
+    "lines": [
+      ".pip-row {",
+      "  display: flex;",
+      "  justify-content: space-between;",
+      "}",
+      ".pip-row > .pip {",
+      "  width: 12px;",
+      "  height: 12px;",
+      "  flex-shrink: 1;",
+      "}"
+    ],
+    "bad_line": 7,
+    "why": "`flex-shrink: 1` is the default, and it lets every pip give up width once the line runs short, so the declared `12px` is only a starting size rather than a floor. `flex-shrink: 0` pins each pip at 12px and forces the row to wrap or scroll instead of shrinking its children.",
+    "scope": "curriculum"
+  }
+]

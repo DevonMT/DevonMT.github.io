@@ -4453,6 +4453,181 @@
     "created_at": "2026-09-16"
   },
   {
+    "id": "q_warehouse_file_formats_explain_001",
+    "concept_id": "warehouse.file_formats",
+    "type": "explain",
+    "prompt": "A nightly export is switched from a 40 GB CSV to Parquet. The same `SELECT customer_id, amount FROM export WHERE amount > 500` drops from 90 seconds to 4, on the same hardware. Walk through what about the file layout produced that drop.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names columnar storage as why only the two requested columns are read",
+        "Mentions compression reducing the bytes pulled off disk",
+        "States that CSV forces a read of every row and every column",
+        "Says typed columns remove per-value string parsing at read time"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_file_formats_mcq_001",
+    "concept_id": "warehouse.file_formats",
+    "type": "mcq",
+    "prompt": "A Parquet file keeps the minimum and maximum value of each column for every row group. A query filters `WHERE order_date = '2026-03-01'`. What does the reader do with those statistics?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Skips whole row groups whose min/max range cannot contain that date",
+        "Rewrites the filter as a range scan across the entire file",
+        "Sorts the rows by order_date before applying the filter",
+        "Uses them to pick a faster decompression algorithm"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_file_formats_multi_001",
+    "concept_id": "warehouse.file_formats",
+    "type": "multi",
+    "prompt": "Which of these statements are true of a Parquet file but not of a CSV file holding the same rows?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Every column carries a declared data type stored in the file itself",
+        "The values of a single column sit contiguously rather than scattered across rows",
+        "The reader can skip a block of rows without decoding it, using stored min/max values",
+        "A text editor shows you the contents with no extra tooling",
+        "Adding one record means appending a single line to the end of the file"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_file_formats_when_not_001",
+    "concept_id": "warehouse.file_formats",
+    "type": "when_not",
+    "prompt": "Name a situation where handing someone a CSV is the better call than Parquet, and say what you are giving up by doing it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a consumer that cannot read Parquet, such as a spreadsheet or a shell tool",
+        "States that a person can open CSV and read it with no library",
+        "Names what is lost: declared types, compression, column pruning",
+        "Mentions the file growing much larger as the price paid"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_materialized_views_breaks_first_001",
+    "concept_id": "warehouse.materialized_views",
+    "type": "breaks_first",
+    "prompt": "A team swaps a heavily used view for a materialized view refreshed nightly at 02:00, and the morning numbers match exactly. What breaks first, and who is the first person to notice?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names staleness: anything changing between refreshes stays invisible until the next one",
+        "Identifies a consumer who needs intraday numbers as the first to complain",
+        "Mentions a refresh that fails silently while yesterday's rows keep serving",
+        "Says an upstream schema change can break the refresh without breaking the reads"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_materialized_views_cloze_001",
+    "concept_id": "warehouse.materialized_views",
+    "type": "cloze",
+    "prompt": "Fill in the blanks: a ______ holds only the query definition and re-executes it on every read, while a ______ holds the query's output and shows new rows only once it has been refreshed.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "view",
+            "standard view",
+            "regular view",
+            "logical view",
+            "plain view"
+          ]
+        },
+        {
+          "accept": [
+            "materialized view",
+            "materialised view",
+            "mv",
+            "materialized table"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_materialized_views_tf_why_001",
+    "concept_id": "warehouse.materialized_views",
+    "type": "tf_why",
+    "prompt": "True or false: wrapping an expensive query in a view makes that query cheaper for everyone who then selects from the view.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that a view stores the query text and no result rows",
+          "Says the underlying query executes again on every reference to the view",
+          "Names materialization as the thing that would actually save the repeated work",
+          "Notes the view still earns its keep by keeping the logic in one place"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that a view stores the query text and no result rows",
+        "Says the underlying query executes again on every reference to the view",
+        "Names materialization as the thing that would actually save the repeated work",
+        "Notes the view still earns its keep by keeping the logic in one place"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_materialized_views_to_stakeholder_001",
+    "concept_id": "warehouse.materialized_views",
+    "type": "to_stakeholder",
+    "prompt": "A product manager notices that one dashboard shows signups as of four hours ago while another shows them as of a minute ago, and both are described as reading the same table. Explain the difference without assuming they know SQL.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that one reads saved results while the other runs the query fresh",
+        "Names the refresh schedule as the source of the four-hour gap",
+        "Gives the reason the saved copy exists, such as speed or query cost",
+        "Ends on a decision for them to make, such as how fresh the number needs to be"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
     "id": "q_warehouse_olap_vs_oltp_explain_001",
     "concept_id": "warehouse.olap_vs_oltp",
     "type": "explain",
@@ -4558,5 +4733,102 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-16"
+  },
+  {
+    "id": "q_warehouse_storage_compute_estimate_001",
+    "concept_id": "warehouse.storage_compute",
+    "type": "estimate",
+    "prompt": "A team keeps 8 TB in warehouse storage and runs roughly 300 analyst queries a day on a warehouse that auto-suspends after one minute of idle time. Storage bills at about $23 per TB-month and compute at about $3 per credit-hour. Rough out where the monthly bill lands and name the lever worth pulling.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Puts storage near $180 to $200 a month at that rate",
+        "States an assumption about how many hours a day the warehouse is active",
+        "Gives compute as a range rather than one precise figure",
+        "Names the lever as idle time or bytes scanned, not deleting stored data"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_storage_compute_matching_001",
+    "concept_id": "warehouse.storage_compute",
+    "type": "matching",
+    "prompt": "Match each thing a team does in the warehouse to the bill it actually lands on.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "Keeping seven years of raw event files that nobody has queried since",
+        "An analyst kicking off a full-table scan over 2 TB at noon",
+        "A warehouse left running with no query submitted for ten minutes",
+        "Cloning a 2 TB table to give a test environment its own copy"
+      ],
+      "right": [
+        "Compute billed for the seconds the query spends executing",
+        "Almost nothing extra, because only blocks that change are stored twice",
+        "Storage, which grows slowly and stays cheap per terabyte",
+        "Compute billed for idle seconds until auto-suspend takes effect"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_storage_compute_mcq_001",
+    "concept_id": "warehouse.storage_compute",
+    "type": "mcq",
+    "prompt": "Two teams query the same 5 TB table. One runs a single query an hour, the other runs a hundred. On a warehouse that separates storage from compute, how do their bills differ?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Storage is billed once for the table regardless of reads, so the busier team's extra cost is all compute time",
+        "The busier team pays more for storage, because each read re-charges the bytes it touched",
+        "Both bills come out the same, since the table is one size and both read all of it",
+        "The busier team's queries are free, because the storage charge already covers reading the data"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
+  },
+  {
+    "id": "q_warehouse_storage_compute_push_back_001",
+    "concept_id": "warehouse.storage_compute",
+    "type": "push_back",
+    "prompt": "A manager reads the warehouse invoice, decides it is too high, and asks the team to start deleting raw history to bring it down. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that storage and compute are billed as two separate lines",
+        "Names query compute as the larger share of that invoice",
+        "Names what deleting raw history costs: no backfill, no reprocessing after a bug",
+        "Offers a concrete alternative such as a shorter auto-suspend or pruning scans"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-28"
   }
 ]
