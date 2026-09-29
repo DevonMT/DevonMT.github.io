@@ -759,3 +759,18 @@ textarea.answer:disabled { color: var(--text-muted); opacity: 1; }
   line-height: 1.45;
   color: var(--amber);
 }
+
+/* ---- answer history ---- */
+.history { padding-top: 4vh; }
+.history h1 { margin-bottom: 6px; }
+.history-lead { color: var(--text-muted); margin-bottom: 22px; }
+.history-concept { border-top: 1px solid var(--border); padding: 12px 0; }
+.history-concept summary { display: flex; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
+.history-concept summary::-webkit-details-marker { display: none; }
+.history-count { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.history-answer { margin: 14px 0 0 0; }
+.history-meta { display: flex; gap: 10px; align-items: baseline; color: var(--text-muted); font-size: 0.85em; }
+.history-tick { color: var(--accent); font-weight: 700; }
+.history-prompt { color: var(--text-muted); font-size: 0.9em; margin: 4px 0; }
+.history-answer blockquote { margin: 6px 0 0; padding-left: 12px; border-left: 2px solid var(--border); white-space: pre-wrap; }
+.history .actions { margin-top: 24px; }

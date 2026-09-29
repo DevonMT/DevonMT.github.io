@@ -645,11 +645,75 @@ function renderDone() {
     h('div', { class: 'actions' },
       h('button', { class: 'btn-secondary', type: 'button', onClick: () => startSession({ bonus: true }) },
         document.createTextNode('A few more')),
+      writtenAnswers().length
+        ? h('button', { class: 'btn-secondary', type: 'button', onClick: renderHistory },
+            document.createTextNode('Read back your answers'))
+        : null,
     ),
     h('p', { class: 'stat' },
       h('span', { class: 'stat-num', text: String(active) }),
       h('span', { class: 'stat-label', text: `${active === 1 ? 'day' : 'days'} active in the last 30` })),
   ));
+}
+
+// ---------------------------------------------------------------- history
+
+/** Every explanation you have written, i.e. attempts whose answer is text. A
+ *  multiple-choice pick is not something you would read back. */
+function writtenAnswers() {
+  return state.attempts.filter(a => typeof a.answer === 'string' && a.answer.trim());
+}
+
+/**
+ * Your answers, by concept: the artifact SPEC §6 is about. `attempts` is
+ * append-only so that an explanation from six weeks ago can be read beside
+ * tonight's and the difference seen — but the only way to see one was to get
+ * the same concept again, three at a time, under the next question.
+ *
+ * Concepts newest-first (what you have been working on is what you want);
+ * answers inside each oldest-first (so it reads as getting better). A tick
+ * where it was right, and nothing otherwise — never a percentage (§3).
+ */
+function renderHistory() {
+  questionKeys?.abort();
+  clear(el);
+  clear(pipsEl);
+  const byConcept = new Map();
+  for (const a of writtenAnswers()) {
+    const list = byConcept.get(a.concept_id) ?? [];
+    list.push(a);
+    byConcept.set(a.concept_id, list);
+  }
+  const prompts = new Map();
+  for (const qs of Object.values(questionsByConcept)) for (const q of qs) prompts.set(q.id, q.prompt);
+  const concepts = [...byConcept.entries()]
+    .map(([id, list]) => ({ id, list: list.sort((a, b) => a.created_at.localeCompare(b.created_at)) }))
+    .sort((a, b) => b.list[b.list.length - 1].created_at.localeCompare(a.list[a.list.length - 1].created_at));
+
+  const box = h('div', { class: 'history' },
+    h('h1', { text: 'What you have written' }),
+    h('p', { class: 'history-lead', text: `${concepts.length} ${concepts.length === 1 ? 'concept' : 'concepts'}, oldest answer first inside each.` }),
+  );
+  for (const c of concepts) {
+    const name = conceptById.get(c.id)?.name ?? c.id;
+    const d = h('details', { class: 'history-concept' },
+      h('summary', {},
+        h('span', { class: 'history-name', text: name }),
+        h('span', { class: 'history-count', text: `${c.list.length}` })));
+    for (const a of c.list) {
+      const prompt = prompts.get(a.question_id);
+      d.append(h('div', { class: 'history-answer' },
+        h('div', { class: 'history-meta' },
+          h('time', { text: a.created_at.slice(0, 10) }),
+          a.score >= 0.8 ? h('span', { class: 'history-tick', 'aria-label': 'got it', text: '✓' }) : null),
+        prompt ? h('p', { class: 'history-prompt', text: prompt }) : null,
+        h('blockquote', { text: a.answer })));
+    }
+    box.append(d);
+  }
+  box.append(h('div', { class: 'actions' },
+    h('button', { class: 'btn-secondary', type: 'button', onClick: renderDone }, document.createTextNode('Back'))));
+  el.append(box);
 }
 
 function renderPipsAllDone() {
