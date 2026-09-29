@@ -1,5 +1,86 @@
 [
   {
+    "id": "q_analytics_ab_testing_breaks_first_001",
+    "concept_id": "analytics.ab_testing",
+    "type": "breaks_first",
+    "prompt": "A checkout experiment picks a variant on every page load rather than once per visitor, so one person can bounce between the two designs inside a single session. What breaks first, and how does the readout mislead you?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the randomization unit as the thing chosen wrong",
+        "States that a visitor who sees both variants contaminates the contrast between them",
+        "Says the measured difference shrinks toward zero rather than growing",
+        "Names per-visitor assignment, held in a cookie or a user id, as the fix"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_ab_testing_mcq_001",
+    "concept_id": "analytics.ab_testing",
+    "type": "mcq",
+    "prompt": "A discount test is randomized per customer, but the significance test is run over orders, and frequent buyers place dozens of orders each. What is the main flaw?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Nothing is wrong: more orders simply means more statistical power",
+        "Orders from the same customer are correlated, so the variance is understated and the p-value comes out too small",
+        "Orders cannot be counted until the test has run for a full purchase cycle",
+        "Randomizing per customer forces the two arms to end up different sizes"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_ab_testing_multi_001",
+    "concept_id": "analytics.ab_testing",
+    "type": "multi",
+    "prompt": "Which of these are settled before launch when an experiment is pre-registered?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The primary metric, and the exact query that computes it",
+        "The smallest effect worth detecting, and the sample size that follows from it",
+        "How many days the test runs, and what would justify an early stop",
+        "The multiplicity correction applied across the secondary metrics",
+        "Which subgroup to headline, picked once you can see where the lift landed",
+        "The significance threshold, moved to 0.10 after the result comes in at 0.08"
+      ],
+      "correct": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_ab_testing_push_back_001",
+    "concept_id": "analytics.ab_testing",
+    "type": "push_back",
+    "prompt": "A teammate plans to watch the experiment dashboard each morning and stop the test on the first day the p-value dips under 0.05. Write the pushback you would give them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that repeated looks push the false positive rate far above 5 percent",
+        "Explains that stopping on the first dip selects for random highs in the estimate",
+        "Names a sample size fixed in advance as one remedy",
+        "Names a sequential testing correction as the alternative to simply waiting it out"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
     "id": "q_analytics_cohorts_explain_001",
     "concept_id": "analytics.cohorts",
     "type": "explain",
@@ -362,6 +443,249 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_analytics_selection_bias_explain_001",
+    "concept_id": "analytics.selection_bias",
+    "type": "explain",
+    "prompt": "A satisfaction survey goes to every customer, 8% of them answer, and the mean score is 4.6 out of 5. Explain which population that 4.6 actually describes, and which direction it is likely off.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the number describes respondents rather than the customer base",
+        "States that answering a survey is itself a choice tied to how someone feels",
+        "Commits to a direction and gives a reason, such as the most engaged or most angry over-responding",
+        "Names a check, such as comparing respondent traits against the full base or chasing a random subsample"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_selection_bias_spot_error_001",
+    "concept_id": "analytics.selection_bias",
+    "type": "spot_error",
+    "prompt": "This query is meant to answer \"how long does a new signup take to make a first purchase?\". One line quietly changes which population the answer describes — which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "SELECT AVG(DATEDIFF(p.purchased_at, s.signed_up_at)) AS avg_days",
+        "FROM signups s",
+        "JOIN first_purchase p ON p.user_id = s.user_id",
+        "WHERE s.signup_week = '2026-01-05'"
+      ],
+      "bad_line": 2,
+      "why": "The inner join keeps only signups that eventually bought, so every signup still sitting at zero purchases drops out of the denominator. What comes back is the average wait among buyers — faster than the honest answer, and silent about the people the question is really about. A LEFT JOIN, with the never-buyers counted and reported as their own share, answers what was asked."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_selection_bias_tf_why_001",
+    "concept_id": "analytics.selection_bias",
+    "type": "tf_why",
+    "prompt": "True or false: five design traits shared by every app that reached the top 100 downloads last year are evidence that those traits drive downloads.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "Says the apps that had the same traits and failed were never in the sample",
+          "States that the rate of those traits among unsuccessful apps is unknown",
+          "Names a comparison group of non-survivors as what the claim needs",
+          "Notes that filtering on the outcome is what manufactures the apparent pattern"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "Says the apps that had the same traits and failed were never in the sample",
+        "States that the rate of those traits among unsuccessful apps is unknown",
+        "Names a comparison group of non-survivors as what the claim needs",
+        "Notes that filtering on the outcome is what manufactures the apparent pattern"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_selection_bias_to_stakeholder_001",
+    "concept_id": "analytics.selection_bias",
+    "type": "to_stakeholder",
+    "prompt": "A slide claims the funds on a platform returned 9% a year over the past decade, computed from the funds the platform lists today. Write what you would say to the person presenting it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Points out that funds closed or merged during the decade are absent from the list",
+        "States that the funds which vanished are the ones that performed worst",
+        "Says the 9% figure overstates what an investor a decade ago would have earned",
+        "Names the fix, such as starting from the fund list as it stood ten years ago and following every fund forward"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_significance_cloze_001",
+    "concept_id": "analytics.significance",
+    "type": "cloze",
+    "prompt": "Fill the blank: planning a test at 80% ______ means that even if the true effect is exactly the size you designed for, you would still miss it roughly one run in five.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "power",
+            "statistical power"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_significance_explain_001",
+    "concept_id": "analytics.significance",
+    "type": "explain",
+    "prompt": "A result lands at a 2.1% lift with a 95% confidence interval running from -0.4% to 4.6%. Put that interval into a sentence a non-analyst would follow, without using the word significant.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Describes the interval as the range of true effects the data cannot rule out",
+        "Stops short of treating 2.1 percent as the effect that was established",
+        "States that zero sits inside the range, so no change at all stays plausible",
+        "Notes that more data narrows the range rather than pulling it toward the estimate"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_significance_mcq_001",
+    "concept_id": "analytics.significance",
+    "type": "mcq",
+    "prompt": "What does the 95% in a 95% confidence interval actually refer to?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "95% of individual users fall inside the range",
+        "There is a 95% chance the true effect sits inside this particular interval",
+        "Across repeated samples, 95% of intervals built this way would contain the true effect",
+        "The finding would repeat in 95 of the next 100 experiments"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_significance_push_back_001",
+    "concept_id": "analytics.significance",
+    "type": "push_back",
+    "prompt": "A product manager reads p = 0.31 and writes in the summary that the new flow has no effect on conversion. Draft the correction you would send back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that failing to detect an effect is not the same as showing there is none",
+        "Asks what effect size the test had the power to detect",
+        "Uses the confidence interval bounds to say what the data does rule out",
+        "Supplies replacement wording that leaves the uncertainty visible"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_simpsons_paradox_critique_001",
+    "concept_id": "analytics.simpsons_paradox",
+    "type": "critique",
+    "prompt": "A readout says conversion fell from 4.1% to 3.8% quarter over quarter and concludes the funnel is degrading. Elsewhere in the same data, mobile and desktop conversion each rose, and mobile went from 40% to 65% of traffic. Critique the conclusion, and say what the readout should have said.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the shift in traffic mix as the cause of the aggregate drop",
+        "States that both segments improved, which leaves the degrading-funnel claim unsupported",
+        "Explains the aggregate as a volume-weighted average of the segment rates",
+        "Rewrites the finding as growth inside each segment plus a move toward the weaker-converting channel"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_simpsons_paradox_ordering_001",
+    "concept_id": "analytics.simpsons_paradox",
+    "type": "ordering",
+    "prompt": "An aggregate metric moved and you suspect the segment mix rather than the metric itself. Put these five steps in the order you would do them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Recompute the aggregate with the earlier period's segment shares held fixed",
+        "Confirm the aggregate move is real and not a date-range or pipeline artifact",
+        "Report the per-segment direction together with the size of the mix change",
+        "Split the metric by the suspected segment and check the direction inside each",
+        "Compare each segment's share of total volume across the two periods"
+      ],
+      "correct_order": [
+        1,
+        3,
+        4,
+        0,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_simpsons_paradox_predict_output_001",
+    "concept_id": "analytics.simpsons_paradox",
+    "type": "predict_output",
+    "prompt": "A page test, split by device. Desktop: variant B converts 50 of 100, variant A converts 180 of 400. Mobile: variant B converts 40 of 400, variant A converts 5 of 100. B therefore wins on both devices. Pooling the two devices together, what is B's overall conversion rate?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "18%",
+        "18",
+        "18 percent",
+        "18.0%",
+        "0.18",
+        "90/500"
+      ],
+      "explain": "B pools to (50 + 40) / (100 + 400) = 90/500 = 18%. A pools to (180 + 5) / (400 + 100) = 185/500 = 37%. B wins desktop (50% vs 45%) and mobile (10% vs 5%) and still loses the pooled comparison by nineteen points, because four fifths of B's traffic is mobile — where almost nobody converts — while four fifths of A's is desktop. The pooled figures are weighted averages, and here the weights, not the conversion rates, pick the winner."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
+  },
+  {
+    "id": "q_analytics_simpsons_paradox_when_not_001",
+    "concept_id": "analytics.simpsons_paradox",
+    "type": "when_not",
+    "prompt": "Every segment moves one way and the total moves the other. When is reporting the total still the right call, and when is it the wrong one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case where the aggregate is the quantity actually paid or felt, such as total revenue or total support cost",
+        "States that the mix shift can itself be the result worth managing rather than noise to strip out",
+        "Says the size of the mix change has to travel alongside the aggregate either way",
+        "Names a case where mix-adjusting would bury a real decline, such as a deliberate push into a weaker channel"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-29"
   },
   {
     "id": "q_modeling_additivity_breaks_first_001",
