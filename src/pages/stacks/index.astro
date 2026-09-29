@@ -47,6 +47,11 @@ import '../../styles/themes/stacks.css';
     <section id="view-log">
       <form id="log-form" novalidate>
 
+        <!-- Same as last time: fills the form, does not submit it -->
+        <button type="button" id="repeat-last" class="repeat-last" hidden>
+          Same as last time <span id="repeat-desc" class="repeat-desc"></span>
+        </button>
+
         <!-- Source -->
         <div class="field">
           <div class="field-label">Source</div>
@@ -110,6 +115,16 @@ import '../../styles/themes/stacks.css';
             placeholder="or enter minutes…"
             style="margin-top:0.5rem"
           />
+        </div>
+
+        <!-- When: the evening you forgot to log is still worth logging -->
+        <div class="field">
+          <div class="field-label">When</div>
+          <div class="when-row">
+            <button type="button" class="when-btn active" data-when="today">Today</button>
+            <button type="button" class="when-btn" data-when="yesterday">Yesterday</button>
+            <input type="date" id="f-date" class="l-input when-date" aria-label="Another day" />
+          </div>
         </div>
 
         <!-- Note -->
@@ -314,6 +329,27 @@ select.l-input { cursor: pointer; }
 .min-btn.active { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent); }
 .min-btn:hover:not(.active) { border-color: var(--color-text-faint); color: var(--color-text); }
 
+/* ── When ── */
+.when-row { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 0.5rem; }
+.when-btn {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.8rem;
+  padding: 0.55rem 0.25rem; border-radius: var(--radius-xs); cursor: pointer;
+  transition: all var(--transition); min-height: 40px;
+}
+.when-btn.active { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent); }
+.when-date { min-height: 40px; }
+
+/* ── Same as last time ── */
+.repeat-last {
+  width: 100%; margin-bottom: 1rem; padding: 0.6rem 0.8rem; text-align: left;
+  background: var(--color-surface); border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xs); color: var(--color-text); cursor: pointer; font-size: 0.9rem;
+}
+.repeat-last:hover { border-color: var(--color-accent); }
+.repeat-desc { display: block; color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.75rem; margin-top: 0.2rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 /* ── Buttons ── */
 .btn-primary {
   background: var(--color-accent); color: var(--accent-ink); font-family: var(--font-body);
@@ -454,6 +490,52 @@ select.l-input { cursor: pointer; }
   const fItemText = document.getElementById('f-item-text') as HTMLInputElement;
   const fMinutes  = document.getElementById('f-minutes') as HTMLInputElement;
   const fNote     = document.getElementById('f-note') as HTMLTextAreaElement;
+  const fDate     = document.getElementById('f-date') as HTMLInputElement;
+  const repeatBtn = document.getElementById('repeat-last') as HTMLButtonElement;
+
+  // ── When ─────────────────────────────────────────────────────────
+  let when: 'today' | 'yesterday' | 'date' = 'today';
+  function setWhen(w: typeof when) {
+    when = w;
+    document.querySelectorAll<HTMLButtonElement>('.when-btn')
+      .forEach(b => b.classList.toggle('active', b.dataset.when === w));
+    if (w !== 'date') fDate.value = '';
+  }
+  document.querySelectorAll<HTMLButtonElement>('.when-btn')
+    .forEach(b => b.addEventListener('click', () => setWhen(b.dataset.when as typeof when)));
+  fDate.max = new Date().toLocaleDateString('en-CA');
+  fDate.addEventListener('change', () => { if (fDate.value) setWhen('date'); });
+
+  /** The instant to store. A past day is logged at local NOON: the heatmap and
+   *  streak read the date back in local time, and midnight sits one timezone
+   *  shift away from landing on the day before. */
+  function loggedAtFor(): string | null {
+    if (when === 'today') return new Date().toISOString();
+    const d = when === 'yesterday' ? new Date(Date.now() - 86_400_000) : new Date(fDate.value + 'T00:00');
+    if (isNaN(d.getTime())) return null;
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).toISOString();
+  }
+
+  // ── Same as last time ────────────────────────────────────────────
+  function renderRepeat() {
+    const last = sessions[0];
+    repeatBtn.hidden = !last;
+    if (!last) return;
+    document.getElementById('repeat-desc')!.textContent =
+      `${last.item} · ${last.minutes} min${last.skills.length ? ' · ' + last.skills.join(', ') : ''}`;
+  }
+  repeatBtn.addEventListener('click', () => {
+    const last = sessions[0];
+    if (!last) return;
+    (document.querySelector(`.src-btn[data-src="${last.source}"]`) as HTMLButtonElement | null)?.click();
+    if (last.source === 'book') fItemBook.value = last.item; else fItemText.value = last.item;
+    document.querySelectorAll<HTMLButtonElement>('.skill-chip')
+      .forEach(c => c.classList.toggle('active', last.skills.includes(c.dataset.skill as SkillTag)));
+    fMinutes.value = String(last.minutes);
+    document.querySelectorAll<HTMLButtonElement>('.min-btn')
+      .forEach(b => b.classList.toggle('active', b.dataset.min === String(last.minutes)));
+    showMsg('Filled in from your last session. Change anything, then Log.', 'ok');
+  });
 
   // ── API (shared client — attaches the key, re-challenges the gate on 401) ──
   const api = apiFetch;
@@ -511,6 +593,7 @@ select.l-input { cursor: pointer; }
     fMinutes.value = '';
     document.querySelectorAll('.min-btn').forEach(b => b.classList.remove('active'));
     fNote.value = '';
+    setWhen('today');
   }
 
   // ── Minutes presets ──────────────────────────────────────────────
@@ -535,18 +618,21 @@ select.l-input { cursor: pointer; }
 
     if (!item) { showMsg('Select or enter an item.', 'err'); return; }
     if (!mins || mins < 1) { showMsg('Enter a duration.', 'err'); return; }
+    const loggedAt = loggedAtFor();
+    if (!loggedAt) { showMsg('Pick a day.', 'err'); return; }
 
     logSubmit.disabled = true;
     logSubmit.innerHTML = '<span class="spinner"></span> Logging…';
     try {
       await api('/learn/sessions', {
         method: 'POST',
-        body: JSON.stringify({ source, item, skills, minutes: mins, note: fNote.value.trim() || null }),
+        body: JSON.stringify({ source, item, skills, minutes: mins, note: fNote.value.trim() || null, loggedAt }),
       });
-      showMsg('Session logged!', 'ok');
+      showMsg(when === 'today' ? 'Session logged!' : 'Session logged for ' +
+        new Date(loggedAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + '.', 'ok');
       clearForm();
       sessions = (await api('/learn/sessions')).sessions as Session[];
-      renderRecentList();
+      renderRecentList(); renderRepeat();
       if (!viewDash.hidden) renderDashboard();
     } catch (err: any) {
       showMsg(err.message || 'Error logging session.', 'err');
@@ -622,7 +708,7 @@ select.l-input { cursor: pointer; }
         try {
           await api(`/learn/sessions/${id}`, { method: 'DELETE' });
           sessions = sessions.filter(s => s.id !== id);
-          renderRecentList();
+          renderRecentList(); renderRepeat();
           if (!viewDash.hidden) renderDashboard();
         } catch { btn.disabled = false; }
       });
@@ -877,7 +963,7 @@ select.l-input { cursor: pointer; }
       const data = await api('/learn/sessions');
       sessions = data.sessions as Session[];
     } catch { sessions = []; }
-    renderRecentList();
+    renderRecentList(); renderRepeat();
     // A #dash deep link opens the dashboard before the sessions arrive.
     if (!viewDash.hidden && chartJsLoaded) renderDashboard();
   }
