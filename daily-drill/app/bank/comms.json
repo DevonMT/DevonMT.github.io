@@ -435,6 +435,155 @@
     "created_at": "2026-09-18"
   },
   {
+    "id": "q_comms_competing_priorities_multi_001",
+    "concept_id": "comms.competing_priorities",
+    "type": "multi",
+    "prompt": "You are caught between two requests that cannot both be finished this week. Which of these actions make the conflict visible rather than leaving it with you?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Tell each requester what the other request is and that one of them has to wait",
+        "Reply to both with a date that assumes the whole week goes to their work",
+        "Post both asks and the hours you actually have in a channel their managers read",
+        "Ask the two requesters to agree between themselves which goes first, and commit to taking their answer",
+        "Start whichever arrived first and mention the other only if someone chases it"
+      ],
+      "correct": [
+        0,
+        2,
+        3
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_competing_priorities_push_back_001",
+    "concept_id": "comms.competing_priorities",
+    "type": "push_back",
+    "prompt": "Two team leads have each asked you for a same-day turnaround on unrelated work, and there are hours in the day for one of them. Write what you say to the second lead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States plainly that only one of the two lands today",
+        "Gives the second lead a specific day or time for their work",
+        "Offers to put the choice in front of both leads or a manager",
+        "Avoids promising both by absorbing the gap with extra hours"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_competing_priorities_tf_why_001",
+    "concept_id": "comms.competing_priorities",
+    "type": "tf_why",
+    "prompt": "True or false: quietly working late so that both urgent requests ship on time is the professional answer, because neither requester ends up disappointed. Explain your verdict.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "Says the capacity problem stays hidden from the people who set priorities",
+          "Names the precedent that both asks can always be made to fit",
+          "Points out that neither requester learns they compete for the same hours",
+          "Names a visible alternative such as asking for a ranking"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "Says the capacity problem stays hidden from the people who set priorities",
+        "Names the precedent that both asks can always be made to fit",
+        "Points out that neither requester learns they compete for the same hours",
+        "Names a visible alternative such as asking for a ranking"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_competing_priorities_to_stakeholder_001",
+    "concept_id": "comms.competing_priorities",
+    "type": "to_stakeholder",
+    "prompt": "Write the message that asks your manager to pick between two requests that both arrived marked urgent, without reading as a complaint about either requester.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names both requests and who is asking for each",
+        "States the concrete cost of delaying each one",
+        "Asks for a decision by a stated time",
+        "Says which one you will start if no reply arrives"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_contradicting_a_belief_explain_001",
+    "concept_id": "comms.contradicting_a_belief",
+    "type": "explain",
+    "prompt": "Your analysis says the thing a director has repeated in every planning meeting for a year is not true. Before you say a word, what do you re-check in your own work, and why does that come first?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names at least two specific checks such as date window, filters or join grain",
+        "Names the metric definition as a place the disagreement can hide",
+        "Says a public mistake costs you credibility on every later finding",
+        "Considers that the belief may still hold under a different definition"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_contradicting_a_belief_ordering_001",
+    "concept_id": "comms.contradicting_a_belief",
+    "type": "ordering",
+    "prompt": "Put these steps in the order you would take them after finding a result that contradicts something leadership says often.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Send the finding to the whole leadership channel",
+        "Re-run the query and check the date range, filters and grain",
+        "Ask the person who holds the belief how they define the metric",
+        "Hand the result to one peer and ask them to try to break it"
+      ],
+      "correct_order": [
+        1,
+        3,
+        2,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_contradicting_a_belief_to_stakeholder_001",
+    "concept_id": "comms.contradicting_a_belief",
+    "type": "to_stakeholder",
+    "prompt": "A product lead has championed one acquisition channel for two years and your numbers show it barely moves signups. Write how you open that conversation — the opening only, not the whole meeting.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Leads with the method and definition before the conclusion",
+        "Frames the finding as a question rather than a verdict",
+        "States the number with its time window and population",
+        "Asks the lead where the analysis could be wrong"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
     "id": "q_comms_cutting_scope_cloze_001",
     "concept_id": "comms.cutting_scope",
     "type": "cloze",
@@ -1181,6 +1330,92 @@
     "created_at": "2026-09-04"
   },
   {
+    "id": "q_comms_incident_comms_critique_001",
+    "concept_id": "comms.incident_comms",
+    "type": "critique",
+    "prompt": "Critique this post, sent 25 minutes into an outage: `Still digging into the pipeline issue. Might be the warehouse connector, or possibly last night's deploy. Will update when we know more.` What is missing, and what would you cut?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Notes it never says which users or reports are affected",
+        "Notes there is no time given for the next update",
+        "Flags the guessing about cause as noise for this audience",
+        "Says the reader is left with no action or workaround"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_incident_comms_estimate_001",
+    "concept_id": "comms.incident_comms",
+    "type": "estimate",
+    "prompt": "You are forty minutes into an incident with no root cause yet. How often do you post, and what goes into an update when nothing has changed since the last one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Commits to a specific cadence such as every thirty minutes",
+        "Says an update still goes out when there is no news",
+        "Restates the impact and who is affected in each post",
+        "Ends every post with the time of the next one"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_incident_comms_multi_001",
+    "concept_id": "comms.incident_comms",
+    "type": "multi",
+    "prompt": "Which of these belong in the very first incident update, written before anyone knows the cause?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "What is broken, stated in the reader's terms",
+        "Who is affected, and who is not",
+        "The stack trace from the failing task",
+        "The time the next update will be posted",
+        "A named person who is working on it",
+        "Your current best guess at which deploy caused it"
+      ],
+      "correct": [
+        0,
+        1,
+        3,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_incident_comms_ordering_001",
+    "concept_id": "comms.incident_comms",
+    "type": "ordering",
+    "prompt": "A report is showing yesterday's totals and several people have pinged you. Order these actions from first to last.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "Post what is broken, who it affects, and when the next update lands",
+        "Start working out which upstream step failed",
+        "Post the follow-up at the time you promised, even with nothing new to say",
+        "Confirm the symptom exists outside your own session"
+      ],
+      "correct_order": [
+        3,
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
     "id": "q_comms_metric_to_decision_critique_001",
     "concept_id": "comms.metric_to_decision",
     "type": "critique",
@@ -1619,6 +1854,79 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-04"
+  },
+  {
+    "id": "q_comms_stakeholder_map_matching_001",
+    "concept_id": "comms.stakeholder_map",
+    "type": "matching",
+    "prompt": "Match each person around a request to the one thing you need from them.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "The person who asked for the work",
+        "The person who can fund it or cancel it",
+        "The person who will be asked why the number looks wrong"
+      ],
+      "right": [
+        "The decision this output is meant to feed",
+        "A yes or no on scope and timing",
+        "Agreement on how the metric is defined"
+      ],
+      "pairs": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_stakeholder_map_mcq_001",
+    "concept_id": "comms.stakeholder_map",
+    "type": "mcq",
+    "prompt": "A director forwards you a request that started with a team lead, and the output will be quoted in a quarterly finance review that a third person runs. Whose agreement on the metric definition do you need before publishing?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The team lead, because the request started with them",
+        "The director, because they forwarded it and outrank the lead",
+        "The person who runs the finance review, because they answer for the number",
+        "Whichever of the three replies to you first"
+      ],
+      "correct": 2
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_comms_stakeholder_map_push_back_001",
+    "concept_id": "comms.stakeholder_map",
+    "type": "push_back",
+    "prompt": "A requester tells you there is no need to involve the department head — they will take care of that side themselves. What do you say, and what do you write down?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Neither agrees silently nor goes around the requester",
+        "Asks who signs off and who owns the number",
+        "Names the specific thing needed from the department head",
+        "Puts the arrangement and its risk in writing"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
   },
   {
     "id": "q_comms_status_updates_critique_001",

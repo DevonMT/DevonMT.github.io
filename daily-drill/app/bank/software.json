@@ -1120,6 +1120,90 @@
     "created_at": "2026-09-05"
   },
   {
+    "id": "q_craft_premature_abstraction_mcq_001",
+    "concept_id": "craft.premature_abstraction",
+    "type": "mcq",
+    "prompt": "Which is the strongest sign that a shared helper was extracted before anyone knew what varied between its callers?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Its signature has grown one boolean flag per caller",
+        "It is called from three different modules",
+        "It lives in a module named utils",
+        "Its docstring is longer than its body"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_craft_premature_abstraction_push_back_001",
+    "concept_id": "craft.premature_abstraction",
+    "type": "push_back",
+    "prompt": "A reviewer blocks your pull request because two thirty-line transform functions in it are about eighty percent the same, and asks you to merge them into one parameterised helper. Make the case for leaving them apart.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says two instances do not yet show which parts actually vary",
+        "Names the cost of a flag or parameter added for every later caller",
+        "Names the coupling that makes one caller's change land on the other",
+        "States what would change your mind, such as a third instance appearing"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_craft_premature_abstraction_tf_why_001",
+    "concept_id": "craft.premature_abstraction",
+    "type": "tf_why",
+    "prompt": "True or false: two blocks of code being line-for-line identical today is on its own enough reason to replace them with a single shared function. Explain your verdict.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "Says identical text can be a coincidence of two separate rules",
+          "Asks whether both blocks would change for the same reason",
+          "Names the risk of a caller dragged into a change it never wanted",
+          "Says the shape of the code is weaker evidence than the reason it exists"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "Says identical text can be a coincidence of two separate rules",
+        "Asks whether both blocks would change for the same reason",
+        "Names the risk of a caller dragged into a change it never wanted",
+        "Says the shape of the code is weaker evidence than the reason it exists"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_craft_premature_abstraction_when_not_001",
+    "concept_id": "craft.premature_abstraction",
+    "type": "when_not",
+    "prompt": "When is waiting for a third instance the wrong call, and the two copies should be unified straight away?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names cases where the copies must always agree, such as a permission check or a money calculation",
+        "Separates duplicated knowledge from code that merely looks alike",
+        "Says a rule mirrored from a contract or regulation belongs in one place",
+        "Offers a test or check that keeps two copies in step if they stay split"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
     "id": "q_craft_refactoring_safety_explain_001",
     "concept_id": "craft.refactoring_safety",
     "type": "explain",
