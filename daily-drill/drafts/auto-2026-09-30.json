@@ -1,0 +1,300 @@
+[
+  {
+    "concept_id": "comms.competing_priorities",
+    "type": "push_back",
+    "prompt": "Two team leads have each asked you for a same-day turnaround on unrelated work, and there are hours in the day for one of them. Write what you say to the second lead.",
+    "criteria": [
+      "States plainly that only one of the two lands today",
+      "Gives the second lead a specific day or time for their work",
+      "Offers to put the choice in front of both leads or a manager",
+      "Avoids promising both by absorbing the gap with extra hours"
+    ]
+  },
+  {
+    "concept_id": "comms.competing_priorities",
+    "type": "to_stakeholder",
+    "prompt": "Write the message that asks your manager to pick between two requests that both arrived marked urgent, without reading as a complaint about either requester.",
+    "criteria": [
+      "Names both requests and who is asking for each",
+      "States the concrete cost of delaying each one",
+      "Asks for a decision by a stated time",
+      "Says which one you will start if no reply arrives"
+    ]
+  },
+  {
+    "concept_id": "comms.competing_priorities",
+    "type": "multi",
+    "prompt": "You are caught between two requests that cannot both be finished this week. Which of these actions make the conflict visible rather than leaving it with you?",
+    "options": [
+      "Tell each requester what the other request is and that one of them has to wait",
+      "Reply to both with a date that assumes the whole week goes to their work",
+      "Post both asks and the hours you actually have in a channel their managers read",
+      "Ask the two requesters to agree between themselves which goes first, and commit to taking their answer",
+      "Start whichever arrived first and mention the other only if someone chases it"
+    ],
+    "correct_indices": [
+      0,
+      2,
+      3
+    ]
+  },
+  {
+    "concept_id": "comms.competing_priorities",
+    "type": "tf_why",
+    "prompt": "True or false: quietly working late so that both urgent requests ship on time is the professional answer, because neither requester ends up disappointed. Explain your verdict.",
+    "verdict": false,
+    "criteria": [
+      "Says the capacity problem stays hidden from the people who set priorities",
+      "Names the precedent that both asks can always be made to fit",
+      "Points out that neither requester learns they compete for the same hours",
+      "Names a visible alternative such as asking for a ranking"
+    ]
+  },
+  {
+    "concept_id": "comms.contradicting_a_belief",
+    "type": "explain",
+    "prompt": "Your analysis says the thing a director has repeated in every planning meeting for a year is not true. Before you say a word, what do you re-check in your own work, and why does that come first?",
+    "criteria": [
+      "Names at least two specific checks such as date window, filters or join grain",
+      "Names the metric definition as a place the disagreement can hide",
+      "Says a public mistake costs you credibility on every later finding",
+      "Considers that the belief may still hold under a different definition"
+    ]
+  },
+  {
+    "concept_id": "comms.contradicting_a_belief",
+    "type": "to_stakeholder",
+    "prompt": "A product lead has championed one acquisition channel for two years and your numbers show it barely moves signups. Write how you open that conversation — the opening only, not the whole meeting.",
+    "criteria": [
+      "Leads with the method and definition before the conclusion",
+      "Frames the finding as a question rather than a verdict",
+      "States the number with its time window and population",
+      "Asks the lead where the analysis could be wrong"
+    ]
+  },
+  {
+    "concept_id": "comms.contradicting_a_belief",
+    "type": "ordering",
+    "prompt": "Put these steps in the order you would take them after finding a result that contradicts something leadership says often.",
+    "items": [
+      "Send the finding to the whole leadership channel",
+      "Re-run the query and check the date range, filters and grain",
+      "Ask the person who holds the belief how they define the metric",
+      "Hand the result to one peer and ask them to try to break it"
+    ],
+    "correct_order": [
+      1,
+      3,
+      2,
+      0
+    ]
+  },
+  {
+    "concept_id": "comms.incident_comms",
+    "type": "critique",
+    "prompt": "Critique this post, sent 25 minutes into an outage: `Still digging into the pipeline issue. Might be the warehouse connector, or possibly last night's deploy. Will update when we know more.` What is missing, and what would you cut?",
+    "criteria": [
+      "Notes it never says which users or reports are affected",
+      "Notes there is no time given for the next update",
+      "Flags the guessing about cause as noise for this audience",
+      "Says the reader is left with no action or workaround"
+    ]
+  },
+  {
+    "concept_id": "comms.incident_comms",
+    "type": "estimate",
+    "prompt": "You are forty minutes into an incident with no root cause yet. How often do you post, and what goes into an update when nothing has changed since the last one?",
+    "criteria": [
+      "Commits to a specific cadence such as every thirty minutes",
+      "Says an update still goes out when there is no news",
+      "Restates the impact and who is affected in each post",
+      "Ends every post with the time of the next one"
+    ]
+  },
+  {
+    "concept_id": "comms.incident_comms",
+    "type": "multi",
+    "prompt": "Which of these belong in the very first incident update, written before anyone knows the cause?",
+    "options": [
+      "What is broken, stated in the reader's terms",
+      "Who is affected, and who is not",
+      "The stack trace from the failing task",
+      "The time the next update will be posted",
+      "A named person who is working on it",
+      "Your current best guess at which deploy caused it"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      3,
+      4
+    ]
+  },
+  {
+    "concept_id": "comms.incident_comms",
+    "type": "ordering",
+    "prompt": "A report is showing yesterday's totals and several people have pinged you. Order these actions from first to last.",
+    "items": [
+      "Post what is broken, who it affects, and when the next update lands",
+      "Start working out which upstream step failed",
+      "Post the follow-up at the time you promised, even with nothing new to say",
+      "Confirm the symptom exists outside your own session"
+    ],
+    "correct_order": [
+      3,
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "comms.stakeholder_map",
+    "type": "push_back",
+    "prompt": "A requester tells you there is no need to involve the department head — they will take care of that side themselves. What do you say, and what do you write down?",
+    "criteria": [
+      "Neither agrees silently nor goes around the requester",
+      "Asks who signs off and who owns the number",
+      "Names the specific thing needed from the department head",
+      "Puts the arrangement and its risk in writing"
+    ]
+  },
+  {
+    "concept_id": "comms.stakeholder_map",
+    "type": "mcq",
+    "prompt": "A director forwards you a request that started with a team lead, and the output will be quoted in a quarterly finance review that a third person runs. Whose agreement on the metric definition do you need before publishing?",
+    "options": [
+      "The team lead, because the request started with them",
+      "The director, because they forwarded it and outrank the lead",
+      "The person who runs the finance review, because they answer for the number",
+      "Whichever of the three replies to you first"
+    ],
+    "correct_index": 2
+  },
+  {
+    "concept_id": "comms.stakeholder_map",
+    "type": "matching",
+    "prompt": "Match each person around a request to the one thing you need from them.",
+    "left": [
+      "The person who asked for the work",
+      "The person who can fund it or cancel it",
+      "The person who will be asked why the number looks wrong"
+    ],
+    "right": [
+      "The decision this output is meant to feed",
+      "A yes or no on scope and timing",
+      "Agreement on how the metric is defined"
+    ],
+    "pairs": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        2
+      ]
+    ]
+  },
+  {
+    "concept_id": "container.resource_limits",
+    "type": "explain",
+    "prompt": "A container vanishes mid-run and its own log ends part-way through an ordinary step, with no traceback and no shutdown line. Explain why nothing was logged and where the evidence actually lives.",
+    "criteria": [
+      "Says the process was sent SIGKILL and had no chance to log or flush",
+      "Says the kill came from the kernel or cgroup, not from the application",
+      "Names where to look, such as the pod's last terminated state or the host kernel log",
+      "Says the final log line shows where it died, not why"
+    ]
+  },
+  {
+    "concept_id": "container.resource_limits",
+    "type": "breaks_first",
+    "prompt": "A nightly job runs in a container with a 2 GiB memory limit and loads each input file fully into a dataframe. The files have grown about five percent a month for a year. What breaks first, and how would you find out?",
+    "criteria": [
+      "Says the container is killed once one file's peak usage crosses the limit",
+      "Says it surfaces as a missing or partial run rather than an error message",
+      "Names exit code 137 or an OOMKilled status as the evidence",
+      "Names chunking or streaming the file, or a raised limit, as the fix"
+    ]
+  },
+  {
+    "concept_id": "container.resource_limits",
+    "type": "predict_output",
+    "prompt": "A container crosses its memory limit and the kernel kills the process outright. What exit code does the container runtime report for it?",
+    "accept": [
+      "137",
+      "exit code 137",
+      "exit 137"
+    ],
+    "explain": "128 + 9. The process was terminated by SIGKILL, which is signal 9, so the reported exit code is 137 — a number worth recognising on sight, because the container itself logged nothing."
+  },
+  {
+    "concept_id": "container.resource_limits",
+    "type": "multi",
+    "prompt": "Which observations point at a memory kill rather than the application crashing on its own?",
+    "options": [
+      "The log ends mid-step with no traceback and no shutdown message",
+      "The container reports exit code 137 and no error text",
+      "The pod's last terminated state gives a reason of OOMKilled",
+      "The traceback ends in a division by zero inside the transform step",
+      "The host kernel log shows a process from that cgroup being reaped",
+      "The application logged a clean shutdown and exited zero"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2,
+      4
+    ]
+  },
+  {
+    "concept_id": "craft.premature_abstraction",
+    "type": "push_back",
+    "prompt": "A reviewer blocks your pull request because two thirty-line transform functions in it are about eighty percent the same, and asks you to merge them into one parameterised helper. Make the case for leaving them apart.",
+    "criteria": [
+      "Says two instances do not yet show which parts actually vary",
+      "Names the cost of a flag or parameter added for every later caller",
+      "Names the coupling that makes one caller's change land on the other",
+      "States what would change your mind, such as a third instance appearing"
+    ]
+  },
+  {
+    "concept_id": "craft.premature_abstraction",
+    "type": "when_not",
+    "prompt": "When is waiting for a third instance the wrong call, and the two copies should be unified straight away?",
+    "criteria": [
+      "Names cases where the copies must always agree, such as a permission check or a money calculation",
+      "Separates duplicated knowledge from code that merely looks alike",
+      "Says a rule mirrored from a contract or regulation belongs in one place",
+      "Offers a test or check that keeps two copies in step if they stay split"
+    ]
+  },
+  {
+    "concept_id": "craft.premature_abstraction",
+    "type": "mcq",
+    "prompt": "Which is the strongest sign that a shared helper was extracted before anyone knew what varied between its callers?",
+    "options": [
+      "Its signature has grown one boolean flag per caller",
+      "It is called from three different modules",
+      "It lives in a module named utils",
+      "Its docstring is longer than its body"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "craft.premature_abstraction",
+    "type": "tf_why",
+    "prompt": "True or false: two blocks of code being line-for-line identical today is on its own enough reason to replace them with a single shared function. Explain your verdict.",
+    "verdict": false,
+    "criteria": [
+      "Says identical text can be a coincidence of two separate rules",
+      "Asks whether both blocks would change for the same reason",
+      "Names the risk of a caller dragged into a change it never wanted",
+      "Says the shape of the code is weaker evidence than the reason it exists"
+    ]
+  }
+]

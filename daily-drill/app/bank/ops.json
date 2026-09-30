@@ -265,6 +265,86 @@
     "created_at": "2026-09-20"
   },
   {
+    "id": "q_container_resource_limits_breaks_first_001",
+    "concept_id": "container.resource_limits",
+    "type": "breaks_first",
+    "prompt": "A nightly job runs in a container with a 2 GiB memory limit and loads each input file fully into a dataframe. The files have grown about five percent a month for a year. What breaks first, and how would you find out?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the container is killed once one file's peak usage crosses the limit",
+        "Says it surfaces as a missing or partial run rather than an error message",
+        "Names exit code 137 or an OOMKilled status as the evidence",
+        "Names chunking or streaming the file, or a raised limit, as the fix"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_container_resource_limits_explain_001",
+    "concept_id": "container.resource_limits",
+    "type": "explain",
+    "prompt": "A container vanishes mid-run and its own log ends part-way through an ordinary step, with no traceback and no shutdown line. Explain why nothing was logged and where the evidence actually lives.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says the process was sent SIGKILL and had no chance to log or flush",
+        "Says the kill came from the kernel or cgroup, not from the application",
+        "Names where to look, such as the pod's last terminated state or the host kernel log",
+        "Says the final log line shows where it died, not why"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_container_resource_limits_multi_001",
+    "concept_id": "container.resource_limits",
+    "type": "multi",
+    "prompt": "Which observations point at a memory kill rather than the application crashing on its own?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The log ends mid-step with no traceback and no shutdown message",
+        "The container reports exit code 137 and no error text",
+        "The pod's last terminated state gives a reason of OOMKilled",
+        "The traceback ends in a division by zero inside the transform step",
+        "The host kernel log shows a process from that cgroup being reaped",
+        "The application logged a clean shutdown and exited zero"
+      ],
+      "correct": [
+        0,
+        1,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
+    "id": "q_container_resource_limits_predict_output_001",
+    "concept_id": "container.resource_limits",
+    "type": "predict_output",
+    "prompt": "A container crosses its memory limit and the kernel kills the process outright. What exit code does the container runtime report for it?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "137",
+        "exit code 137",
+        "exit 137"
+      ],
+      "explain": "128 + 9. The process was terminated by SIGKILL, which is signal 9, so the reported exit code is 137 — a number worth recognising on sight, because the container itself logged nothing."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-09-30"
+  },
+  {
     "id": "q_container_volumes_cloze_001",
     "concept_id": "container.volumes",
     "type": "cloze",
