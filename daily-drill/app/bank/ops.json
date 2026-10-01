@@ -435,6 +435,172 @@
     "created_at": "2026-09-05"
   },
   {
+    "id": "q_incident_failure_modes_breaks_first_001",
+    "concept_id": "incident.failure_modes",
+    "type": "breaks_first",
+    "prompt": "A morning report runs off one query joining six tables, fed by an hourly pull from a third party's API, and is read by about forty people. What breaks first, and why that rather than anything else?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Commits to one specific first failure instead of listing every risk",
+        "Gives the reason that piece is weakest, such as the API being outside your control",
+        "Says what the symptom looks like to the forty readers",
+        "Names a second failure that only surfaces once the first is fixed"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_incident_failure_modes_estimate_001",
+    "concept_id": "incident.failure_modes",
+    "type": "estimate",
+    "prompt": "A pipeline step takes 4 minutes against the 2 million rows it sees each hour. A backfill will push 180 million rows through the same step. Estimate the runtime and say what gives out before it finishes.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a number or range scaled from the known 4-minute run",
+        "States the assumption that the step scales close to linearly",
+        "Names a resource that stops scaling linearly, such as memory, temp disk or a lock",
+        "Says which of elapsed time or a resource ceiling bites first"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_incident_failure_modes_matching_001",
+    "concept_id": "incident.failure_modes",
+    "type": "matching",
+    "prompt": "Match each safeguard to the failure it is actually there to catch.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "A row-count check against the trailing median",
+        "A unique key on the natural identifier plus an upsert",
+        "A timeout and retry with backoff around the API call",
+        "An assertion on the expected column set before the transform runs"
+      ],
+      "right": [
+        "The same delivery gets processed twice",
+        "A dependency is slow or briefly unreachable",
+        "The source silently sends a fraction of the usual records",
+        "An upstream team renames a field without telling anyone"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          3
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_incident_failure_modes_multi_001",
+    "concept_id": "incident.failure_modes",
+    "type": "multi",
+    "prompt": "You are about to ship a job that reads a partner's daily CSV drop. Which of these are failure modes worth designing for before launch?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The file arrives on time but with one column renamed",
+        "The file never arrives and yesterday's copy is still sitting in the folder",
+        "The file arrives twice and the job processes both",
+        "The partner's company changes its registered legal name",
+        "The file is well-formed but carries ten times the usual row count"
+      ],
+      "correct": [
+        0,
+        1,
+        2,
+        4
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_incident_postmortems_cloze_001",
+    "concept_id": "incident.postmortems",
+    "type": "cloze",
+    "prompt": "Fill the blank: a review is called ______ when it treats \"the operator made a mistake\" as the beginning of the investigation rather than its conclusion.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "blameless",
+            "blame-free",
+            "blame free"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_incident_postmortems_critique_001",
+    "concept_id": "incident.postmortems",
+    "type": "critique",
+    "prompt": "A write-up gives its root cause as \"engineer did not follow the deploy checklist\" and its action item as \"remind the team to follow the checklist\". Critique it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that human error is where the investigation starts, not where it ends",
+        "Asks why the checklist was skippable in the first place",
+        "Names a change to the system, such as making the step automatic or blocking",
+        "Points out that a reminder is not something anyone can verify later"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_incident_postmortems_ordering_001",
+    "concept_id": "incident.postmortems",
+    "type": "ordering",
+    "prompt": "Order the sections of an incident write-up the way the people reading it need them, first to last.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "items": [
+        "The one change you are committing to, with an owner",
+        "A timestamped account of what happened and when it was noticed",
+        "Who and what was affected, and for how long",
+        "The contributing factors that let it happen and go unnoticed"
+      ],
+      "correct_order": [
+        2,
+        1,
+        3,
+        0
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
     "id": "q_incident_triage_ordering_001",
     "concept_id": "incident.triage",
     "type": "ordering",
@@ -951,6 +1117,80 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-06"
+  },
+  {
+    "id": "q_linux_systemd_explain_001",
+    "concept_id": "linux.systemd",
+    "type": "explain",
+    "prompt": "A script you have been running by hand needs to come back on its own after a reboot and after it dies at 2am. Explain what you set up, and which setting handles which of those two cases.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a unit file with an [Install] section plus `systemctl enable` for the reboot case",
+        "Names `Restart=` as the setting that covers the crash case",
+        "Distinguishes being enabled at boot from being running right now",
+        "Mentions `RestartSec` or a start-limit so a crash loop does not spin"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_linux_systemd_mcq_001",
+    "concept_id": "linux.systemd",
+    "type": "mcq",
+    "prompt": "`systemctl status loader` reports `Active: active (running)` and, above it, `Loaded: loaded (/etc/systemd/system/loader.service; disabled)`. What happens to this service at the next reboot?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "It starts, because it was running when the machine went down",
+        "It does not start, because nothing has been set up to pull it in at boot",
+        "It starts, but only after someone runs `daemon-reload`",
+        "It starts and then immediately stops, because `disabled` only blocks automatic restarts"
+      ],
+      "correct": 1
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_linux_systemd_predict_output_001",
+    "concept_id": "linux.systemd",
+    "type": "predict_output",
+    "prompt": "A unit file is edited to change `Restart=no` to `Restart=always`, then `systemctl restart loader` is run and nothing else. The process dies a minute later and stays dead. Name the one command that was missing.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "accept": [
+        "systemctl daemon-reload",
+        "daemon-reload",
+        "sudo systemctl daemon-reload",
+        "systemctl daemon reload"
+      ],
+      "explain": "systemd serves the unit configuration it parsed when the unit was loaded, so an edit on disk changes nothing until `systemctl daemon-reload` re-reads it. The restart ran with the old `Restart=no`."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_linux_systemd_when_not_001",
+    "concept_id": "linux.systemd",
+    "type": "when_not",
+    "prompt": "Give a case where putting a job under a unit with `Restart=always` is the wrong answer, and say what you would reach for instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a case such as a batch job that is meant to run once and exit",
+        "Explains that restarting after bad input just repeats the same failure",
+        "Names an alternative such as a timer unit, `Restart=on-failure`, or an external scheduler",
+        "Says what signal is lost when the unit always looks healthy"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
   },
   {
     "id": "q_net_dns_cloze_001",

@@ -1284,6 +1284,90 @@
     "created_at": "2026-09-20"
   },
   {
+    "id": "q_debug_error_strategy_mcq_001",
+    "concept_id": "debug.error_strategy",
+    "type": "mcq",
+    "prompt": "A nightly load writes 4 of 9 source files, hits a schema change on the fifth, logs a warning and exits zero. Why is that worse than the job having crashed on the fifth file?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Downstream consumers read a table that looks finished and silently undercounts",
+        "The four files that did load wasted compute that will be repeated on the retry",
+        "A crash would have produced a stack trace, which is easier to read than a warning",
+        "Exiting zero means the run cannot be retried without manual cleanup"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_debug_error_strategy_push_back_001",
+    "concept_id": "debug.error_strategy",
+    "type": "push_back",
+    "prompt": "A teammate proposes wrapping every row-level transform in a try/except that logs the failure and moves on, so the nightly job stops paging anyone. Make the case against it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names the partially-loaded table as the real cost, not the failed job",
+        "Points out that a run marked green hides however many rows went missing",
+        "Separates failures worth skipping from failures that invalidate the whole output",
+        "Offers an alternative such as aborting the load or routing rejects to a quarantine table"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_debug_error_strategy_tf_why_001",
+    "concept_id": "debug.error_strategy",
+    "type": "tf_why",
+    "prompt": "A check that raises on malformed input is less safe than one that drops the bad rows and records a count, because the raising version can take the pipeline down at 3am. True or false?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that a dead pipeline is a visible failure while silent dropping is not",
+          "Names someone acting on the undercounted number as the larger cost",
+          "Rejects the cost of being woken up as a reason on its own",
+          "Says the call turns on whether the dropped rows change the answer"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that a dead pipeline is a visible failure while silent dropping is not",
+        "Names someone acting on the undercounted number as the larger cost",
+        "Rejects the cost of being woken up as a reason on its own",
+        "Says the call turns on whether the dropped rows change the answer"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_debug_error_strategy_when_not_001",
+    "concept_id": "debug.error_strategy",
+    "type": "when_not",
+    "prompt": "Describe a case where continuing past an error with incomplete data is the better choice, and say what you then owe the people reading that output.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a case where a partial or stale answer beats no answer at all",
+        "Names a signal carried on the output itself, such as a freshness or completeness field",
+        "States that the degraded path has to be visible rather than silent",
+        "Says the record of what was dropped has to outlive the run"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
     "id": "q_debug_logging_critique_001",
     "concept_id": "debug.logging",
     "type": "critique",
@@ -1716,6 +1800,105 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-21"
+  },
+  {
+    "id": "q_git_recovery_critique_001",
+    "concept_id": "git.recovery",
+    "type": "critique",
+    "prompt": "A colleague's fix for a bad commit already pushed to the shared main branch is: reset main back one commit locally, then force-push. Critique that plan.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that a force-push rewrites history others have already pulled",
+        "Names `git revert` as the alternative that adds rather than rewrites",
+        "Describes what a teammate whose local main still holds the old commit then sees",
+        "Notes that revert leaves the mistake visible in history as an extra commit"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_git_recovery_explain_001",
+    "concept_id": "git.recovery",
+    "type": "explain",
+    "prompt": "You ran `git reset --hard` on your branch an hour ago and now want that work back. Walk through how you find it and what makes finding it possible at all.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names `git reflog` as where the old branch tip is still listed",
+        "States that the commits became unreferenced rather than deleted",
+        "Describes branching or resetting onto the recovered SHA",
+        "Notes that changes never committed are not recoverable this way"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_git_recovery_matching_001",
+    "concept_id": "git.recovery",
+    "type": "matching",
+    "prompt": "Match each command to what it actually does to your history or working tree.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "git revert <sha>",
+        "git reset --hard <sha>",
+        "git reflog",
+        "git stash"
+      ],
+      "right": [
+        "Parks uncommitted changes without adding a commit to the branch",
+        "Adds a new commit that undoes an old one, leaving history intact",
+        "Lists where HEAD has pointed recently, including orphaned commits",
+        "Moves the branch pointer and throws away working-tree changes"
+      ],
+      "pairs": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
+  },
+  {
+    "id": "q_git_recovery_spot_error_001",
+    "concept_id": "git.recovery",
+    "type": "spot_error",
+    "prompt": "This is a colleague's procedure for undoing a commit that is already on the shared remote. Exactly one line will cause trouble for everyone else on the branch.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "git fetch origin",
+        "git log --oneline -5",
+        "git revert 9f2c1ab",
+        "git push --force origin main",
+        "git log --oneline -3"
+      ],
+      "bad_line": 3,
+      "why": "`git revert` has already created a new commit on top, so the push is an ordinary fast-forward. `--force` is not needed, and it rewrites `main` for everyone who has already fetched it."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-01"
   },
   {
     "id": "q_py_context_managers_explain_001",
