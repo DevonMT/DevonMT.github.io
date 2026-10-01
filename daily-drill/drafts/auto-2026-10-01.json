@@ -1,0 +1,322 @@
+[
+  {
+    "concept_id": "debug.error_strategy",
+    "type": "push_back",
+    "prompt": "A teammate proposes wrapping every row-level transform in a try/except that logs the failure and moves on, so the nightly job stops paging anyone. Make the case against it.",
+    "criteria": [
+      "Names the partially-loaded table as the real cost, not the failed job",
+      "Points out that a run marked green hides however many rows went missing",
+      "Separates failures worth skipping from failures that invalidate the whole output",
+      "Offers an alternative such as aborting the load or routing rejects to a quarantine table"
+    ]
+  },
+  {
+    "concept_id": "debug.error_strategy",
+    "type": "when_not",
+    "prompt": "Describe a case where continuing past an error with incomplete data is the better choice, and say what you then owe the people reading that output.",
+    "criteria": [
+      "Gives a case where a partial or stale answer beats no answer at all",
+      "Names a signal carried on the output itself, such as a freshness or completeness field",
+      "States that the degraded path has to be visible rather than silent",
+      "Says the record of what was dropped has to outlive the run"
+    ]
+  },
+  {
+    "concept_id": "debug.error_strategy",
+    "type": "mcq",
+    "prompt": "A nightly load writes 4 of 9 source files, hits a schema change on the fifth, logs a warning and exits zero. Why is that worse than the job having crashed on the fifth file?",
+    "options": [
+      "Downstream consumers read a table that looks finished and silently undercounts",
+      "The four files that did load wasted compute that will be repeated on the retry",
+      "A crash would have produced a stack trace, which is easier to read than a warning",
+      "Exiting zero means the run cannot be retried without manual cleanup"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "debug.error_strategy",
+    "type": "tf_why",
+    "prompt": "A check that raises on malformed input is less safe than one that drops the bad rows and records a count, because the raising version can take the pipeline down at 3am. True or false?",
+    "verdict": false,
+    "criteria": [
+      "States that a dead pipeline is a visible failure while silent dropping is not",
+      "Names someone acting on the undercounted number as the larger cost",
+      "Rejects the cost of being woken up as a reason on its own",
+      "Says the call turns on whether the dropped rows change the answer"
+    ]
+  },
+  {
+    "concept_id": "git.recovery",
+    "type": "explain",
+    "prompt": "You ran `git reset --hard` on your branch an hour ago and now want that work back. Walk through how you find it and what makes finding it possible at all.",
+    "criteria": [
+      "Names `git reflog` as where the old branch tip is still listed",
+      "States that the commits became unreferenced rather than deleted",
+      "Describes branching or resetting onto the recovered SHA",
+      "Notes that changes never committed are not recoverable this way"
+    ]
+  },
+  {
+    "concept_id": "git.recovery",
+    "type": "critique",
+    "prompt": "A colleague's fix for a bad commit already pushed to the shared main branch is: reset main back one commit locally, then force-push. Critique that plan.",
+    "criteria": [
+      "States that a force-push rewrites history others have already pulled",
+      "Names `git revert` as the alternative that adds rather than rewrites",
+      "Describes what a teammate whose local main still holds the old commit then sees",
+      "Notes that revert leaves the mistake visible in history as an extra commit"
+    ]
+  },
+  {
+    "concept_id": "git.recovery",
+    "type": "matching",
+    "prompt": "Match each command to what it actually does to your history or working tree.",
+    "left": [
+      "git revert <sha>",
+      "git reset --hard <sha>",
+      "git reflog",
+      "git stash"
+    ],
+    "right": [
+      "Parks uncommitted changes without adding a commit to the branch",
+      "Adds a new commit that undoes an old one, leaving history intact",
+      "Lists where HEAD has pointed recently, including orphaned commits",
+      "Moves the branch pointer and throws away working-tree changes"
+    ],
+    "pairs": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        0
+      ]
+    ]
+  },
+  {
+    "concept_id": "git.recovery",
+    "type": "spot_error",
+    "prompt": "This is a colleague's procedure for undoing a commit that is already on the shared remote. Exactly one line will cause trouble for everyone else on the branch.",
+    "lines": [
+      "git fetch origin",
+      "git log --oneline -5",
+      "git revert 9f2c1ab",
+      "git push --force origin main",
+      "git log --oneline -3"
+    ],
+    "bad_line": 3,
+    "why": "`git revert` has already created a new commit on top, so the push is an ordinary fast-forward. `--force` is not needed, and it rewrites `main` for everyone who has already fetched it."
+  },
+  {
+    "concept_id": "incident.failure_modes",
+    "type": "breaks_first",
+    "prompt": "A morning report runs off one query joining six tables, fed by an hourly pull from a third party's API, and is read by about forty people. What breaks first, and why that rather than anything else?",
+    "criteria": [
+      "Commits to one specific first failure instead of listing every risk",
+      "Gives the reason that piece is weakest, such as the API being outside your control",
+      "Says what the symptom looks like to the forty readers",
+      "Names a second failure that only surfaces once the first is fixed"
+    ]
+  },
+  {
+    "concept_id": "incident.failure_modes",
+    "type": "estimate",
+    "prompt": "A pipeline step takes 4 minutes against the 2 million rows it sees each hour. A backfill will push 180 million rows through the same step. Estimate the runtime and say what gives out before it finishes.",
+    "criteria": [
+      "Gives a number or range scaled from the known 4-minute run",
+      "States the assumption that the step scales close to linearly",
+      "Names a resource that stops scaling linearly, such as memory, temp disk or a lock",
+      "Says which of elapsed time or a resource ceiling bites first"
+    ]
+  },
+  {
+    "concept_id": "incident.failure_modes",
+    "type": "multi",
+    "prompt": "You are about to ship a job that reads a partner's daily CSV drop. Which of these are failure modes worth designing for before launch?",
+    "options": [
+      "The file arrives on time but with one column renamed",
+      "The file never arrives and yesterday's copy is still sitting in the folder",
+      "The file arrives twice and the job processes both",
+      "The partner's company changes its registered legal name",
+      "The file is well-formed but carries ten times the usual row count"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2,
+      4
+    ]
+  },
+  {
+    "concept_id": "incident.failure_modes",
+    "type": "matching",
+    "prompt": "Match each safeguard to the failure it is actually there to catch.",
+    "left": [
+      "A row-count check against the trailing median",
+      "A unique key on the natural identifier plus an upsert",
+      "A timeout and retry with backoff around the API call",
+      "An assertion on the expected column set before the transform runs"
+    ],
+    "right": [
+      "The same delivery gets processed twice",
+      "A dependency is slow or briefly unreachable",
+      "The source silently sends a fraction of the usual records",
+      "An upstream team renames a field without telling anyone"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        3
+      ]
+    ]
+  },
+  {
+    "concept_id": "incident.postmortems",
+    "type": "critique",
+    "prompt": "A write-up gives its root cause as \"engineer did not follow the deploy checklist\" and its action item as \"remind the team to follow the checklist\". Critique it.",
+    "criteria": [
+      "States that human error is where the investigation starts, not where it ends",
+      "Asks why the checklist was skippable in the first place",
+      "Names a change to the system, such as making the step automatic or blocking",
+      "Points out that a reminder is not something anyone can verify later"
+    ]
+  },
+  {
+    "concept_id": "incident.postmortems",
+    "type": "ordering",
+    "prompt": "Order the sections of an incident write-up the way the people reading it need them, first to last.",
+    "items": [
+      "The one change you are committing to, with an owner",
+      "A timestamped account of what happened and when it was noticed",
+      "Who and what was affected, and for how long",
+      "The contributing factors that let it happen and go unnoticed"
+    ],
+    "correct_order": [
+      2,
+      1,
+      3,
+      0
+    ]
+  },
+  {
+    "concept_id": "incident.postmortems",
+    "type": "cloze",
+    "prompt": "Fill the blank: a review is called ______ when it treats \"the operator made a mistake\" as the beginning of the investigation rather than its conclusion.",
+    "blanks": [
+      {
+        "accept": [
+          "blameless",
+          "blame-free",
+          "blame free"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "linux.systemd",
+    "type": "explain",
+    "prompt": "A script you have been running by hand needs to come back on its own after a reboot and after it dies at 2am. Explain what you set up, and which setting handles which of those two cases.",
+    "criteria": [
+      "Names a unit file with an [Install] section plus `systemctl enable` for the reboot case",
+      "Names `Restart=` as the setting that covers the crash case",
+      "Distinguishes being enabled at boot from being running right now",
+      "Mentions `RestartSec` or a start-limit so a crash loop does not spin"
+    ]
+  },
+  {
+    "concept_id": "linux.systemd",
+    "type": "when_not",
+    "prompt": "Give a case where putting a job under a unit with `Restart=always` is the wrong answer, and say what you would reach for instead.",
+    "criteria": [
+      "Names a case such as a batch job that is meant to run once and exit",
+      "Explains that restarting after bad input just repeats the same failure",
+      "Names an alternative such as a timer unit, `Restart=on-failure`, or an external scheduler",
+      "Says what signal is lost when the unit always looks healthy"
+    ]
+  },
+  {
+    "concept_id": "linux.systemd",
+    "type": "predict_output",
+    "prompt": "A unit file is edited to change `Restart=no` to `Restart=always`, then `systemctl restart loader` is run and nothing else. The process dies a minute later and stays dead. Name the one command that was missing.",
+    "accept": [
+      "systemctl daemon-reload",
+      "daemon-reload",
+      "sudo systemctl daemon-reload",
+      "systemctl daemon reload"
+    ],
+    "explain": "systemd serves the unit configuration it parsed when the unit was loaded, so an edit on disk changes nothing until `systemctl daemon-reload` re-reads it. The restart ran with the old `Restart=no`."
+  },
+  {
+    "concept_id": "linux.systemd",
+    "type": "mcq",
+    "prompt": "`systemctl status loader` reports `Active: active (running)` and, above it, `Loaded: loaded (/etc/systemd/system/loader.service; disabled)`. What happens to this service at the next reboot?",
+    "options": [
+      "It starts, because it was running when the machine went down",
+      "It does not start, because nothing has been set up to pull it in at boot",
+      "It starts, but only after someone runs `daemon-reload`",
+      "It starts and then immediately stops, because `disabled` only blocks automatic restarts"
+    ],
+    "correct_index": 1
+  },
+  {
+    "concept_id": "llm.calibration_set",
+    "type": "breaks_first",
+    "prompt": "You keep twenty fixture answers with expected results and replay them on every change to the grader. What breaks first about that set as the months go by?",
+    "criteria": [
+      "Names the fixtures going stale as the questions or rubrics they reference change",
+      "Points out that a set which always passes has stopped carrying information",
+      "Notes the missing middle: the fixtures are clear passes and clear fails, not borderline answers",
+      "Gives one way to notice the decay, such as tracking which fixtures have ever flipped"
+    ]
+  },
+  {
+    "concept_id": "llm.calibration_set",
+    "type": "tf_why",
+    "prompt": "If the grader's verdict changes on a fixture answer nobody has edited, the fixture's expected result is out of date and should be updated to match. True or false?",
+    "verdict": false,
+    "criteria": [
+      "States that the changed verdict is the signal the set exists to raise",
+      "Says editing the fixture to agree erases the evidence of the shift",
+      "Names investigating the grader or its prompt as the first step",
+      "Allows that an expected result can be wrong, but only after review, not by default"
+    ]
+  },
+  {
+    "concept_id": "llm.calibration_set",
+    "type": "multi",
+    "prompt": "A replayed set of fixture answers with known expected results would catch which of these?",
+    "options": [
+      "A model upgrade that starts accepting hedged answers it used to reject",
+      "A rubric edit that quietly loosens what counts as meeting a criterion",
+      "A new question whose prompt is a near-duplicate of one already stored",
+      "A grading-prompt change that makes every verdict harsher",
+      "A phone layout that renders the answer box too narrow to type in"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      3
+    ]
+  }
+]
