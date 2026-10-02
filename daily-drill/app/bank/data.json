@@ -1590,6 +1590,85 @@
     "created_at": "2026-09-03"
   },
   {
+    "id": "q_orchestration_assets_vs_tasks_explain_001",
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "explain",
+    "prompt": "A pipeline is rewritten so each node declares the table it produces instead of the script it runs. At 9am a number on a report looks wrong. Describe how your debugging session differs from before.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Says you start from the wrong table and walk its declared upstream tables",
+        "States that the task-oriented view only tells you which step ran and whether it exited zero",
+        "Mentions rebuilding that one table and its downstream dependents, rather than re-running the whole schedule",
+        "Notes that the orchestrator knows what each run produced, not just that it finished"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_orchestration_assets_vs_tasks_mcq_001",
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "mcq",
+    "prompt": "A reporting table holds yesterday's numbers when it should hold today's. Which question can an asset-oriented orchestrator answer directly that a task-oriented one cannot?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Which run last materialised this table, and which upstream tables that run read",
+        "Whether the overnight job exited with a non-zero status code",
+        "How long each step in the schedule took to execute",
+        "Whether the scheduler process stayed up through the night"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_orchestration_assets_vs_tasks_multi_001",
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "multi",
+    "prompt": "Which of these follow from a DAG whose nodes declare the table each one produces, rather than the script each one runs?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The orchestrator can rebuild one table plus everything downstream of it without you listing the steps",
+        "Lineage between tables is a property of the DAG definition, not a diagram someone keeps up to date by hand",
+        "A node can be flagged as stale because one of its inputs was rebuilt more recently than it was",
+        "Transformation code is no longer needed, since the table declaration is the whole job",
+        "Every run becomes idempotent, whatever the transformation inside the node does"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_orchestration_assets_vs_tasks_push_back_001",
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "push_back",
+    "prompt": "A lead says asset-oriented orchestration is task orchestration with nicer names on the boxes, and not worth a migration. Push back.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Concedes the executed work is the same code either way",
+        "States that dependencies are declared between data objects rather than between steps",
+        "Names a capability that follows, such as staleness detection or rebuilding a single table with its dependents",
+        "Gives a concrete cost of the migration rather than claiming it is free"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
     "id": "q_orchestration_backfill_semantics_breaks_first_001",
     "concept_id": "orchestration.backfill_semantics",
     "type": "breaks_first",
@@ -1669,6 +1748,85 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-23"
+  },
+  {
+    "id": "q_orchestration_blast_radius_mcq_001",
+    "concept_id": "orchestration.blast_radius",
+    "type": "mcq",
+    "prompt": "One input is missing and you decide the dashboard should keep serving yesterday's numbers. What has to be true for that to be defensible?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "The surface carries an as-of date, so a reader can see the numbers are not from today",
+        "The retry count on the upstream task is high enough to cover a transient outage",
+        "The stale rows are copied into a separate table before being served",
+        "Downstream tasks are configured to skip rather than to fail"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_orchestration_blast_radius_spot_error_001",
+    "concept_id": "orchestration.blast_radius",
+    "type": "spot_error",
+    "prompt": "The intent is that the dashboard is only refreshed from a rollup that actually succeeded. One line breaks that. Which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "raw_feed = PythonOperator(task_id=\"raw_feed\", python_callable=pull_feed)",
+        "rollup = PythonOperator(task_id=\"rollup\", python_callable=build_rollup)",
+        "publish = PythonOperator(",
+        "    task_id=\"publish_dashboard\",",
+        "    python_callable=push_to_dashboard,",
+        "    trigger_rule=\"all_done\",",
+        ")",
+        "raw_feed >> rollup >> publish"
+      ],
+      "bad_line": 5,
+      "why": "`all_done` fires once upstream has finished in any state, success or failure. So a failed or half-written rollup still gets pushed to the dashboard, and the failure shows up only in the scheduler logs while readers see numbers they trust. The default `all_success` is what this intent wants; serving stale data on failure has to be a deliberate separate path, not a side effect of the trigger rule."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_orchestration_blast_radius_to_stakeholder_001",
+    "concept_id": "orchestration.blast_radius",
+    "type": "to_stakeholder",
+    "prompt": "An upstream feed failed at 2am. The daily revenue dashboard can either show yesterday's numbers or show nothing with an error banner. Write the message you send the business owner who reads it at 8am.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States which of the two behaviours they will see this morning",
+        "Names the real risk to them: a decision made on numbers that are a day old",
+        "Says what on the surface tells them how fresh the data is, such as an as-of timestamp",
+        "Lands on a recommendation for what the default should be next time, not just a description"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_orchestration_blast_radius_when_not_001",
+    "concept_id": "orchestration.blast_radius",
+    "type": "when_not",
+    "prompt": "Failing every downstream node when one upstream input is missing is the safe default. Describe a case where it is the wrong response, and say what you would configure instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a case such as an optional enrichment input or one region out of many",
+        "States the cost of failing everything: pages, re-run backlog, and surfaces that go dark for unrelated data",
+        "Names the alternative behaviour chosen, such as skipping that branch or serving the last known value",
+        "Says how the degraded state is made visible rather than passing silently as a success"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
   },
   {
     "id": "q_orchestration_dags_critique_001",
@@ -2539,6 +2697,90 @@
     "created_at": "2026-09-23"
   },
   {
+    "id": "q_pipelines_cdc_cloze_001",
+    "concept_id": "pipelines.cdc",
+    "type": "cloze",
+    "prompt": "A capture job that polls the source on an `updated_at` column has one blind spot it can never close: a row that was ___.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "blanks": [
+        {
+          "accept": [
+            "deleted",
+            "hard deleted",
+            "hard-deleted",
+            "physically deleted",
+            "a hard delete",
+            "removed"
+          ]
+        }
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_pipelines_cdc_estimate_001",
+    "concept_id": "pipelines.cdc",
+    "type": "estimate",
+    "prompt": "A source table holds roughly 400 million rows, and about 200 thousand of them change on a given day. Estimate the daily load each approach puts on that database — polling on `updated_at` every 15 minutes versus reading the write-ahead log — and say which you would run.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a range rather than a single number, and states the assumption behind it",
+        "Says polling cost scales with the index probe and poll frequency, roughly 96 queries a day, not with row count changed",
+        "Says log-based cost scales with the volume of changes, on the order of 200 thousand events",
+        "Lands on a pick and names the condition that would flip it, such as no log access on a managed source"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_pipelines_cdc_explain_001",
+    "concept_id": "pipelines.cdc",
+    "type": "explain",
+    "prompt": "A nightly job pulls every row where `updated_at` is greater than the last run's high-water mark. Name what that approach never sees, and what reading the database's own write-ahead log would catch instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that deleted rows are invisible, because a deleted row has no updated_at to compare",
+        "Notes that two changes to one row between runs collapse into the last value only",
+        "Says rows are missed entirely where the application forgets to bump the timestamp column",
+        "States that log-based capture reads the database's own change record instead of querying the tables"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_pipelines_cdc_multi_001",
+    "concept_id": "pipelines.cdc",
+    "type": "multi",
+    "prompt": "Which of these hold for log-based capture but not for polling a source table on a timestamp column?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "Hard deletes arrive as change events you can act on",
+        "The pipeline never issues a query against the source tables on a schedule",
+        "Both values are captured when a row is updated twice within one polling interval",
+        "No initial load of the rows that already exist is needed",
+        "Column additions on the source are reflected in the destination with no work from you"
+      ],
+      "correct": [
+        0,
+        1,
+        2
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
     "id": "q_pipelines_dbt_materializations_breaks_first_001",
     "concept_id": "pipelines.dbt_materializations",
     "type": "breaks_first",
@@ -2723,6 +2965,90 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-23"
+  },
+  {
+    "id": "q_pipelines_delivery_semantics_explain_001",
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "explain",
+    "prompt": "A webhook consumer processes the same payment event twice after a network timeout on the acknowledgement. Say which guarantee the sender is giving, and what has to exist on your side for the double processing to be harmless.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names at-least-once as the sender's guarantee and ties it to the lost acknowledgement",
+        "States that a stable key from the sender, such as an event id, is what makes dedupe possible",
+        "Names a concrete mechanism such as a unique constraint, an upsert, or a table of seen ids",
+        "Contrasts at-most-once, where the same timeout would have dropped the event instead"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_pipelines_delivery_semantics_mcq_001",
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "mcq",
+    "prompt": "A consumer reads a message, acknowledges it straight away, then crashes before the row ever reaches the warehouse. Which guarantee has that consumer implemented?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "At-most-once: the message is handled zero or one times and this one is simply lost",
+        "At-least-once: the broker still holds the message and will hand it back after the restart",
+        "Exactly-once: acknowledging first is what makes the handling atomic",
+        "None of these: when the acknowledgement is sent has no bearing on the guarantee"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_pipelines_delivery_semantics_push_back_001",
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "push_back",
+    "prompt": "A vendor's documentation promises exactly-once delivery, and a teammate concludes the consumer can skip its dedupe table. Push back on that conclusion.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that the guarantee holds inside the vendor's own boundary, not across the write to your store",
+        "Says a crash between the write and the acknowledgement still produces a redelivery",
+        "Describes exactly-once as at-least-once plus a dedupe key or an idempotent write",
+        "Gives the cost of keeping the dedupe table and argues it is small against a double-counted record"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_pipelines_delivery_semantics_tf_why_001",
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "tf_why",
+    "prompt": "True or false: a sink that writes each record with an upsert keyed on the source event id turns an at-least-once stream into an effectively exactly-once result.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": true,
+      "rubric": {
+        "criteria": [
+          "States that a repeated upsert on the same key leaves the same final row",
+          "Names the requirement that the key is stable across redeliveries of the same event",
+          "Points out this is exactly-once in the stored result, while delivery is still at-least-once",
+          "Names a case that still breaks it, such as an append-only sink or a per-event counter increment"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that a repeated upsert on the same key leaves the same final row",
+        "Names the requirement that the key is stable across redeliveries of the same event",
+        "Points out this is exactly-once in the stored result, while delivery is still at-least-once",
+        "Names a case that still breaks it, such as an append-only sink or a per-event counter increment"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
   },
   {
     "id": "q_pipelines_etl_vs_elt_cloze_001",

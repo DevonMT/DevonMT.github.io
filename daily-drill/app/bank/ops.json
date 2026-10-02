@@ -1358,6 +1358,87 @@
     "created_at": "2026-09-06"
   },
   {
+    "id": "q_net_reverse_proxy_explain_001",
+    "concept_id": "net.reverse_proxy",
+    "type": "explain",
+    "prompt": "Four services run on one machine, all reachable at different subdomains of a single domain name. Walk through what happens to an incoming HTTPS request between the router and the service that finally answers it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "States that TLS is terminated at the proxy and the backend is handed plain HTTP",
+        "Says the routing decision is made on the Host header or the URL path",
+        "Notes that only the proxy's port is published, so the services are not directly reachable",
+        "Mentions the proxy passing the original client host or IP along in a header"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_net_reverse_proxy_mcq_001",
+    "concept_id": "net.reverse_proxy",
+    "type": "mcq",
+    "prompt": "You put four self-hosted services behind one proxy on one domain. Where does the TLS certificate live, and what do the four services speak?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "options": [
+        "One certificate on the proxy; the services behind it speak plain HTTP on the internal network",
+        "One certificate per service; each service terminates its own TLS and the proxy only forwards bytes",
+        "One certificate on the proxy, plus a copy on each service so it can decrypt the forwarded request",
+        "No certificate at all, because the proxy rewrites HTTPS to HTTP before anything is encrypted"
+      ],
+      "correct": 0
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_net_reverse_proxy_spot_error_001",
+    "concept_id": "net.reverse_proxy",
+    "type": "spot_error",
+    "prompt": "This compose file is meant to put every service behind the proxy as the only public entrypoint. One line defeats that. Which one?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "lines": [
+        "services:",
+        "  proxy:",
+        "    image: caddy",
+        "    ports: [\"80:80\", \"443:443\"]",
+        "  notebook:",
+        "    image: notebook-app",
+        "    ports: [\"8080:8080\"]",
+        "  gallery:",
+        "    image: gallery-app",
+        "    expose: [\"9000\"]"
+      ],
+      "bad_line": 6,
+      "why": "`ports` publishes 8080 on the host, so the notebook service is reachable over plain HTTP without passing through the proxy — no TLS, and none of the proxy's auth or logging. It should use `expose` like the gallery service, which makes the port reachable only from inside the network the proxy is on."
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_net_reverse_proxy_when_not_001",
+    "concept_id": "net.reverse_proxy",
+    "type": "when_not",
+    "prompt": "Name a case where putting a service behind your reverse proxy is the wrong move, and say what you would do with that service instead.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Gives a specific case such as mutual TLS, a raw TCP protocol, or long-lived streaming",
+        "Explains why the proxy cannot do its usual job in that case",
+        "States a concrete alternative such as TLS passthrough, a dedicated port, or a stream-mode listener",
+        "Acknowledges the cost of the alternative, such as a second certificate to renew"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
     "id": "q_net_tls_critique_001",
     "concept_id": "net.tls",
     "type": "critique",
@@ -1702,6 +1783,107 @@
     },
     "rubric_version": 1,
     "created_at": "2026-09-22"
+  },
+  {
+    "id": "q_ops_observability_signals_breaks_first_001",
+    "concept_id": "ops.observability_signals",
+    "type": "breaks_first",
+    "prompt": "A team ships with log lines and nothing else — no metrics, no traces. As traffic and service count grow, what breaks first about that setup?",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Names a specific first failure such as log volume or the cost of scanning to answer a trend question",
+        "States that a question like \"is p95 worse than last month\" needs pre-aggregated counters, not a log scan",
+        "Says that following one request across services needs an id carried through every hop",
+        "Gives the point at which it stops working, such as service count or request rate"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_ops_observability_signals_critique_001",
+    "concept_id": "ops.observability_signals",
+    "type": "critique",
+    "prompt": "A colleague proposes dropping the metrics backend entirely: emit every counter as a structured log line, and compute the dashboards from logs at query time. Critique the proposal.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "rubric": {
+      "criteria": [
+        "Concedes it does work at low volume and removes one system to run",
+        "Names cost or retention as the problem: raw events are far larger than counters over time",
+        "States that dashboard queries get slower because each load rescans raw events",
+        "Notes that alert evaluation on a tight interval is what suffers most"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_ops_observability_signals_matching_001",
+    "concept_id": "ops.observability_signals",
+    "type": "matching",
+    "prompt": "Match each question someone actually asks during an incident to the signal that answers it.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "left": [
+        "\"Is checkout slower this week than it was last week?\"",
+        "\"Which of the twelve services ate four of those five seconds?\"",
+        "\"What input made that one request come back as a 500?\""
+      ],
+      "right": [
+        "Traces",
+        "Logs",
+        "Metrics"
+      ],
+      "pairs": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
+  },
+  {
+    "id": "q_ops_observability_signals_tf_why_001",
+    "concept_id": "ops.observability_signals",
+    "type": "tf_why",
+    "prompt": "True or false: given CPU and latency dashboards for all twelve services in a request path, you can work out which service was responsible for one user's five-second checkout.",
+    "scope": "curriculum",
+    "origin_capture_id": null,
+    "answer": {
+      "correct": false,
+      "rubric": {
+        "criteria": [
+          "States that metrics are aggregates and cannot be attributed back to a single request",
+          "Names traces, with an id propagated across service boundaries, as the signal that answers this",
+          "Points out a service can sit at a normal average while being slow for this one call",
+          "Notes that the dashboards do narrow it down by telling you whether anything was broadly slow"
+        ]
+      }
+    },
+    "rubric": {
+      "criteria": [
+        "States that metrics are aggregates and cannot be attributed back to a single request",
+        "Names traces, with an id propagated across service boundaries, as the signal that answers this",
+        "Points out a service can sit at a normal average while being slow for this one call",
+        "Notes that the dashboards do narrow it down by telling you whether anything was broadly slow"
+      ]
+    },
+    "rubric_version": 1,
+    "created_at": "2026-10-02"
   },
   {
     "id": "q_ops_secrets_breaks_first_001",
