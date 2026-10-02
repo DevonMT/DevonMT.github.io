@@ -1,0 +1,322 @@
+[
+  {
+    "concept_id": "net.reverse_proxy",
+    "type": "explain",
+    "prompt": "Four services run on one machine, all reachable at different subdomains of a single domain name. Walk through what happens to an incoming HTTPS request between the router and the service that finally answers it.",
+    "criteria": [
+      "States that TLS is terminated at the proxy and the backend is handed plain HTTP",
+      "Says the routing decision is made on the Host header or the URL path",
+      "Notes that only the proxy's port is published, so the services are not directly reachable",
+      "Mentions the proxy passing the original client host or IP along in a header"
+    ]
+  },
+  {
+    "concept_id": "net.reverse_proxy",
+    "type": "when_not",
+    "prompt": "Name a case where putting a service behind your reverse proxy is the wrong move, and say what you would do with that service instead.",
+    "criteria": [
+      "Gives a specific case such as mutual TLS, a raw TCP protocol, or long-lived streaming",
+      "Explains why the proxy cannot do its usual job in that case",
+      "States a concrete alternative such as TLS passthrough, a dedicated port, or a stream-mode listener",
+      "Acknowledges the cost of the alternative, such as a second certificate to renew"
+    ]
+  },
+  {
+    "concept_id": "net.reverse_proxy",
+    "type": "mcq",
+    "prompt": "You put four self-hosted services behind one proxy on one domain. Where does the TLS certificate live, and what do the four services speak?",
+    "options": [
+      "One certificate on the proxy; the services behind it speak plain HTTP on the internal network",
+      "One certificate per service; each service terminates its own TLS and the proxy only forwards bytes",
+      "One certificate on the proxy, plus a copy on each service so it can decrypt the forwarded request",
+      "No certificate at all, because the proxy rewrites HTTPS to HTTP before anything is encrypted"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "net.reverse_proxy",
+    "type": "spot_error",
+    "prompt": "This compose file is meant to put every service behind the proxy as the only public entrypoint. One line defeats that. Which one?",
+    "lines": [
+      "services:",
+      "  proxy:",
+      "    image: caddy",
+      "    ports: [\"80:80\", \"443:443\"]",
+      "  notebook:",
+      "    image: notebook-app",
+      "    ports: [\"8080:8080\"]",
+      "  gallery:",
+      "    image: gallery-app",
+      "    expose: [\"9000\"]"
+    ],
+    "bad_line": 6,
+    "why": "`ports` publishes 8080 on the host, so the notebook service is reachable over plain HTTP without passing through the proxy — no TLS, and none of the proxy's auth or logging. It should use `expose` like the gallery service, which makes the port reachable only from inside the network the proxy is on."
+  },
+  {
+    "concept_id": "ops.observability_signals",
+    "type": "matching",
+    "prompt": "Match each question someone actually asks during an incident to the signal that answers it.",
+    "left": [
+      "\"Is checkout slower this week than it was last week?\"",
+      "\"Which of the twelve services ate four of those five seconds?\"",
+      "\"What input made that one request come back as a 500?\""
+    ],
+    "right": [
+      "Traces",
+      "Logs",
+      "Metrics"
+    ],
+    "pairs": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ]
+    ]
+  },
+  {
+    "concept_id": "ops.observability_signals",
+    "type": "tf_why",
+    "prompt": "True or false: given CPU and latency dashboards for all twelve services in a request path, you can work out which service was responsible for one user's five-second checkout.",
+    "verdict": false,
+    "criteria": [
+      "States that metrics are aggregates and cannot be attributed back to a single request",
+      "Names traces, with an id propagated across service boundaries, as the signal that answers this",
+      "Points out a service can sit at a normal average while being slow for this one call",
+      "Notes that the dashboards do narrow it down by telling you whether anything was broadly slow"
+    ]
+  },
+  {
+    "concept_id": "ops.observability_signals",
+    "type": "breaks_first",
+    "prompt": "A team ships with log lines and nothing else — no metrics, no traces. As traffic and service count grow, what breaks first about that setup?",
+    "criteria": [
+      "Names a specific first failure such as log volume or the cost of scanning to answer a trend question",
+      "States that a question like \"is p95 worse than last month\" needs pre-aggregated counters, not a log scan",
+      "Says that following one request across services needs an id carried through every hop",
+      "Gives the point at which it stops working, such as service count or request rate"
+    ]
+  },
+  {
+    "concept_id": "ops.observability_signals",
+    "type": "critique",
+    "prompt": "A colleague proposes dropping the metrics backend entirely: emit every counter as a structured log line, and compute the dashboards from logs at query time. Critique the proposal.",
+    "criteria": [
+      "Concedes it does work at low volume and removes one system to run",
+      "Names cost or retention as the problem: raw events are far larger than counters over time",
+      "States that dashboard queries get slower because each load rescans raw events",
+      "Notes that alert evaluation on a tight interval is what suffers most"
+    ]
+  },
+  {
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "explain",
+    "prompt": "A pipeline is rewritten so each node declares the table it produces instead of the script it runs. At 9am a number on a report looks wrong. Describe how your debugging session differs from before.",
+    "criteria": [
+      "Says you start from the wrong table and walk its declared upstream tables",
+      "States that the task-oriented view only tells you which step ran and whether it exited zero",
+      "Mentions rebuilding that one table and its downstream dependents, rather than re-running the whole schedule",
+      "Notes that the orchestrator knows what each run produced, not just that it finished"
+    ]
+  },
+  {
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "push_back",
+    "prompt": "A lead says asset-oriented orchestration is task orchestration with nicer names on the boxes, and not worth a migration. Push back.",
+    "criteria": [
+      "Concedes the executed work is the same code either way",
+      "States that dependencies are declared between data objects rather than between steps",
+      "Names a capability that follows, such as staleness detection or rebuilding a single table with its dependents",
+      "Gives a concrete cost of the migration rather than claiming it is free"
+    ]
+  },
+  {
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "mcq",
+    "prompt": "A reporting table holds yesterday's numbers when it should hold today's. Which question can an asset-oriented orchestrator answer directly that a task-oriented one cannot?",
+    "options": [
+      "Which run last materialised this table, and which upstream tables that run read",
+      "Whether the overnight job exited with a non-zero status code",
+      "How long each step in the schedule took to execute",
+      "Whether the scheduler process stayed up through the night"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "orchestration.assets_vs_tasks",
+    "type": "multi",
+    "prompt": "Which of these follow from a DAG whose nodes declare the table each one produces, rather than the script each one runs?",
+    "options": [
+      "The orchestrator can rebuild one table plus everything downstream of it without you listing the steps",
+      "Lineage between tables is a property of the DAG definition, not a diagram someone keeps up to date by hand",
+      "A node can be flagged as stale because one of its inputs was rebuilt more recently than it was",
+      "Transformation code is no longer needed, since the table declaration is the whole job",
+      "Every run becomes idempotent, whatever the transformation inside the node does"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "orchestration.blast_radius",
+    "type": "to_stakeholder",
+    "prompt": "An upstream feed failed at 2am. The daily revenue dashboard can either show yesterday's numbers or show nothing with an error banner. Write the message you send the business owner who reads it at 8am.",
+    "criteria": [
+      "States which of the two behaviours they will see this morning",
+      "Names the real risk to them: a decision made on numbers that are a day old",
+      "Says what on the surface tells them how fresh the data is, such as an as-of timestamp",
+      "Lands on a recommendation for what the default should be next time, not just a description"
+    ]
+  },
+  {
+    "concept_id": "orchestration.blast_radius",
+    "type": "when_not",
+    "prompt": "Failing every downstream node when one upstream input is missing is the safe default. Describe a case where it is the wrong response, and say what you would configure instead.",
+    "criteria": [
+      "Gives a case such as an optional enrichment input or one region out of many",
+      "States the cost of failing everything: pages, re-run backlog, and surfaces that go dark for unrelated data",
+      "Names the alternative behaviour chosen, such as skipping that branch or serving the last known value",
+      "Says how the degraded state is made visible rather than passing silently as a success"
+    ]
+  },
+  {
+    "concept_id": "orchestration.blast_radius",
+    "type": "mcq",
+    "prompt": "One input is missing and you decide the dashboard should keep serving yesterday's numbers. What has to be true for that to be defensible?",
+    "options": [
+      "The surface carries an as-of date, so a reader can see the numbers are not from today",
+      "The retry count on the upstream task is high enough to cover a transient outage",
+      "The stale rows are copied into a separate table before being served",
+      "Downstream tasks are configured to skip rather than to fail"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "orchestration.blast_radius",
+    "type": "spot_error",
+    "prompt": "The intent is that the dashboard is only refreshed from a rollup that actually succeeded. One line breaks that. Which one?",
+    "lines": [
+      "raw_feed = PythonOperator(task_id=\"raw_feed\", python_callable=pull_feed)",
+      "rollup = PythonOperator(task_id=\"rollup\", python_callable=build_rollup)",
+      "publish = PythonOperator(",
+      "    task_id=\"publish_dashboard\",",
+      "    python_callable=push_to_dashboard,",
+      "    trigger_rule=\"all_done\",",
+      ")",
+      "raw_feed >> rollup >> publish"
+    ],
+    "bad_line": 5,
+    "why": "`all_done` fires once upstream has finished in any state, success or failure. So a failed or half-written rollup still gets pushed to the dashboard, and the failure shows up only in the scheduler logs while readers see numbers they trust. The default `all_success` is what this intent wants; serving stale data on failure has to be a deliberate separate path, not a side effect of the trigger rule."
+  },
+  {
+    "concept_id": "pipelines.cdc",
+    "type": "explain",
+    "prompt": "A nightly job pulls every row where `updated_at` is greater than the last run's high-water mark. Name what that approach never sees, and what reading the database's own write-ahead log would catch instead.",
+    "criteria": [
+      "States that deleted rows are invisible, because a deleted row has no updated_at to compare",
+      "Notes that two changes to one row between runs collapse into the last value only",
+      "Says rows are missed entirely where the application forgets to bump the timestamp column",
+      "States that log-based capture reads the database's own change record instead of querying the tables"
+    ]
+  },
+  {
+    "concept_id": "pipelines.cdc",
+    "type": "estimate",
+    "prompt": "A source table holds roughly 400 million rows, and about 200 thousand of them change on a given day. Estimate the daily load each approach puts on that database — polling on `updated_at` every 15 minutes versus reading the write-ahead log — and say which you would run.",
+    "criteria": [
+      "Gives a range rather than a single number, and states the assumption behind it",
+      "Says polling cost scales with the index probe and poll frequency, roughly 96 queries a day, not with row count changed",
+      "Says log-based cost scales with the volume of changes, on the order of 200 thousand events",
+      "Lands on a pick and names the condition that would flip it, such as no log access on a managed source"
+    ]
+  },
+  {
+    "concept_id": "pipelines.cdc",
+    "type": "multi",
+    "prompt": "Which of these hold for log-based capture but not for polling a source table on a timestamp column?",
+    "options": [
+      "Hard deletes arrive as change events you can act on",
+      "The pipeline never issues a query against the source tables on a schedule",
+      "Both values are captured when a row is updated twice within one polling interval",
+      "No initial load of the rows that already exist is needed",
+      "Column additions on the source are reflected in the destination with no work from you"
+    ],
+    "correct_indices": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "concept_id": "pipelines.cdc",
+    "type": "cloze",
+    "prompt": "A capture job that polls the source on an `updated_at` column has one blind spot it can never close: a row that was ___.",
+    "blanks": [
+      {
+        "accept": [
+          "deleted",
+          "hard deleted",
+          "hard-deleted",
+          "physically deleted",
+          "a hard delete",
+          "removed"
+        ]
+      }
+    ]
+  },
+  {
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "explain",
+    "prompt": "A webhook consumer processes the same payment event twice after a network timeout on the acknowledgement. Say which guarantee the sender is giving, and what has to exist on your side for the double processing to be harmless.",
+    "criteria": [
+      "Names at-least-once as the sender's guarantee and ties it to the lost acknowledgement",
+      "States that a stable key from the sender, such as an event id, is what makes dedupe possible",
+      "Names a concrete mechanism such as a unique constraint, an upsert, or a table of seen ids",
+      "Contrasts at-most-once, where the same timeout would have dropped the event instead"
+    ]
+  },
+  {
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "push_back",
+    "prompt": "A vendor's documentation promises exactly-once delivery, and a teammate concludes the consumer can skip its dedupe table. Push back on that conclusion.",
+    "criteria": [
+      "States that the guarantee holds inside the vendor's own boundary, not across the write to your store",
+      "Says a crash between the write and the acknowledgement still produces a redelivery",
+      "Describes exactly-once as at-least-once plus a dedupe key or an idempotent write",
+      "Gives the cost of keeping the dedupe table and argues it is small against a double-counted record"
+    ]
+  },
+  {
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "mcq",
+    "prompt": "A consumer reads a message, acknowledges it straight away, then crashes before the row ever reaches the warehouse. Which guarantee has that consumer implemented?",
+    "options": [
+      "At-most-once: the message is handled zero or one times and this one is simply lost",
+      "At-least-once: the broker still holds the message and will hand it back after the restart",
+      "Exactly-once: acknowledging first is what makes the handling atomic",
+      "None of these: when the acknowledgement is sent has no bearing on the guarantee"
+    ],
+    "correct_index": 0
+  },
+  {
+    "concept_id": "pipelines.delivery_semantics",
+    "type": "tf_why",
+    "prompt": "True or false: a sink that writes each record with an upsert keyed on the source event id turns an at-least-once stream into an effectively exactly-once result.",
+    "verdict": true,
+    "criteria": [
+      "States that a repeated upsert on the same key leaves the same final row",
+      "Names the requirement that the key is stable across redeliveries of the same event",
+      "Points out this is exactly-once in the stored result, while delivery is still at-least-once",
+      "Names a case that still breaks it, such as an append-only sink or a per-event counter increment"
+    ]
+  }
+]
