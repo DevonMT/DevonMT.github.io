@@ -13,8 +13,6 @@
 #
 #   crontab -e
 #   0 3 * * * /home/devon/DevonMT.github.io/daily-drill/nightly.sh >> /home/devon/logs/daily-drill.log 2>&1
-#
-# The last step deploys to Cloudflare Pages; see publish.sh for the token it needs.
 
 set -euo pipefail
 
@@ -47,11 +45,6 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Recall is served by Cloudflare Pages, not GitHub Pages: a push alone changes
-# nothing live. publish.sh deploys only from a checkout equal to origin/main and
-# fails unless the live bank counts match the repo afterwards.
-publish() { bash "$REPO/daily-drill/publish.sh" || fail "publish to recall.devondoes.dev failed"; }
-
 command -v claude >/dev/null || fail "claude not on PATH (npm i -g @anthropic-ai/claude-code)"
 command -v node   >/dev/null || fail "node not on PATH"
 cd "$REPO" || fail "no repo at $REPO"
@@ -70,9 +63,8 @@ git pull --rebase --quiet origin main || fail "git pull failed"
 # 1. What still needs questions?
 node daily-drill/next-concepts.mjs --count "$COUNT" --out "$BRIEFING" || fail "briefing failed"
 if [ "$(node -e "process.stdout.write(String(require('./$BRIEFING').concepts.length))")" = "0" ]; then
-  log "every concept is covered; nothing to author"
+  log "every concept is covered; nothing to do"
   rm -f "$BRIEFING"
-  publish   # still catches the live bank up if an earlier deploy failed
   exit 0
 fi
 
@@ -161,7 +153,6 @@ npm test --silent >/dev/null || fail "tests failed after import"
 rm -f "$BRIEFING"
 if [ -z "$(git status --porcelain)" ]; then
   log "import produced no change (all drafts were duplicates)"
-  publish
   exit 0
 fi
 
@@ -187,6 +178,5 @@ Validated and de-duplicated by daily-drill/import-drafts.mjs.
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 git push --quiet origin main || fail "git push failed"
 
-log "pushed $ADDED question(s)"
-publish
+log "pushed $ADDED question(s); site rebuilds on GitHub Pages"
 node daily-drill/next-concepts.mjs --count 1 | tail -1
