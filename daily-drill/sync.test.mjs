@@ -196,3 +196,37 @@ test('local device settings are never overwritten by the server', async () => {
   const res = await sync.reconcile(d);
   assert.equal(res.state.settings.show_work_lane, false);
 });
+
+test('the last sync result is recorded so Settings can report it', async () => {
+  assert.equal(sync.lastSync(), null, 'nothing recorded before the first sync');
+  const d = device([attempt('a1', 'sql.join_types', '2026-09-01T20:00:00Z')]);
+
+  await sync.reconcile(d);
+  assert.equal(sync.lastSync().ok, true);
+
+  // The 7-day session expiry: the call 401s, and the record must say so,
+  // using the same code the boot gate and Settings branch on.
+  signedIn = false;
+  await sync.reconcile(d);
+  assert.equal(sync.lastSync().ok, false);
+  assert.equal(sync.lastSync().reason, 'signin');
+
+  signedIn = true; noAccess = true;
+  await sync.reconcile(d);
+  assert.equal(sync.lastSync().reason, 'noaccess');
+
+  noAccess = false; failNext = 'network down';
+  await sync.reconcile(d);
+  assert.equal(sync.lastSync().reason, 'offline');
+
+  // Signing back in pushes everything the device held.
+  await sync.reconcile(d);
+  assert.equal(sync.lastSync().ok, true);
+  assert.deepEqual(server.attempts.map(a => a.id), ['a1'], 'server now matches the device');
+});
+
+test('an unconfigured device records nothing', async () => {
+  store.clear();
+  await sync.reconcile(device([]));
+  assert.equal(sync.lastSync(), null);
+});

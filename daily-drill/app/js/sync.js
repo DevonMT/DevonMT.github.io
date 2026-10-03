@@ -28,6 +28,7 @@ import { mergeState, syncPayload } from './store.js';
 const DEFAULT_ENDPOINT = 'https://id.devondoes.dev/api/drill';
 const ENDPOINT_NAME = 'daily-drill/sync-endpoint';
 const ENABLED_NAME = 'daily-drill/sync-on';
+const LAST_NAME = 'daily-drill/sync-last';
 
 /** Where to send someone who is not signed in. */
 export const SIGNIN_URL = 'https://id.devondoes.dev/';
@@ -59,6 +60,19 @@ export const enableSync = () => {
 export const disableSync = () => {
   try { localStorage.removeItem(ENABLED_NAME); } catch { /* private mode */ }
 };
+
+/**
+ * The outcome of the most recent sync attempt, kept so Settings can say what
+ * actually happened instead of just "On". Without it a dead session looks
+ * identical to a working one: every failure is swallowed by design.
+ */
+export function lastSync() {
+  try { return JSON.parse(localStorage.getItem(LAST_NAME)) ?? null; } catch { return null; }
+}
+function recordSync(result) {
+  try { localStorage.setItem(LAST_NAME, JSON.stringify({ at: new Date().toISOString(), ...result })); }
+  catch { /* private mode */ }
+}
 
 async function call(path, { method = 'GET', body, timeout = PULL_TIMEOUT_MS } = {}) {
   const endpoint = getEndpoint();
@@ -140,8 +154,12 @@ export async function reconcile(state) {
   try {
     const pulled = await pull(state);
     const pushed = await push(pulled.state);
+    recordSync({ ok: true, gained: pulled.gained });
     return { state: pushed.state, ok: true, gained: pulled.gained };
   } catch (err) {
-    return { state, ok: false, reason: err.code ?? 'error', message: err.message };
+    // An aborted or offline fetch has no code; 'offline' is the honest label.
+    const reason = err.code ?? 'offline';
+    recordSync({ ok: false, reason });
+    return { state, ok: false, reason, message: err.message };
   }
 }

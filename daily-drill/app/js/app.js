@@ -107,7 +107,7 @@ async function boot() {
       } else if (session.code === 'signin' || session.code === 'noaccess') {
         // Genuinely signed out, or signed in without a grant. Those need a
         // person, so the gate earns its place here and nowhere else.
-        return showGate(session.reason);
+        return showGate(session.reason, session.code);
       }
       // Offline or a server hiccup: say nothing, drill now, try again tomorrow.
     }
@@ -118,7 +118,8 @@ async function boot() {
       // this fails fast and the session starts anyway.
       const res = await sync.reconcile(state);
       if (res.ok) { state = res.state; persist(); }
-      else if (res.reason === 'unauthorized') return showGate('Your session has expired. Sign in again.');
+      else if (res.reason === 'signin') return showGate('Your session has expired. Sign in again.', 'signin');
+      else if (res.reason === 'noaccess') return showGate('Your account has no access to Recall yet. Ask Devon.', 'noaccess');
     }
     startSession();
   } catch (err) {
@@ -144,7 +145,7 @@ function startSession({ bonus = false } = {}) {
 
 // ---------------------------------------------------------------- gate
 
-function showGate(errorMessage) {
+function showGate(errorMessage, code) {
   const gate = document.getElementById('gate');
   const form = document.getElementById('gate-form');
   const submit = document.getElementById('gate-submit');
@@ -153,6 +154,8 @@ function showGate(errorMessage) {
   document.getElementById('app').hidden = true;
   gate.hidden = false;
   if (errorMessage) { error.textContent = errorMessage; error.hidden = false; }
+  // Name the door as well as the problem, as the retry path below does.
+  if (code === 'signin') document.getElementById('gate-signin').hidden = false;
   setTimeout(() => submit.focus(), 50);
 
   document.getElementById('gate-skip').addEventListener('click', () => {
@@ -201,6 +204,8 @@ function dismissGate() {
 /** Push after a session. Fire-and-forget: a drill is never held up by sync. */
 function syncInBackground() {
   if (!sync.syncConfigured()) return;
+  // A failure is recorded by reconcile and shown in Settings; it never
+  // interrupts the drill.
   sync.reconcile(state).then(res => {
     if (res.ok) { state = res.state; persist(); }
   });
@@ -729,14 +734,26 @@ document.getElementById('settings-open').addEventListener('click', () => {
   document.getElementById('opt-work-lane').checked = state.settings.show_work_lane;
   document.getElementById('capture-count').textContent =
     state.captures.length ? `${state.captures.length} waiting to be sorted` : '';
-  document.getElementById('sync-status').textContent = sync.syncConfigured()
-    ? `On. Syncs at open and after each session, with ${new URL(sync.getEndpoint()).host} as your signed-in account. ${state.attempts.length} attempts held.`
-    : 'Not syncing. Sign in at id.devondoes.dev and reopen Recall — it turns itself on.';
+  document.getElementById('sync-status').textContent = syncStatusText();
   document.getElementById('storage-note').textContent = store.storageAvailable
     ? `catalog ${state.catalog_version ?? '—'} · ${state.attempts.length} attempts stored`
     : 'This browser is blocking local storage, so tonight will not be saved.';
   dlg.showModal();
 });
+/** Say what the last sync did, not just that sync is switched on. */
+function syncStatusText() {
+  if (!sync.syncConfigured()) return 'Not syncing. Sign in at id.devondoes.dev and reopen Recall — it turns itself on.';
+  const held = `${state.attempts.length} attempts held here.`;
+  const last = sync.lastSync();
+  if (!last) return `On, but not synced yet. ${held}`;
+  const when = new Date(last.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+  if (last.ok) return `Last synced ${when}. ${held}`;
+  const why = last.reason === 'signin' ? 'you are signed out. Sign in at id.devondoes.dev, then tap Sync now'
+    : last.reason === 'noaccess' ? 'your account has no access to Recall yet. Ask Devon'
+    : last.reason === 'offline' ? 'the sync service could not be reached'
+    : 'the sync service returned an error';
+  return `Not syncing: ${why}. Last attempt ${when}. ${held} Your progress here is untouched.`;
+}
 document.getElementById('settings-close').addEventListener('click', () => dlg.close());
 
 document.getElementById('opt-work-lane').addEventListener('change', ev => {
