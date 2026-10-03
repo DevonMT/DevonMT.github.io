@@ -35,8 +35,11 @@ drilling on a phone, which is a real regression for the one property the app is
 designed around — that opening it is never a decision. Cloudflare Pages keeps
 always-on availability *and* allows Access in front, so it satisfies both.
 
-The mini's only role in this project is authoring questions at 03:00 (see
-`nightly.sh`). It never serves the app and never holds progress.
+The mini authors questions at 03:00 (see `nightly.sh`) and then deploys the app
+to Cloudflare Pages (`publish.sh`) with a Pages:Edit-scoped token in
+`~/.cloudflare/pages-token`. It deploys only from a checkout equal to origin/main
+and verifies the live bank counts afterwards, so main is effectively production.
+It never serves the app and never holds progress.
 
 ## Auth: what the move actually buys
 

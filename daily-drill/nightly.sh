@@ -57,7 +57,7 @@ trap cleanup EXIT
 # Recall is served by Cloudflare Pages, not GitHub Pages: a push alone changes
 # nothing live. publish.sh deploys only from a checkout equal to origin/main and
 # fails unless the live bank counts match the repo afterwards.
-publish() { bash "$REPO/daily-drill/publish.sh" || fail "publish to recall.devondoes.dev failed"; }
+publish() { DRILL_PUBLISH_DRY="$DRY" bash "$REPO/daily-drill/publish.sh" || fail "publish to recall.devondoes.dev failed"; }
 
 command -v claude >/dev/null || fail "claude not on PATH (npm i -g @anthropic-ai/claude-code)"
 command -v node   >/dev/null || fail "node not on PATH"
