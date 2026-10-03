@@ -1704,7 +1704,7 @@
       if (reason === 'rate_limit' || reason === undefined) {
         const secs = typeof body['retryAfterSeconds'] === 'number' ? body['retryAfterSeconds'] : 3600;
         const retryMins = Math.ceil(secs / 60);
-        throw new RateLimitError(`You've hit the free limit — try again in ~${retryMins} minute(s), or use a friend key for unlimited access.`);
+        throw new RateLimitError(`Too many requests just now — try again in ~${retryMins} minute(s).`);
       }
       throw new ApiError(
         typeof body['error'] === 'string' ? body['error'] : 'Playfinder is busy right now, try again in a few minutes.',
