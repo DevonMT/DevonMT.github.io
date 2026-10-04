@@ -154,8 +154,13 @@ import '../../styles/themes/stacks.css';
     <!-- ─── DASHBOARD VIEW ─── -->
     <section id="view-dash" hidden>
 
+      <!-- Shown instead of the charts until there is a session to chart -->
+      <div id="dash-empty" class="chart-card dash-empty" hidden>
+        Nothing to chart yet. <button type="button" id="dash-empty-log" class="dash-empty-link">Log a session</button> and the dashboard fills in.
+      </div>
+
       <!-- Stat cards -->
-      <div class="stat-row">
+      <div class="stat-row" id="card-stats">
         <div class="stat-card">
           <div class="stat-val" id="s-streak">—</div>
           <div class="stat-lbl">day streak</div>
@@ -171,7 +176,7 @@ import '../../styles/themes/stacks.css';
       </div>
 
       <!-- Weekly goal -->
-      <div class="chart-card">
+      <div class="chart-card" id="card-goal">
         <div class="chart-lbl">
           Weekly goal
           <span class="chart-sub">target: 5 sessions / week</span>
@@ -185,7 +190,7 @@ import '../../styles/themes/stacks.css';
       </div>
 
       <!-- Activity heatmap -->
-      <div class="chart-card">
+      <div class="chart-card" id="card-heatmap">
         <div class="chart-lbl">Activity <span class="chart-sub">last 26 weeks</span></div>
         <div class="heatmap-scroll">
           <div id="heatmap" class="heatmap"></div>
@@ -202,27 +207,27 @@ import '../../styles/themes/stacks.css';
       </div>
 
       <!-- Source + Skills -->
-      <div class="charts-2col">
-        <div class="chart-card">
+      <div class="charts-2col" id="card-2col">
+        <div class="chart-card" id="card-source">
           <div class="chart-lbl">By source</div>
           <div class="donut-wrap">
             <canvas id="chart-source"></canvas>
           </div>
         </div>
-        <div class="chart-card">
+        <div class="chart-card" id="card-skills">
           <div class="chart-lbl">By skill (hours)</div>
           <div class="skills-wrap"><canvas id="chart-skills"></canvas></div>
         </div>
       </div>
 
       <!-- Monthly trend -->
-      <div class="chart-card">
+      <div class="chart-card" id="card-trend">
         <div class="chart-lbl">Monthly sessions</div>
         <canvas id="chart-trend"></canvas>
       </div>
 
       <!-- Balance check -->
-      <div class="chart-card">
+      <div class="chart-card" id="card-balance">
         <div class="chart-lbl">Balance check <span class="chart-sub">last touched per skill</span></div>
         <div id="balance-list" class="balance-list"></div>
       </div>
@@ -427,6 +432,9 @@ select.l-input { cursor: pointer; }
 .donut-wrap { max-width: 180px; margin: 0 auto; }
 /* Nine labels need a fixed height; at the canvas's default aspect they overlap in a half-width card. */
 .skills-wrap { position: relative; height: 240px; }
+.charts-2col.solo { grid-template-columns: 1fr; }
+.dash-empty { font-size: 0.9rem; color: var(--color-text-muted); }
+.dash-empty-link { background: none; border: 0; padding: 0; font: inherit; color: var(--color-accent); text-decoration: underline; cursor: pointer; }
 @media (max-width: 480px) { .charts-2col { grid-template-columns: 1fr; } }
 
 /* ── Balance check ── */
@@ -726,7 +734,34 @@ select.l-input { cursor: pointer; }
     return new Date(iso).toLocaleDateString('en-CA'); // YYYY-MM-DD
   }
 
+  // A chart with nothing to plot is removed, not drawn empty: each card shows
+  // once its own data exists, and a brand-new account sees one prompt instead.
+  function showCard(id: string, on: boolean) {
+    document.getElementById(id)!.hidden = !on;
+  }
+
+  function applyDashVisibility() {
+    const any = sessions.length > 0;
+    const hasSkills = sessions.some(s => s.skills.length > 0);
+    showCard('dash-empty', !any);
+    showCard('card-stats', any);
+    showCard('card-goal', any);
+    showCard('card-heatmap', any);
+    showCard('card-source', any);
+    showCard('card-skills', hasSkills);
+    showCard('card-2col', any);
+    document.getElementById('card-2col')!.classList.toggle('solo', !hasSkills);
+    showCard('card-trend', any);
+    showCard('card-balance', hasSkills);
+  }
+
+  document.getElementById('dash-empty-log')!.addEventListener('click', () => {
+    (document.querySelector('[data-tab="log"]') as HTMLButtonElement)?.click();
+  });
+
   function renderDashboard() {
+    applyDashVisibility();
+    if (!sessions.length) return;
     renderStats();
     renderWeeklyGoal();
     renderHeatmap();
@@ -830,7 +865,7 @@ select.l-input { cursor: pointer; }
   }
 
   function renderCharts() {
-    if (!chartJsLoaded) return;
+    if (!chartJsLoaded || !sessions.length) return; // the cards are hidden until there is data
     const ink = tok('--ink'), muted = tok('--muted'), accent = tok('--accent'), mono = tok('--font-mono');
 
     const CHART_DEFAULTS = {
@@ -867,8 +902,9 @@ select.l-input { cursor: pointer; }
     const skillMins: Record<string, number> = {};
     SKILLS.forEach(sk => { skillMins[sk] = 0; });
     sessions.forEach(s => { s.skills.forEach(sk => { skillMins[sk] = (skillMins[sk] || 0) + s.minutes; }); });
+    if (chartSkills) { chartSkills.destroy(); chartSkills = null; }
+    if (Object.values(skillMins).some(m => m > 0)) {
     const skillCtx = (document.getElementById('chart-skills') as HTMLCanvasElement).getContext('2d')!;
-    if (chartSkills) chartSkills.destroy();
     chartSkills = new Chart(skillCtx, {
       type: 'bar',
       data: {
@@ -889,6 +925,7 @@ select.l-input { cursor: pointer; }
         },
       },
     });
+    }
 
     // Monthly trend (last 5 months)
     const months: string[] = [];
