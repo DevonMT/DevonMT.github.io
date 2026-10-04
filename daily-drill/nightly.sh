@@ -29,6 +29,13 @@ export PATH="$HOME/.npm-global/bin:/usr/local/bin:/usr/bin:/bin"
 
 log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 fail() { log "FAILED: $*"; exit 1; }
+# fail, with the reason a claude run gave in its captured output (the temp file
+# is overwritten tomorrow night; the log is not)
+fail_run() {
+  local why
+  why=$(node "$REPO/daily-drill/run-reason.mjs" "$2" 2>/dev/null) || why="unreadable output in $2"
+  fail "$1: $why"
+}
 
 # A failed run must not poison the next one. Without this the leftover briefing
 # and draft leave the tree dirty, and every following night refuses to start.
@@ -94,9 +101,9 @@ claude -p "$PROMPT" \
   --allowedTools "Read,Write" \
   --permission-mode acceptEdits \
   "${PERM_FLAGS[@]}" \
-  --output-format json > /tmp/drill-run.json || fail "claude run failed"
+  --output-format json > /tmp/drill-run.json || fail_run "claude run failed" /tmp/drill-run.json
 
-[ -s "$DRAFT" ] || fail "no draft written (see /tmp/drill-run.json)"
+[ -s "$DRAFT" ] || fail_run "no draft written" /tmp/drill-run.json
 node -e "JSON.parse(require('fs').readFileSync('$DRAFT','utf8'))" || fail "draft is not valid JSON"
 
 # 2b. A second opinion, before anything is imported.
@@ -134,7 +141,7 @@ Here are the questions:
 $(cat "$REPO/$DRAFT")" \
   --permission-mode acceptEdits \
   "${PERM_FLAGS[@]}" \
-  --output-format text > /tmp/drill-review.txt || fail "review run failed"
+  --output-format text > /tmp/drill-review.txt || fail_run "review run failed" /tmp/drill-review.txt
 
 node daily-drill/review-drafts.mjs "$DRAFT" /tmp/drill-review.txt \
   || fail "review rejected the whole batch (see /tmp/drill-review.txt)"
