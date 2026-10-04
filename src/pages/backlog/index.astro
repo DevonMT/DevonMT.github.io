@@ -291,8 +291,8 @@ import Gate from '../../components/Gate.astro';
     margin-top: 3px;
   }
 
+  .card-actions { display: flex; gap: 6px; margin-left: auto; }
   .backlog-exclude {
-    margin-left: auto;
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-text-muted);
@@ -1249,6 +1249,8 @@ import Gate from '../../components/Gate.astro';
     history.replaceState(null, '', location.pathname + location.search);
   })();
 
+  // Dismissals now live on the server (played it / not for me, shared across
+  // devices). The browser-only list above is only ever handed over and emptied.
   function getExcluded(): Set<number> {
     try {
       const raw = localStorage.getItem(EXCLUDED_KEY);
@@ -1256,24 +1258,85 @@ import Gate from '../../components/Gate.astro';
     } catch { return new Set(); }
   }
 
-  function saveExcluded(ex: Set<number>) {
-    localStorage.setItem(EXCLUDED_KEY, JSON.stringify([...ex]));
+  let dismissedCount = 0;
+
+  // Hands any browser-only exclusions to the server once (kept if that fails,
+  // and still sent with the run), then reads how many are dismissed.
+  async function loadDismissals() {
+    const legacy = [...getExcluded()];
+    if (legacy.length) {
+      try {
+        await api('/dismissals/import', { method: 'POST', body: JSON.stringify({ appIds: legacy }) });
+        localStorage.removeItem(EXCLUDED_KEY);
+      } catch { /* try again next load */ }
+    }
+    try {
+      const data = await api('/dismissals');
+      dismissedCount = Array.isArray(data.dismissals) ? data.dismissals.length : 0;
+    } catch { /* note stays hidden */ }
+  }
+
+  // Drops a dismissed game from the result each tab keeps for reload.
+  function pruneLast(tab: string, keep: (p: any) => boolean) {
+    const last = readLast(tab);
+    if (!last || !Array.isArray(last.picks)) return;
+    saveLast(tab, { ...last, picks: last.picks.filter(keep) });
+  }
+
+  function dismissButtons(): string {
+    return `<span class="card-actions">
+      <button class="backlog-exclude" type="button" data-reason="played" title="Already played it — stop suggesting it">Played it</button>
+      <button class="backlog-exclude" type="button" data-reason="not_for_me" title="Not for me — stop suggesting it">Not for me</button>
+    </span>`;
+  }
+
+  // Saves the dismissal, then removes the card. A failed save leaves the card
+  // where it is, with the button saying so, rather than pretending it worked.
+  function wireDismiss(card: HTMLElement, game: { name: string; appId?: number }, onDone: () => void) {
+    card.querySelectorAll<HTMLButtonElement>('.backlog-exclude').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const label = btn.textContent;
+        card.querySelectorAll<HTMLButtonElement>('.backlog-exclude').forEach((b) => { b.disabled = true; });
+        try {
+          await api('/dismissals', {
+            method: 'POST',
+            body: JSON.stringify({ name: game.name, appId: game.appId, reason: btn.dataset.reason }),
+          });
+        } catch (err: any) {
+          if (err?.message !== 'Unauthorized') btn.textContent = "Couldn't save";
+          setTimeout(() => {
+            btn.textContent = label;
+            card.querySelectorAll<HTMLButtonElement>('.backlog-exclude').forEach((b) => { b.disabled = false; });
+          }, 2500);
+          return;
+        }
+        dismissedCount++;
+        card.remove();
+        onDone();
+        updateExclusionNote();
+      });
+    });
   }
 
   function updateExclusionNote() {
-    const ex = getExcluded();
+    const n = dismissedCount;
     let note = document.getElementById('backlog-exclusion-note');
-    if (ex.size === 0) { note?.remove(); return; }
+    if (n === 0) { note?.remove(); return; }
     if (!note) {
       note = document.createElement('p');
       note.id = 'backlog-exclusion-note';
       note.className = 'grid-status backlog-exclusion-note';
       backlogGrid.parentElement!.insertBefore(note, backlogGrid);
     }
-    note.innerHTML = `${ex.size} game${ex.size === 1 ? '' : 's'} excluded · <button class="inline-link" id="backlog-reset">Reset</button>`;
-    document.getElementById('backlog-reset')?.addEventListener('click', () => {
-      localStorage.removeItem(EXCLUDED_KEY);
-      note!.remove();
+    note.innerHTML = `${n} game${n === 1 ? '' : 's'} dismissed · <button class="inline-link" id="backlog-reset">Reset</button>`;
+    document.getElementById('backlog-reset')?.addEventListener('click', async () => {
+      if (!confirm(`Bring back all ${n} dismissed game${n === 1 ? '' : 's'}?`)) return;
+      try {
+        await api('/dismissals', { method: 'DELETE' });
+        localStorage.removeItem(EXCLUDED_KEY);
+        dismissedCount = 0;
+        note!.remove();
+      } catch { /* still dismissed; the note stays */ }
     });
   }
 
@@ -1287,7 +1350,7 @@ import Gate from '../../components/Gate.astro';
       <div class="backlog-title-row">
         <a class="backlog-name" href="https://store.steampowered.com/app/${pick.appId}/" target="_blank" rel="noopener">${escapeHtml(pick.name || 'Unknown')} ↗</a>
         <span class="backlog-hours">${hours}h played</span>
-        <button class="backlog-exclude" type="button" title="Exclude from future picks">✕ Exclude</button>
+        ${dismissButtons()}
       </div>
       <div class="reco-head">
         <span class="reco-label">Confidence</span>
@@ -1296,13 +1359,7 @@ import Gate from '../../components/Gate.astro';
       <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
       <p class="reco-text">${escapeHtml(pick.reasoning || '')}</p>
     `;
-    card.querySelector('.backlog-exclude')!.addEventListener('click', () => {
-      const ex = getExcluded();
-      ex.add(pick.appId);
-      saveExcluded(ex);
-      card.remove();
-      updateExclusionNote();
-    });
+    wireDismiss(card, { name: pick.name || 'Unknown', appId: pick.appId }, () => pruneLast('own', (p) => p.appId !== pick.appId));
     return card;
   }
 
@@ -1318,8 +1375,7 @@ import Gate from '../../components/Gate.astro';
   function restoreBacklog() {
     const last = readLast('own');
     if (!last || !Array.isArray(last.picks)) return;
-    const ex = getExcluded();
-    const picks = last.picks.filter((p: any) => !ex.has(p.appId));
+    const picks: any[] = last.picks;
     if (picks.length === 0) return;
     if ([...backlogThreshold.options].some((o) => o.value === String(last.threshold))) backlogThreshold.value = String(last.threshold);
     showBacklog(picks, last.count ?? picks.length, String(last.threshold), last.at);
@@ -1367,7 +1423,9 @@ import Gate from '../../components/Gate.astro';
   const browseToggle   = document.getElementById('browse-toggle') as HTMLButtonElement;
   const browseSection  = document.getElementById('browse-section')!;
 
-  function renderResultCard(item: { name: string; platforms: string[]; description: string; confidenceScore: number; reasoning: string }): HTMLElement {
+  // Discover cards can be dismissed; Lookup cards answer a question you just asked,
+  // so they only link out. Both link to a Steam store search for the title.
+  function renderResultCard(item: { name: string; platforms: string[]; description: string; confidenceScore: number; reasoning: string }, dismissible = false): HTMLElement {
     const card = document.createElement('article');
     card.className = 'discover-card';
     const score = Math.max(0, Math.min(100, Math.round(item.confidenceScore ?? 0)));
@@ -1375,7 +1433,10 @@ import Gate from '../../components/Gate.astro';
     const platformsText = (item.platforms ?? []).join(' · ');
     card.innerHTML = `
       <div>
-        <span class="discover-name">${escapeHtml(item.name || 'Unknown')}</span>
+        <div class="backlog-title-row">
+          <a class="backlog-name" href="https://store.steampowered.com/search/?term=${encodeURIComponent(item.name || '')}" target="_blank" rel="noopener">${escapeHtml(item.name || 'Unknown')} ↗</a>
+          ${dismissible ? dismissButtons() : ''}
+        </div>
         ${platformsText ? `<span class="discover-platforms">${escapeHtml(platformsText)}</span>` : ''}
       </div>
       ${item.description ? `<p class="reco-text">${escapeHtml(item.description)}</p>` : ''}
@@ -1386,6 +1447,9 @@ import Gate from '../../components/Gate.astro';
       <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
       <p class="reco-text">${escapeHtml(item.reasoning || '')}</p>
     `;
+    if (dismissible) {
+      wireDismiss(card, { name: item.name }, () => pruneLast('discover', (p) => p.name !== item.name));
+    }
     return card;
   }
 
@@ -1394,7 +1458,7 @@ import Gate from '../../components/Gate.astro';
     discoverStatus.textContent = `Last run for ${discoverState.platform} · ${discoverState.genre} · ${stamp(at)}`;
     discoverStatus.hidden = false;
     discoverGrid.innerHTML = '';
-    picks.forEach((p) => discoverGrid.appendChild(renderResultCard(p)));
+    picks.forEach((p) => discoverGrid.appendChild(renderResultCard(p, true)));
   }
 
   // Runs before the chips are built so they open on the filters the run used.
@@ -1748,6 +1812,7 @@ import Gate from '../../components/Gate.astro';
   // ---- Init ----
   async function initDashboard() {
     await loadPrefsIntoForm();
+    await loadDismissals();
     restoreDiscover();
     buildChips(
       document.getElementById('discover-platform-chips')!,
