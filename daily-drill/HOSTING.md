@@ -41,6 +41,21 @@ to Cloudflare Pages (`publish.sh`) with a Pages:Edit-scoped token in
 and verifies the live bank counts afterwards, so main is effectively production.
 It never serves the app and never holds progress.
 
+### Rolling back, and app-only changes
+
+`publish.sh` skips the deploy when the live per-lane question counts already equal
+the repo's, so it only ever ships *question* changes on its own. An app-only
+commit (`app.js`, css) leaves the counts equal and is not deployed by a plain
+run, and reverting one does not roll the live bundle back either. For both, deploy
+explicitly from a clean checkout equal to origin/main on the mini:
+
+    daily-drill/publish.sh --force       # deploys, then verifies live counts
+
+or, by hand: `CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=$(cat ~/.cloudflare/pages-token)
+node daily-drill/deploy.mjs --deploy`, then
+`node daily-drill/bank-counts.mjs https://recall.devondoes.dev`. Or roll back in the
+Cloudflare Pages dashboard (Deployments, pick the earlier one, Rollback).
+
 ## Auth: what the move actually buys
 
 The app currently uses a shared access key (`devon_key`, sent as

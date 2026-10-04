@@ -18,10 +18,24 @@
 # ~/.cloudflare/pages-token (mode 600). Deliberately NOT the broad account
 # token. Override with DRILL_CF_TOKEN_FILE.
 #
+# Counts only compare questions, so an app-only change (app.js, css) leaves them
+# equal and is NOT deployed by a plain run. --force skips that comparison and
+# deploys the checkout as it is (still only from a clean checkout equal to
+# origin/main, still verified afterwards). Use it after an app-only commit and
+# for a rollback: revert, push, then `publish.sh --force`.
+#
 #   daily-drill/publish.sh            # also safe to run by hand as a catch-up
+#   daily-drill/publish.sh --force    # deploy even though live counts match
 #   DRILL_PUBLISH_DRY=1 daily-drill/publish.sh   # checks only, never deploys
 
 set -euo pipefail
+
+FORCE=0
+case "${1:-}" in
+  "") ;;
+  --force) FORCE=1 ;;
+  *) echo "usage: publish.sh [--force]" >&2; exit 2 ;;
+esac
 
 REPO="${DRILL_REPO:-$HOME/DevonMT.github.io}"
 LIVE="${DRILL_LIVE_URL:-https://recall.devondoes.dev}"
@@ -43,8 +57,8 @@ if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
 fi
 log "publish: checkout at $(git rev-parse --short HEAD), equal to origin/main"
 
-if node daily-drill/bank-counts.mjs "$LIVE"; then
-  log "publish: nothing to deploy"
+if [ "$FORCE" != "1" ] && node daily-drill/bank-counts.mjs "$LIVE"; then
+  log "publish: nothing to deploy (live counts match; app-only changes need --force)"
   exit 0
 fi
 [ "${DRILL_PUBLISH_DRY:-0}" != "1" ] || { log "publish: DRY RUN, not deploying"; exit 0; }
@@ -57,7 +71,7 @@ log "publish: deploying to Cloudflare Pages"
 node daily-drill/deploy.mjs --deploy || fail "deploy.mjs failed"
 
 # Pages takes a moment to promote the new deployment; retry before calling it failed.
-for wait in 5 10 20 30 60; do
+for wait in ${DRILL_PUBLISH_WAITS:-5 10 20 30 60}; do
   sleep "$wait"
   if node daily-drill/bank-counts.mjs "$LIVE"; then
     log "publish: live bank verified"
