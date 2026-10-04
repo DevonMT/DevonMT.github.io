@@ -40,7 +40,9 @@ esac
 REPO="${DRILL_REPO:-$HOME/DevonMT.github.io}"
 LIVE="${DRILL_LIVE_URL:-https://recall.devondoes.dev}"
 TOKEN_FILE="${DRILL_CF_TOKEN_FILE:-$HOME/.cloudflare/pages-token}"
-export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-}"
+# The account id lives beside the token on the mini, not in this public repo.
+export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-$(cat "${DRILL_CF_ACCOUNT_FILE:-$HOME/.cloudflare/account-id}" 2>/dev/null)}"
+[ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "publish: no Cloudflare account id (set CLOUDFLARE_ACCOUNT_ID or write ~/.cloudflare/account-id)" >&2; exit 1; }
 export PATH="$HOME/.npm-global/bin:$PATH"
 
 log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
