@@ -1,17 +1,16 @@
 ---
 /**
- * Daily Drill moved to drill.devondoes.dev.
+ * Recall (formerly Daily Drill) lives at recall.devondoes.dev.
  *
- * The app used to be served from this path (public/drill/, copied verbatim into
- * the build). It now lives on the hub, because sync authenticates with the
- * devondoes.dev session cookie and this origin cannot send one — served from
- * here, the app would still drill but would silently never sync, which looks
- * like a bug rather than a misconfiguration.
+ * The app used to be served from this path. It now lives on the hub, because
+ * sync authenticates with the devondoes.dev session cookie and this origin
+ * cannot send one: served from here it would drill but silently never sync.
  *
- * A real page rather than a bare meta refresh: anyone with this bookmarked gets
- * told what happened and where their history went, instead of a blank flash.
+ * GitHub Pages cannot send a real redirect, so this is an instant meta refresh
+ * plus a script, with a visible link for anyone who lands with both disabled.
+ * It points straight at Recall, not the old drill.devondoes.dev host, which redirects again.
  */
-const TARGET = 'https://drill.devondoes.dev/';
+const TARGET = 'https://recall.devondoes.dev/';
 ---
 
 <!doctype html>
@@ -19,8 +18,8 @@ const TARGET = 'https://drill.devondoes.dev/';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Daily Drill has moved</title>
-    <meta http-equiv="refresh" content={`3;url=${TARGET}`} />
+    <title>Recall has moved</title>
+    <meta http-equiv="refresh" content={`0;url=${TARGET}`} />
     <link rel="canonical" href={TARGET} />
     <meta name="robots" content="noindex" />
     <style>
@@ -58,10 +57,10 @@ const TARGET = 'https://drill.devondoes.dev/';
   </head>
   <body>
     <main>
-      <h1>Daily Drill moved</h1>
+      <h1>Recall moved</h1>
       <p>
-        It now lives at <a href={TARGET}>drill.devondoes.dev</a>. Taking you there in a
-        moment.
+        Recall (formerly Daily Drill) now lives at
+        <a href={TARGET}>recall.devondoes.dev</a>. Taking you there now.
       </p>
       <p class="note">
         Progress is stored per site, so this first visit will look empty. If you had
@@ -71,7 +70,7 @@ const TARGET = 'https://drill.devondoes.dev/';
     </main>
     <script is:inline define:vars={{ TARGET }}>
       // Replace rather than assign, so Back does not bounce straight back here.
-      setTimeout(() => location.replace(TARGET), 2500);
+      location.replace(TARGET);
     </script>
   </body>
 </html>
