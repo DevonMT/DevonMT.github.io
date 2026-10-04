@@ -56,6 +56,21 @@ node daily-drill/deploy.mjs --deploy`, then
 `node daily-drill/bank-counts.mjs https://recall.devondoes.dev`. Or roll back in the
 Cloudflare Pages dashboard (Deployments, pick the earlier one, Rollback).
 
+### What a deploy ships, and what it needs
+
+`publish.sh` deploys the whole `daily-drill/app` bundle as it stands on origin/main,
+so every Recall app commit on main goes live with the next deploy, not only the new
+questions. To keep an app commit back, hold it off main (or revert it and push)
+before the deploy. App commits can depend on each other: the model-grading client
+(`grading.js` and its `app.js`/`srs.js`/`store.js`/`sync.js` changes) is built on
+the sign-in gate commit, so holding the gate means holding the grading client too
+(revert the later one first). The grading client is safe to ship before its server
+half: `sync.js` hides grading unless `/health` reports `grading === true`.
+
+Unattended runs need two things from Devon: the Pages:Edit token in
+`~/.cloudflare/pages-token`, and a valid Claude Code login on the mini (nightly.sh
+authors with `claude -p`; an expired login fails every run before it reaches publish).
+
 ## Auth: what the move actually buys
 
 The app currently uses a shared access key (`devon_key`, sent as
