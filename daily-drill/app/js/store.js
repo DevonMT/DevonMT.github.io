@@ -9,7 +9,7 @@
  * from six weeks ago and watching it improve is the point.
  */
 
-import { mergeAttempts } from './srs.js';
+import { mergeAttempts, mergeGrades } from './srs.js';
 
 const KEY = 'daily-drill/v1';
 export const STATE_VERSION = 2;
@@ -23,9 +23,12 @@ export const emptyState = () => ({
   version: STATE_VERSION,
   catalog_version: null,
   attempts: [],
+  // The model's second opinions, keyed by attempt id (SPEC §9 phase 2). Written
+  // once by the server and only ever pulled, never pushed.
+  grades: [],
   captures: [],
   session_dates: [],
-  settings: { show_work_lane: true },
+  settings: { show_work_lane: true, model_grading: false },
 });
 
 let memoryFallback = null;   // used when localStorage is unavailable
@@ -69,6 +72,7 @@ export function migrate(stored) {
   const state = { ...base, ...stored };
   state.settings = { ...base.settings, ...(stored.settings ?? {}) };
   state.attempts = Array.isArray(stored.attempts) ? stored.attempts : [];
+  state.grades = Array.isArray(stored.grades) ? stored.grades : [];
   state.captures = Array.isArray(stored.captures) ? stored.captures : [];
   state.session_dates = Array.isArray(stored.session_dates) ? stored.session_dates : [];
   delete state.schedule;
@@ -119,6 +123,7 @@ export function mergeState(local, incoming) {
     version: Math.max(local.version ?? STATE_VERSION, incoming.version ?? STATE_VERSION),
     catalog_version: incoming.catalog_version ?? local.catalog_version,
     attempts: mergeAttempts(local.attempts, incoming.attempts),
+    grades: mergeGrades(local.grades, incoming.grades),
     captures: mergeById(local.captures, incoming.captures),
     session_dates: uniqueSorted([...(local.session_dates ?? []), ...(incoming.session_dates ?? [])]).slice(-400),
     settings: local.settings,
@@ -133,7 +138,9 @@ function mergeById(a = [], b = []) {
 
 /**
  * What may leave this device. Work-scoped attempts and every capture stay put:
- * the literal work detail is never committed and never synced (§8).
+ * the literal work detail is never committed and never synced (§8). Grades are
+ * not here either: the server writes them, so a device has nothing to push and
+ * cannot put one there.
  */
 export function syncPayload(state) {
   return {

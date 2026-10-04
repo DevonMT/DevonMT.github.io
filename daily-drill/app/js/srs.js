@@ -59,6 +59,30 @@ export function ratioFromRubric(met) {
   return met.filter(Boolean).length / met.length;
 }
 
+/**
+ * The second opinion's effect on one attempt (§9 phase 2): the LOWER of the two
+ * readings. A criterion counts as met only if the writer ticked it AND the model
+ * found words for it; either one saying "missed" makes it missed. The asymmetry
+ * is deliberate - a false "missed" costs one extra review of something already
+ * known, a false "met" costs a forgotten concept.
+ *
+ * A grade that does not fit the attempt (a different number of criteria) is
+ * ignored rather than guessed at, so the attempt schedules on the self-grade.
+ */
+export function effectiveMet(met, grade) {
+  if (!Array.isArray(met) || !Array.isArray(grade?.verdicts) || grade.verdicts.length !== met.length) return met;
+  return met.map((m, i) => m === true && grade.verdicts[i]?.met === true);
+}
+
+/** What an attempt scores for scheduling once its grade (if any) is applied. */
+export function effectiveScore(attempt, grade) {
+  const score = attempt.score ?? 0;
+  const met = attempt.result?.met;
+  const eff = effectiveMet(met, grade);
+  if (eff === met) return score;                       // no grade, or one that does not fit
+  return Math.min(score, ratioFromRubric(eff));
+}
+
 const sameSet = (a, b) => {
   const A = new Set(a), B = new Set(b);
   return A.size === B.size && [...A].every(x => B.has(x));
@@ -279,6 +303,18 @@ export function mergeAttempts(a = [], b = []) {
 }
 
 /**
+ * Union two grade sets by attempt id. Grades are written once by the server, so
+ * for any id the two sides hold the same record and which one wins is moot; the
+ * first one seen is kept. Like attempts, a grow-only set: merging cannot lose one.
+ */
+export function mergeGrades(a = [], b = []) {
+  const byId = new Map();
+  for (const g of [...a, ...b]) if (g && g.attempt_id && !byId.has(g.attempt_id)) byId.set(g.attempt_id, g);
+  return [...byId.values()].sort((x, y) =>
+    String(x.graded_at).localeCompare(String(y.graded_at)) || String(x.attempt_id).localeCompare(String(y.attempt_id)));
+}
+
+/**
  * Replay the log into schedule + seen.
  *
  * The forgetting rule participates in the fold: if a concept was already more
@@ -286,9 +322,12 @@ export function mergeAttempts(a = [], b = []) {
  * fresh row rather than continuing the old one - "re-enters as new, with no
  * schedule history" (§7).
  */
-export function deriveState(attempts) {
+export function deriveState(attempts, grades = []) {
   const schedule = {};
   const seenLists = {};
+  // Grades are joined to attempts at replay, never written into them: attempts
+  // are immutable, which is what lets two devices merge by set union.
+  const gradeOf = new Map(grades.map(g => [g.attempt_id, g]));
 
   for (const a of sortAttempts(attempts)) {
     if (!a.concept_id) continue;
@@ -307,7 +346,7 @@ export function deriveState(attempts) {
 
     let row = schedule[a.concept_id];
     if (row?.due && daysBetween(row.due, toDay(a.created_at)) > FORGET_DAYS) row = undefined;
-    schedule[a.concept_id] = applyAnswer(row, a.score ?? 0, a.created_at);
+    schedule[a.concept_id] = applyAnswer(row, effectiveScore(a, gradeOf.get(a.id)), a.created_at);
   }
 
   return { schedule, seen: seenLists };
@@ -377,7 +416,7 @@ export function planSession({ state, catalog, questionsByConcept, today, workCon
   const has = id => (questionsByConcept[id] ?? []).length > 0;
 
   // schedule and seen are derived from the attempt log, never read from storage
-  const derived = deriveState(state.attempts ?? []);
+  const derived = deriveState(state.attempts ?? [], state.grades ?? []);
   const forgot = applyForgetting(derived.schedule, [], today);
   const lastSession = (state.session_dates ?? []).slice(-1)[0];
   const returned = applyReturnPath(forgot.schedule, lastSession, today, tierOf);

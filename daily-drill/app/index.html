@@ -126,6 +126,21 @@ addEventListener("DOMContentLoaded",function(){
       </div>
     </section>
 
+    <!-- Offered only to the account the server allows (see paintGradingSetting). -->
+    <section class="group" id="grading-group" hidden>
+      <div class="eyebrow">// second opinion</div>
+      <label class="check">
+        <input type="checkbox" id="opt-model-grading">
+        <span>Have Claude read my written answers back against the checklist</span>
+      </label>
+      <p class="note" id="grading-status">—</p>
+      <p class="note">After a session, each written answer is read against the same
+        criteria you ticked. Nothing shows when you agree; where you differ, the
+        criterion appears with the words that back it, or their absence. The
+        concept is scheduled on the stricter of the two. Your answers are sent to
+        Claude for this, which is why it is off until you turn it on.</p>
+    </section>
+
     <section class="group">
       <div class="eyebrow">// scope</div>
       <label class="check">

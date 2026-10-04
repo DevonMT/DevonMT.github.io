@@ -562,6 +562,20 @@ subscription path. That path has no structured-output guarantee, so the reply is
 parsed and verified rather than trusted; one that will not parse leaves the
 attempt unchecked, which is a state the UI already shows.
 
+**As built.** `POST /api/drill/grade` takes `{attempt_id, prompt, criteria}` and
+reads the answer from the *synced* attempt, so it grades only what has reached
+the server and never a work-lane answer. It is admin-only in the route itself and
+again at the broker, which takes the Max path only while Recall is reachable by
+nobody else. An unusable reply is asked for again (three tries in all); a quote
+that cannot be found in the written answer makes its criterion not met. Grades
+live in `drill_grade`, arrive through `GET /state` as `grades`, and a device
+cannot push one. The toggle is `settings.model_grading` (this device only, off by
+default), offered only where `/health` reports `grading: true`. A pass runs after
+the session's sync and again on a later open for anything left unchecked; the done
+screen shows a difference only for grades that arrived that night, and the history
+shows all three states per answer. The calibration set and the prompt live in the
+devondoes repo (`platform/src/drill-grade.ts`, `drill-grade.calibration.ts`).
+
 **How it is stored, given attempts are immutable.** A grade is not written into
 the attempt. Attempts are the only authoritative state and are replayed to
 derive scheduling; mutating one would break the property that lets two devices

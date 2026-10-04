@@ -7,12 +7,13 @@
  */
 
 import {
-  planSession, scoreStatic, ratioFromRubric, daysActive,
+  planSession, scoreStatic, ratioFromRubric, daysActive, mergeGrades, effectiveScore,
   SESSION_SIZE, toDay,
 } from './srs.js';
 import * as store from './store.js';
 import { handoff } from './handoff.js';
 import * as sync from './sync.js';
+import * as grading from './grading.js';
 import { catalogFingerprint } from './catalog.js';
 
 const DOMAINS = ['data', 'software', 'build', 'ops', 'comms'];
@@ -30,6 +31,12 @@ let questionsByConcept = {};
 let queue = [];
 let index = 0;
 let bonusRound = false;
+// Second opinion (SPEC §9 phase 2). Grades that arrived since this page loaded
+// (the done screen shows only those, so a disagreement is not repeated every
+// night), and where the current pass has got to.
+let freshGrades = [];
+let gradingBusy = false;
+let gradingOutcome = null;   // null | 'running' | { stopped, failed }
 
 // ---------------------------------------------------------------- helpers
 
@@ -122,6 +129,9 @@ async function boot() {
       else if (res.reason === 'noaccess') return showGate('Your account has no access to Recall yet. Ask Devon.', 'noaccess');
     }
     startSession();
+    // Answers left unchecked by an earlier night (offline, an error) are picked
+    // up now, behind the session rather than in front of it.
+    gradePending();
   } catch (err) {
     console.error(err);
     renderLoadError(err);
@@ -207,8 +217,112 @@ function syncInBackground() {
   // A failure is recorded by reconcile and shown in Settings; it never
   // interrupts the drill.
   sync.reconcile(state).then(res => {
-    if (res.ok) { state = res.state; persist(); }
+    if (!res.ok) return;
+    state = res.state;
+    persist();
+    // Grading needs the answers on the server first: it reads them from there.
+    gradePending();
   });
+}
+
+// ---------------------------------------------------------------- second opinion
+
+const modelGradingOn = () => state.settings.model_grading === true;
+
+function questionIndex() {
+  const byId = new Map();
+  for (const qs of Object.values(questionsByConcept)) for (const q of qs) byId.set(q.id, q);
+  return byId;
+}
+
+/**
+ * Ask for the model's read of every written answer still waiting. Never blocks
+ * a drill and never throws: whatever happens is recorded in `gradingOutcome`
+ * and shown, so a pass that did nothing cannot pass for one that agreed.
+ */
+async function gradePending() {
+  if (!modelGradingOn() || !sync.syncConfigured() || gradingBusy) return;
+  const questionById = questionIndex();
+  if (!grading.pendingGrades(state, questionById, 1).length) return;
+  gradingBusy = true;
+  gradingOutcome = 'running';
+  paintSecondRead();
+  try {
+    const res = await grading.runPass({
+      state, questionById, api: sync,
+      onGrade: grade => {
+        state = { ...state, grades: mergeGrades(state.grades, [grade]) };
+        freshGrades.push(grade);
+        persist();
+      },
+    });
+    gradingOutcome = { stopped: res.stopped, failed: res.failed };
+  } catch (err) {
+    console.error(err);
+    gradingOutcome = { stopped: 'error', failed: 0 };
+  }
+  gradingBusy = false;
+  paintSecondRead();
+}
+
+/** The lines for where the two readers differ on one attempt. */
+function differenceLines(attempt, grade, question) {
+  return grading.differences(attempt, grade, grading.criteriaOf(question)).map(d =>
+    h('p', { class: 'sr-line', 'data-kind': d.kind },
+      h('span', { class: 'sr-crit', text: `${d.kind === 'over' ? 'You ticked' : 'You left unticked'}: ${d.text}` }),
+      h('span', { class: 'sr-why', text: d.kind === 'over'
+        ? (d.quote ? `Closest thing you wrote: \u201c${d.quote}\u201d` : 'Nothing in your answer says this.')
+        : `But you wrote: \u201c${d.quote}\u201d` })));
+}
+
+const STOPPED_WHY = {
+  unavailable: 'The second read is not available for this account.',
+  signin: 'You are signed out, so the second read paused.',
+  offline: 'The second read could not reach the service.',
+  error: 'The second read hit an error.',
+};
+
+/**
+ * The done screen's second-read block. Lean on purpose: when the readers agree
+ * it is empty and takes no space; it speaks only to say it is working, to show a
+ * disagreement with its evidence, or to admit some answers are not checked yet.
+ */
+function paintSecondRead() {
+  const box = document.getElementById('second-read');
+  if (!box) return;
+  clear(box);
+  if (!modelGradingOn()) return;
+
+  const questions = questionIndex();
+  const groups = [];
+  for (const grade of freshGrades) {
+    const attempt = state.attempts.find(a => a.id === grade.attempt_id);
+    if (!attempt) continue;
+    const lines = differenceLines(attempt, grade, questions.get(attempt.question_id));
+    if (lines.length) groups.push({ attempt, lines });
+  }
+  if (groups.length) {
+    box.append(h('div', { class: 'eyebrow', text: '// a second read differs' }));
+    for (const { attempt, lines } of groups) {
+      box.append(h('div', { class: 'sr-item' },
+        h('p', { class: 'sr-concept', text: conceptById.get(attempt.concept_id)?.name ?? attempt.concept_id }),
+        ...lines));
+    }
+    if (groups.some(g => g.lines.some(l => l.dataset.kind === 'over'))) {
+      box.append(h('p', { class: 'note', text: 'Recall schedules on the stricter of the two readings.' }));
+    }
+  }
+
+  if (gradingOutcome === 'running') {
+    box.append(h('p', { class: 'note', text: 'Reading your answers back against the checklists…' }));
+  } else if (gradingOutcome && (gradingOutcome.stopped || gradingOutcome.failed)) {
+    const { waiting } = grading.counts(state);
+    if (waiting) {
+      const why = gradingOutcome.stopped ? `${STOPPED_WHY[gradingOutcome.stopped]} ` : '';
+      box.append(h('p', { class: 'note', text:
+        `${why}${waiting} written ${waiting === 1 ? 'answer is' : 'answers are'} not checked yet and will be tried again next time.` }));
+    }
+  }
 }
 
 // ---------------------------------------------------------------- chrome
@@ -655,10 +769,12 @@ function renderDone() {
             document.createTextNode('Read back your answers'))
         : null,
     ),
+    h('div', { id: 'second-read', class: 'second-read' }),
     h('p', { class: 'stat' },
       h('span', { class: 'stat-num', text: String(active) }),
       h('span', { class: 'stat-label', text: `${active === 1 ? 'day' : 'days'} active in the last 30` })),
   ));
+  paintSecondRead();
 }
 
 // ---------------------------------------------------------------- history
@@ -689,8 +805,8 @@ function renderHistory() {
     list.push(a);
     byConcept.set(a.concept_id, list);
   }
-  const prompts = new Map();
-  for (const qs of Object.values(questionsByConcept)) for (const q of qs) prompts.set(q.id, q.prompt);
+  const questions = questionIndex();
+  const gradeOf = new Map((state.grades ?? []).map(g => [g.attempt_id, g]));
   const concepts = [...byConcept.entries()]
     .map(([id, list]) => ({ id, list: list.sort((a, b) => a.created_at.localeCompare(b.created_at)) }))
     .sort((a, b) => b.list[b.list.length - 1].created_at.localeCompare(a.list[a.list.length - 1].created_at));
@@ -706,13 +822,25 @@ function renderHistory() {
         h('span', { class: 'history-name', text: name }),
         h('span', { class: 'history-count', text: `${c.list.length}` })));
     for (const a of c.list) {
-      const prompt = prompts.get(a.question_id);
+      const question = questions.get(a.question_id);
+      const grade = gradeOf.get(a.id);
+      const checked = grading.gradeState(a, grade);
+      // Where the second opinion is on, an answer says which of the three
+      // states it is in. Where it is off, nothing: no one is told "not checked"
+      // about a feature they never turned on.
+      const tag = checked === 'differs' ? 'checked, differs'
+        : checked === 'agreed' ? 'checked'
+        : checked === 'unchecked' && modelGradingOn() ? 'not checked'
+        : null;
       d.append(h('div', { class: 'history-answer' },
         h('div', { class: 'history-meta' },
           h('time', { text: a.created_at.slice(0, 10) }),
-          a.score >= 0.8 ? h('span', { class: 'history-tick', 'aria-label': 'got it', text: '✓' }) : null),
-        prompt ? h('p', { class: 'history-prompt', text: prompt }) : null,
-        h('blockquote', { text: a.answer })));
+          // the tick follows the stricter reading, so it never sits beside "differs"
+          effectiveScore(a, grade) >= 0.8 ? h('span', { class: 'history-tick', 'aria-label': 'got it', text: '✓' }) : null,
+          tag ? h('span', { class: 'history-check', 'data-state': checked, text: tag }) : null),
+        question?.prompt ? h('p', { class: 'history-prompt', text: question.prompt }) : null,
+        h('blockquote', { text: a.answer }),
+        ...(checked === 'differs' ? [h('div', { class: 'second-read' }, ...differenceLines(a, grade, question))] : [])));
     }
     box.append(d);
   }
@@ -735,11 +863,32 @@ document.getElementById('settings-open').addEventListener('click', () => {
   document.getElementById('capture-count').textContent =
     state.captures.length ? `${state.captures.length} waiting to be sorted` : '';
   document.getElementById('sync-status').textContent = syncStatusText();
+  paintGradingSetting();
   document.getElementById('storage-note').textContent = store.storageAvailable
     ? `catalog ${state.catalog_version ?? '—'} · ${state.attempts.length} attempts stored`
     : 'This browser is blocking local storage, so tonight will not be saved.';
   dlg.showModal();
 });
+/**
+ * The second-opinion toggle exists for the one account the server offers it to.
+ * Asked each time Settings opens, so it appears as soon as the answer is known
+ * and never for anyone else.
+ */
+function paintGradingSetting() {
+  const group = document.getElementById('grading-group');
+  document.getElementById('opt-model-grading').checked = modelGradingOn();
+  document.getElementById('grading-status').textContent = gradingStatusText();
+  sync.gradingAvailable().then(ok => { group.hidden = !ok; });
+}
+
+function gradingStatusText() {
+  const { checked, waiting } = grading.counts(state);
+  if (!modelGradingOn()) return checked ? `Off on this device. ${checked} answers were read back before.` : 'Off.';
+  const parts = [`${checked} ${checked === 1 ? 'answer' : 'answers'} read back`];
+  parts.push(waiting ? `${waiting} not checked yet` : 'none waiting');
+  return `On. ${parts.join(', ')}.`;
+}
+
 /** Say what the last sync did, not just that sync is switched on. */
 function syncStatusText() {
   if (!sync.syncConfigured()) return 'Not syncing. Sign in at id.devondoes.dev and reopen Recall — it turns itself on.';
@@ -755,6 +904,13 @@ function syncStatusText() {
   return `Not syncing: ${why}. Last attempt ${when}. ${held} Your progress here is untouched.`;
 }
 document.getElementById('settings-close').addEventListener('click', () => dlg.close());
+
+document.getElementById('opt-model-grading').addEventListener('change', ev => {
+  state = { ...state, settings: { ...state.settings, model_grading: ev.target.checked } };
+  persist();
+  document.getElementById('grading-status').textContent = gradingStatusText();
+  if (ev.target.checked) gradePending();
+});
 
 document.getElementById('opt-work-lane').addEventListener('change', ev => {
   state = { ...state, settings: { ...state.settings, show_work_lane: ev.target.checked } };

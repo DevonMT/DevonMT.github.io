@@ -37,6 +37,8 @@ export const BOOT_CHECK_MS = 2500;
 /** Boot must not stall behind a slow network; a normal pull is ~200ms. */
 const PULL_TIMEOUT_MS = 2500;
 const PUSH_TIMEOUT_MS = 8000;
+/** The server may re-ask the model up to three times, each on the Claude CLI. */
+const GRADE_TIMEOUT_MS = 200000;
 
 export function getEndpoint() {
   try { return localStorage.getItem(ENDPOINT_NAME) || window.DRILL_SYNC_URL || DEFAULT_ENDPOINT; }
@@ -91,7 +93,7 @@ async function call(path, { method = 'GET', body, timeout = PULL_TIMEOUT_MS } = 
     // one is "sign in", the other is "ask for access".
     if (res.status === 401) throw Object.assign(new Error('not signed in'), { code: 'signin' });
     if (res.status === 403) throw Object.assign(new Error('no access to Recall'), { code: 'noaccess' });
-    if (!res.ok) throw Object.assign(new Error(`sync failed (${res.status})`), { code: 'http' });
+    if (!res.ok) throw Object.assign(new Error(`sync failed (${res.status})`), { code: 'http', status: res.status });
     return res.json();
   } finally {
     clearTimeout(timer);
@@ -142,6 +144,25 @@ export async function pull(state) {
 export async function push(state) {
   const merged = await call('/state', { method: 'POST', body: syncPayload(state), timeout: PUSH_TIMEOUT_MS });
   return { state: mergeState(state, { ...merged, settings: state.settings }) };
+}
+
+/**
+ * Does this account get the model's second opinion? Only the owner does, and
+ * the server decides: the toggle is offered to nobody else. Any failure reads
+ * as "no", which hides the toggle rather than showing one that cannot work.
+ */
+export async function gradingAvailable() {
+  try { return (await call('/health')).grading === true; } catch { return false; }
+}
+
+/**
+ * Ask for the model's second opinion on one synced attempt. Returns
+ * { grade, cached }. Throws like every other call here; a 403 is
+ * code 'noaccess', which for THIS route means "grading is not on offer", not
+ * "ask for access" - the grading pass reads it that way and stops quietly.
+ */
+export function gradeAttempt({ attempt_id, prompt, criteria }) {
+  return call('/grade', { method: 'POST', body: { attempt_id, prompt, criteria }, timeout: GRADE_TIMEOUT_MS });
 }
 
 /**
