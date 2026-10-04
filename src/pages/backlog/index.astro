@@ -1199,6 +1199,23 @@ import Gate from '../../components/Gate.astro';
     return { text: 'conf-low', bg: 'conf-low-bg' };
   }
 
+  // ---- Last results (one per tab, this browser) ----
+  // A Discover run costs a ~60 s model call, so each tab's latest result is
+  // kept in localStorage and shown on load. Only the button runs a new one.
+  const LAST_KEY = 'games_last_';
+  function saveLast(tab: string, payload: Record<string, any>) {
+    try { localStorage.setItem(LAST_KEY + tab, JSON.stringify({ at: Date.now(), ...payload })); } catch { /* storage full or blocked */ }
+  }
+  function readLast(tab: string): any | null {
+    try {
+      const v = JSON.parse(localStorage.getItem(LAST_KEY + tab) || 'null');
+      return v && typeof v.at === 'number' ? v : null;
+    } catch { return null; }
+  }
+  function stamp(at: number): string {
+    return 'saved ' + new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
   // ---- Own tab: backlog ----
   const backlogBtn       = document.getElementById('backlog-btn') as HTMLButtonElement;
   const backlogStatus    = document.getElementById('backlog-status')!;
@@ -1284,6 +1301,25 @@ import Gate from '../../components/Gate.astro';
     return card;
   }
 
+  function showBacklog(picks: any[], count: number, threshold: string, at: number) {
+    backlogStatus.classList.remove('error');
+    backlogStatus.textContent = `Top picks from ${count} games with < ${threshold}h played · ${stamp(at)}`;
+    backlogStatus.hidden = false;
+    backlogGrid.innerHTML = '';
+    picks.forEach((p) => backlogGrid.appendChild(renderBacklogCard(p)));
+    updateExclusionNote();
+  }
+
+  function restoreBacklog() {
+    const last = readLast('own');
+    if (!last || !Array.isArray(last.picks)) return;
+    const ex = getExcluded();
+    const picks = last.picks.filter((p: any) => !ex.has(p.appId));
+    if (picks.length === 0) return;
+    if ([...backlogThreshold.options].some((o) => o.value === String(last.threshold))) backlogThreshold.value = String(last.threshold);
+    showBacklog(picks, last.count ?? picks.length, String(last.threshold), last.at);
+  }
+
   async function loadBacklogPicks() {
     const threshold = backlogThreshold.value;
     const excluded = [...getExcluded()];
@@ -1304,10 +1340,8 @@ import Gate from '../../components/Gate.astro';
         return;
       }
       const count = data.candidateCount ?? picks.length;
-      backlogStatus.textContent = `Top picks from ${count} games with < ${threshold}h played`;
-      backlogStatus.hidden = false;
-      picks.forEach((p) => backlogGrid.appendChild(renderBacklogCard(p)));
-      updateExclusionNote();
+      saveLast('own', { threshold, count, picks });
+      showBacklog(picks, count, threshold, Date.now());
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         backlogStatus.classList.add('error');
@@ -1350,6 +1384,23 @@ import Gate from '../../components/Gate.astro';
     return card;
   }
 
+  function showDiscover(picks: any[], at: number) {
+    discoverStatus.classList.remove('error');
+    discoverStatus.textContent = `Last run for ${discoverState.platform} · ${discoverState.genre} · ${stamp(at)}`;
+    discoverStatus.hidden = false;
+    discoverGrid.innerHTML = '';
+    picks.forEach((p) => discoverGrid.appendChild(renderResultCard(p)));
+  }
+
+  // Runs before the chips are built so they open on the filters the run used.
+  function restoreDiscover() {
+    const last = readLast('discover');
+    if (!last || !Array.isArray(last.picks) || last.picks.length === 0) return;
+    if (typeof last.platform === 'string') discoverState.platform = last.platform;
+    if (typeof last.genre === 'string') discoverState.genre = last.genre;
+    showDiscover(last.picks, last.at);
+  }
+
   async function loadDiscover() {
     discoverStatus.classList.remove('error');
     discoverStatus.hidden = false;
@@ -1371,8 +1422,8 @@ import Gate from '../../components/Gate.astro';
         discoverStatus.textContent = 'No recommendations found. Try adjusting your taste profile.';
         return;
       }
-      discoverStatus.hidden = true;
-      picks.forEach((p) => discoverGrid.appendChild(renderResultCard(p)));
+      saveLast('discover', { platform: discoverState.platform, genre: discoverState.genre, picks });
+      showDiscover(picks, Date.now());
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         discoverStatus.classList.add('error');
@@ -1538,6 +1589,21 @@ import Gate from '../../components/Gate.astro';
   const lookupStatus = document.getElementById('lookup-status')!;
   const lookupGrid   = document.getElementById('lookup-grid')!;
 
+  function showLookup(query: string, results: any[], at: number) {
+    lookupStatus.classList.remove('error');
+    lookupStatus.textContent = `Results for "${query}" · ${stamp(at)}`;
+    lookupStatus.hidden = false;
+    lookupGrid.innerHTML = '';
+    results.forEach((r) => lookupGrid.appendChild(renderResultCard(r)));
+  }
+
+  function restoreLookup() {
+    const last = readLast('lookup');
+    if (!last || !Array.isArray(last.results) || last.results.length === 0) return;
+    lookupInput.value = String(last.query ?? '');
+    showLookup(lookupInput.value, last.results, last.at);
+  }
+
   async function runLookup() {
     const query = lookupInput.value.trim();
     if (!query) { lookupInput.focus(); return; }
@@ -1556,8 +1622,8 @@ import Gate from '../../components/Gate.astro';
         lookupStatus.textContent = 'No results found.';
         return;
       }
-      lookupStatus.hidden = true;
-      results.forEach((r) => lookupGrid.appendChild(renderResultCard(r)));
+      saveLast('lookup', { query, results });
+      showLookup(query, results, Date.now());
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         lookupStatus.classList.add('error');
@@ -1575,6 +1641,7 @@ import Gate from '../../components/Gate.astro';
   // ---- Init ----
   async function initDashboard() {
     await loadPrefsIntoForm();
+    restoreDiscover();
     buildChips(
       document.getElementById('discover-platform-chips')!,
       PLATFORM_OPTIONS,
@@ -1596,6 +1663,8 @@ import Gate from '../../components/Gate.astro';
     setDefaultDates();
     loadSyncStatus();
     updateExclusionNote();
+    restoreBacklog();
+    restoreLookup();
     const savedTab = sessionStorage.getItem('games_active_tab') ?? 'own';
     switchTab(savedTab);
   }
