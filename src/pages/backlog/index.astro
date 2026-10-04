@@ -1486,7 +1486,7 @@ import Gate from '../../components/Gate.astro';
     gridStatus.classList.remove('error');
     gridStatus.hidden = false;
     gridStatus.innerHTML = '<span class="spinner"></span> Loading releases…';
-    if (!append) { releasesGrid.innerHTML = ''; loadMoreBtn.hidden = true; }
+    if (!append) { releasesGrid.innerHTML = ''; loadMoreBtn.hidden = true; scoreBar.hidden = true; }
     applyBtn.disabled = true;
     try {
       const data = await api(`/releases?${buildReleaseQuery()}`);
@@ -1496,10 +1496,10 @@ import Gate from '../../components/Gate.astro';
       } else {
         gridStatus.hidden = true;
       }
-      games.forEach((g: any) => releasesGrid.appendChild(renderCard(g)));
+      const added = games.map((g: any) => releasesGrid.appendChild(renderCard(g)) as HTMLElement);
       loadMoreBtn.hidden = !data.hasNext;
       scoreBar.hidden = releasesGrid.childElementCount === 0;
-      showCachedScores();
+      showCachedScores(added);
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         gridStatus.classList.add('error');
@@ -1571,8 +1571,9 @@ import Gate from '../../components/Gate.astro';
 
   // Scores already paid for (30-day cache) appear with the page; this never
   // reaches the model. Quietly does nothing if the caller is not on the Full tier.
-  async function showCachedScores() {
-    const ids = releaseCards().filter((c) => c.dataset.score === undefined && c.dataset.rawg)
+  // Only the cards just added are checked, so earlier pages never crowd out a new page.
+  async function showCachedScores(cards: HTMLElement[]) {
+    const ids = cards.filter((c) => c.dataset.score === undefined && c.dataset.rawg)
       .map((c) => Number(c.dataset.rawg)).slice(0, 50);
     if (ids.length === 0) return;
     try {
