@@ -1259,6 +1259,27 @@ import Gate from '../../components/Gate.astro';
   }
 
   let dismissedCount = 0;
+  // What the server says is dismissed, kept so the results saved for reload can
+  // be filtered against it (a card dismissed on another device, or after the
+  // last run, must not come back from the saved grid).
+  const dismissedIds = new Set<number>();
+  const dismissedTitles = new Set<string>();
+
+  // Mirrors titleKey() in games-backend/src/lib/claude.ts: same title, same key.
+  function titleKey(s: string): string {
+    return s.toLowerCase().normalize('NFKD').replace(/\p{M}/gu, '')
+      .replace(/[™®©]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+(goty|game of the year|definitive|complete|remastered|enhanced|deluxe|ultimate|anniversary|directors cut|final cut)( edition)?\s*$/, '')
+      .replace(/\s+edition\s*$/, '')
+      .replace(/\b(the|a|an)\b/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  function isDismissed(p: { name?: string; appId?: number }): boolean {
+    if (p.appId && dismissedIds.has(p.appId)) return true;
+    return !!p.name && dismissedTitles.has(titleKey(p.name));
+  }
 
   // Hands any browser-only exclusions to the server once (kept if that fails,
   // and still sent with the run), then reads how many are dismissed.
@@ -1272,7 +1293,13 @@ import Gate from '../../components/Gate.astro';
     }
     try {
       const data = await api('/dismissals');
-      dismissedCount = Array.isArray(data.dismissals) ? data.dismissals.length : 0;
+      const list: any[] = Array.isArray(data.dismissals) ? data.dismissals : [];
+      dismissedCount = list.length;
+      for (const d of list) {
+        if (d.appId) dismissedIds.add(d.appId);
+        // Import placeholders ("Steam app 123") carry no real title.
+        if (d.name && !/^Steam app \d+$/.test(d.name)) dismissedTitles.add(titleKey(d.name));
+      }
     } catch { /* note stays hidden */ }
   }
 
@@ -1311,6 +1338,7 @@ import Gate from '../../components/Gate.astro';
           return;
         }
         dismissedCount++;
+        if (game.appId) dismissedIds.add(game.appId); else dismissedTitles.add(titleKey(game.name));
         card.remove();
         onDone();
         updateExclusionNote();
@@ -1335,6 +1363,8 @@ import Gate from '../../components/Gate.astro';
         await api('/dismissals', { method: 'DELETE' });
         localStorage.removeItem(EXCLUDED_KEY);
         dismissedCount = 0;
+        dismissedIds.clear();
+        dismissedTitles.clear();
         note!.remove();
       } catch { /* still dismissed; the note stays */ }
     });
@@ -1375,7 +1405,7 @@ import Gate from '../../components/Gate.astro';
   function restoreBacklog() {
     const last = readLast('own');
     if (!last || !Array.isArray(last.picks)) return;
-    const picks: any[] = last.picks;
+    const picks: any[] = last.picks.filter((p: any) => !isDismissed(p));
     if (picks.length === 0) return;
     if ([...backlogThreshold.options].some((o) => o.value === String(last.threshold))) backlogThreshold.value = String(last.threshold);
     showBacklog(picks, last.count ?? picks.length, String(last.threshold), last.at);
@@ -1464,10 +1494,12 @@ import Gate from '../../components/Gate.astro';
   // Runs before the chips are built so they open on the filters the run used.
   function restoreDiscover() {
     const last = readLast('discover');
-    if (!last || !Array.isArray(last.picks) || last.picks.length === 0) return;
+    if (!last || !Array.isArray(last.picks)) return;
+    const picks: any[] = last.picks.filter((p: any) => !isDismissed(p));
+    if (picks.length === 0) return;
     if (typeof last.platform === 'string') discoverState.platform = last.platform;
     if (typeof last.genre === 'string') discoverState.genre = last.genre;
-    showDiscover(last.picks, last.at);
+    showDiscover(picks, last.at);
   }
 
   async function loadDiscover() {
