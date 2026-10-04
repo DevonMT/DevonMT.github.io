@@ -165,6 +165,10 @@ import Gate from '../../components/Gate.astro';
                 <button id="apply-filters" class="btn-primary apply-btn" type="button">Apply</button>
               </div>
             </div>
+            <div id="score-bar" class="score-bar" hidden>
+              <button id="score-all" class="btn-sm" type="button">Score these</button>
+              <button id="sort-fit" class="chip" type="button" aria-pressed="false">Sort by fit</button>
+            </div>
             <p id="grid-status" class="grid-status" hidden></p>
             <div id="releases-grid" class="releases-grid"></div>
             <div class="grid-foot">
@@ -838,6 +842,7 @@ import Gate from '../../components/Gate.astro';
   .date-input { flex: 0 1 auto; }
 
   .apply-btn { align-self: flex-end; }
+  .score-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 14px; }
 
   /* ── Own tab controls ── */
   .backlog-controls {
@@ -1454,6 +1459,9 @@ import Gate from '../../components/Gate.astro';
   const gridStatus  = document.getElementById('grid-status')!;
   const releasesGrid = document.getElementById('releases-grid')!;
   const loadMoreBtn = document.getElementById('load-more') as HTMLButtonElement;
+  const scoreBar    = document.getElementById('score-bar')!;
+  const scoreAllBtn = document.getElementById('score-all') as HTMLButtonElement;
+  const sortFitBtn  = document.getElementById('sort-fit') as HTMLButtonElement;
 
   function setDefaultDates() {
     const now = new Date();
@@ -1490,6 +1498,8 @@ import Gate from '../../components/Gate.astro';
       }
       games.forEach((g: any) => releasesGrid.appendChild(renderCard(g)));
       loadMoreBtn.hidden = !data.hasNext;
+      scoreBar.hidden = releasesGrid.childElementCount === 0;
+      showCachedScores();
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         gridStatus.classList.add('error');
@@ -1509,6 +1519,107 @@ import Gate from '../../components/Gate.astro';
     if (score >= 50) return 'mid';
     return 'low';
   }
+
+  let cardSeq = 0;
+
+  /** Paint a recommendation into a card and remember its score for sorting. */
+  function showReco(card: HTMLElement, reco: any) {
+    const recoEl = card.querySelector('.reco') as HTMLElement;
+    const score = Math.max(0, Math.min(100, Math.round(reco.confidenceScore)));
+    const cls = confClass(score);
+    card.dataset.score = String(score);
+    recoEl.hidden = false;
+    recoEl.innerHTML = `
+      <div class="reco-head">
+        <span class="reco-label">Confidence</span>
+        <span class="reco-score ${cls.text}">${score}</span>
+      </div>
+      <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
+      <p class="reco-text">${escapeHtml(reco.reasoning || '')}</p>
+    `;
+  }
+
+  function releaseCards(): HTMLElement[] {
+    return Array.from(releasesGrid.children) as HTMLElement[];
+  }
+
+  /** Highest score first, unscored last; ties and the unsorted view keep RAWG order. */
+  function applySort() {
+    const byOrder = (a: HTMLElement, b: HTMLElement) => Number(a.dataset.order) - Number(b.dataset.order);
+    const score = (c: HTMLElement) => (c.dataset.score === undefined ? -1 : Number(c.dataset.score));
+    const on = sortFitBtn.getAttribute('aria-pressed') === 'true';
+    releaseCards()
+      .sort((a, b) => (on ? score(b) - score(a) || byOrder(a, b) : byOrder(a, b)))
+      .forEach((c) => releasesGrid.appendChild(c));
+  }
+
+  sortFitBtn.addEventListener('click', () => {
+    const on = sortFitBtn.getAttribute('aria-pressed') !== 'true';
+    sortFitBtn.setAttribute('aria-pressed', String(on));
+    sortFitBtn.classList.toggle('active', on);
+    applySort();
+  });
+
+  function applyScores(recs: any[]) {
+    const byId = new Map(recs.map((r) => [String(r.gameId), r]));
+    releaseCards().forEach((card) => {
+      const reco = byId.get(card.dataset.rawg ?? '');
+      if (reco) showReco(card, reco);
+    });
+    applySort();
+  }
+
+  // Scores already paid for (30-day cache) appear with the page; this never
+  // reaches the model. Quietly does nothing if the caller is not on the Full tier.
+  async function showCachedScores() {
+    const ids = releaseCards().filter((c) => c.dataset.score === undefined && c.dataset.rawg)
+      .map((c) => Number(c.dataset.rawg)).slice(0, 50);
+    if (ids.length === 0) return;
+    try {
+      const data = await api('/recommendations/cached', { method: 'POST', body: JSON.stringify({ gameIds: ids }) });
+      applyScores(data.recommendations || []);
+    } catch { /* cosmetic: the cards just stay unscored */ }
+  }
+
+  // One model call for every unscored release on the page (the backend takes 50).
+  async function scoreAll() {
+    const todo = releaseCards().filter((c) => c.dataset.score === undefined && c.dataset.rawg);
+    if (todo.length === 0) {
+      gridStatus.classList.remove('error');
+      gridStatus.hidden = false;
+      gridStatus.textContent = 'Everything shown is already scored.';
+      return;
+    }
+    const batch = todo.slice(0, 50);
+    scoreAllBtn.disabled = true;
+    scoreAllBtn.innerHTML = '<span class="spinner"></span> Scoring…';
+    gridStatus.classList.remove('error');
+    gridStatus.hidden = true;
+    try {
+      const data = await api('/recommendations', {
+        method: 'POST',
+        body: JSON.stringify({ gameIds: batch.map((c) => Number(c.dataset.rawg)), preferences: getPrefs() }),
+      });
+      applyScores(data.recommendations || []);
+      const left = todo.length - batch.length;
+      if (data.warning || left > 0) {
+        gridStatus.hidden = false;
+        gridStatus.textContent = [data.warning, left > 0 ? `${left} more not scored, click again for the rest.` : '']
+          .filter(Boolean).join(' ');
+      }
+    } catch (err: any) {
+      if (err?.message !== 'Unauthorized') {
+        gridStatus.classList.add('error');
+        gridStatus.hidden = false;
+        gridStatus.textContent = `Couldn't score these: ${err?.message || 'unknown error'}`;
+      }
+    } finally {
+      scoreAllBtn.disabled = false;
+      scoreAllBtn.textContent = 'Score these';
+    }
+  }
+
+  scoreAllBtn.addEventListener('click', scoreAll);
 
   function renderCard(game: any): HTMLElement {
     const card = document.createElement('article');
@@ -1544,6 +1655,9 @@ import Gate from '../../components/Gate.astro';
     `;
     const rateBtn = card.querySelector('.rate-btn') as HTMLButtonElement;
     const recoEl  = card.querySelector('.reco') as HTMLElement;
+    const id = game.rawgId ?? game.id;
+    if (id != null) card.dataset.rawg = String(id);
+    card.dataset.order = String(cardSeq++);
     rateBtn.addEventListener('click', () => rate(game, rateBtn, recoEl));
     return card;
   }
@@ -1563,16 +1677,8 @@ import Gate from '../../components/Gate.astro';
       });
       const reco = (data.recommendations || [])[0];
       if (!reco) { recoEl.innerHTML = '<p class="reco-error">No recommendation returned.</p>'; return; }
-      const score = Math.max(0, Math.min(100, Math.round(reco.confidenceScore)));
-      const cls = confClass(score);
-      recoEl.innerHTML = `
-        <div class="reco-head">
-          <span class="reco-label">Confidence</span>
-          <span class="reco-score ${cls.text}">${score}</span>
-        </div>
-        <div class="reco-bar"><span class="${cls.bg}" style="width:${score}%"></span></div>
-        <p class="reco-text">${escapeHtml(reco.reasoning || '')}</p>
-      `;
+      showReco(recoEl.closest('.game-card') as HTMLElement, reco);
+      applySort();
     } catch (err: any) {
       if (err?.message !== 'Unauthorized') {
         recoEl.innerHTML = `<p class="reco-error">Couldn't rate this: ${escapeHtml(err?.message || 'unknown error')}</p>`;
