@@ -57,11 +57,13 @@ function rig({ liveMatches }) {
   if (liveMatches) writeFileSync(join(stub, 'live-match'), '');
   const token = join(root, 'token');
   writeFileSync(token, 'tok\n');
+  const account = join(root, 'account-id');
+  writeFileSync(account, 'acct');
   const run = (args = [], env = {}) => {
     const r = spawnSync('bash', [join(work, 'daily-drill', 'publish.sh'), ...args], {
       encoding: 'utf8',
       env: { ...process.env, DRILL_REPO: work, STUB: stub, DRILL_CF_TOKEN_FILE: token,
-             DRILL_PUBLISH_WAITS: '0', ...env },
+             DRILL_CF_ACCOUNT_FILE: account, DRILL_PUBLISH_WAITS: '0', ...env },
     });
     return { code: r.status, out: r.stdout + r.stderr };
   };
