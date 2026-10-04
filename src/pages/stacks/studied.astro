@@ -73,9 +73,17 @@ import '../../styles/themes/stacks.css';
     appEl.hidden = false;
     if (started) return;   // the gate can fire authed more than once
     started = true;
+    // A restored or reloaded tab carries ?logged=: it already logged, so never POST again.
+    if (new URLSearchParams(location.search).has('logged')) {
+      show('Already logged', 'This tab already logged a session.');
+      openLink.hidden = false;
+      return;
+    }
     try {
       const res = await apiFetch('/learn/sessions/repeat', { method: 'POST', body: '{}' });
       const s = res.session as Logged;
+      // Move this tab off the shortcut URL so a restore/refresh/new tap never reuses it.
+      history.replaceState(null, '', `/stacks/studied/?logged=${s.id}`);
       if (res.duplicate) {
         show('Already logged', describe(s));
       } else {
@@ -94,7 +102,7 @@ import '../../styles/themes/stacks.css';
         };
       }
     } catch (e: any) {
-      if (e.message === 'Unauthorized') return;   // the gate is re-challenging
+      if (e.message === 'Unauthorized') { started = false; return; }   // the gate is re-challenging; retry once authed
       // First ever session: there is nothing to repeat, so hand over to the form.
       show(e.message || 'Could not log.', '', true);
       if (/No session to repeat/.test(e.message || '')) openLink.href = '/stacks/#log';
