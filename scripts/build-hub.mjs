@@ -48,7 +48,7 @@ const TARGETS = [
     out: join(ROOT, 'dist-hub'),
     dir: '/home/devon/apps/games-frontend',       // games-backend's /app/public
     files: { ...SHARED, backlog: 'backlog', stacks: 'stacks' },
-    pages: ['backlog/index.html', 'stacks/index.html'],
+    pages: ['backlog/index.html', 'stacks/index.html', 'stacks/studied/index.html'],
   },
   {
     name: 'playfinder',
