@@ -16,6 +16,10 @@
       <div class="page-head">
         <div class="eyebrow-amber">// playfinder</div>
         <h1 class="page-h1">Games matched to your taste,<br class="hero-br"> not the charts.</h1>
+        <p class="invite-notice" data-invite>
+          <span class="invite-notice-label">// invite-only</span>
+          Playfinder is invite-only for now. Without a friend key it can't run Discover or Lookup, so there's no need to fill in the profile. Have a key? Open "// friend key" at the bottom of the page.
+        </p>
         <p class="page-sub">Build a quick taste profile and get two tools: Claude brainstorms picks tuned to you, or scores any game you name against your preferences.</p>
         <div class="hero-how">
           <div class="hero-how-item">
@@ -180,8 +184,9 @@
         <!-- ── Sticky CTA (Discover panel) ── -->
         <div id="panel-discover" role="tabpanel" aria-labelledby="tab-discover">
           <div class="sticky-cta">
+            <p class="invite-panel-note" data-invite>// invite-only: Brainstorm needs a friend key, so it can't be submitted yet.</p>
             <div class="sticky-cta-inner">
-              <button type="button" id="discover-btn" class="btn-primary">
+              <button type="button" id="discover-btn" class="btn-primary invite-locked" disabled>
                 Brainstorm games →
               </button>
               <div class="cta-opts">
@@ -202,16 +207,18 @@
         <div id="panel-lookup" role="tabpanel" aria-labelledby="tab-lookup" hidden>
           <div class="lookup-panel">
             <div class="section-eyebrow">// lookup</div>
+            <p class="invite-panel-note" data-invite>// invite-only: Lookup needs a friend key, so it can't be submitted yet.</p>
             <p class="lookup-helper">Name a game — or describe one — and I'll score it against your taste.</p>
             <div class="lookup-row">
               <input
                 type="text"
                 id="lookup-query"
-                class="lookup-input"
+                class="lookup-input invite-locked"
                 placeholder="e.g. Hollow Knight: Silksong — or 'a cozy co-op farming sim'"
                 autocomplete="off"
+                disabled
               />
-              <button type="button" id="lookup-btn" class="btn-primary">
+              <button type="button" id="lookup-btn" class="btn-primary invite-locked" disabled>
                 Score it →
               </button>
             </div>
@@ -549,6 +556,34 @@
     font-size: 12px;
     color: var(--color-text-muted);
   }
+
+  /* ── Invite-only notices (shown until a friend key unlocks the app) ── */
+  .invite-notice {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg-elevated);
+    border: 1px solid color-mix(in srgb, var(--color-amber) 45%, transparent);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+    max-width: 600px;
+  }
+  .invite-notice-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--color-amber);
+    margin-bottom: 2px;
+  }
+  .invite-panel-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--color-amber);
+    margin: 0 0 10px;
+  }
+  .invite-locked { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary.invite-locked:hover { background: var(--color-accent); }
 
   /* ── Section cards ── */
   .section-card {
@@ -1561,8 +1596,23 @@
 
   // ── Mode indicator ─────────────────────────────────────────────────────────
 
+  // Playfinder's AI routes take only a friend key, so a visitor without one can
+  // read the page but not run anything. Shown up front instead of after the form.
+  let inviteLocked = true;
+  function applyInviteLock(locked: boolean): void {
+    inviteLocked = locked;
+    document.querySelectorAll<HTMLElement>('[data-invite]').forEach((el) => { el.hidden = !locked; });
+    ['discover-btn', 'lookup-btn', 'lookup-query'].forEach((id) => {
+      const el = document.getElementById(id) as HTMLButtonElement | HTMLInputElement | null;
+      if (!el) return;
+      el.disabled = locked;
+      el.classList.toggle('invite-locked', locked);
+    });
+  }
+
   function setMode(mode: 'public' | 'friend'): void {
     appMode = mode;
+    applyInviteLock(mode !== 'friend');
     const label = document.getElementById('mode-label');
     if (label) {
       label.textContent = mode === 'friend'
@@ -1780,6 +1830,7 @@
   // ── Discover handler ───────────────────────────────────────────────────────
 
   async function runDiscover(): Promise<void> {
+    if (inviteLocked) return;
     const discoverBtn = document.getElementById('discover-btn') as HTMLButtonElement;
     const resultsSection = document.getElementById('results-section')!;
     const resultsStatus = document.getElementById('results-status')!;
@@ -1841,6 +1892,7 @@
   // ── Lookup handler ─────────────────────────────────────────────────────────
 
   async function runLookup(): Promise<void> {
+    if (inviteLocked) return;
     const lookupInput  = document.getElementById('lookup-query')      as HTMLInputElement;
     const lookupBtn    = document.getElementById('lookup-btn')         as HTMLButtonElement;
     const inlineHint   = document.getElementById('lookup-inline-hint')!;
@@ -2327,6 +2379,10 @@
       }
     }
   }
+
+  // A stored key means the owner is probably unlocked; avoid flashing the lock
+  // while initFriendKey() confirms it with the server (it re-locks if revoked).
+  try { if (sessionStorage.getItem(FRIEND_KEY_SESSION)) applyInviteLock(false); } catch { /* ignore */ }
 
   init();
   initFriendKey().catch((err) => {
