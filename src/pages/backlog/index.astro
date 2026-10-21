@@ -64,6 +64,13 @@ import Gate from '../../components/Gate.astro';
           <div class="sync-actions">
             <button id="sync-now" class="btn-sm" type="button">Sync now</button>
           </div>
+          <!-- Shown only to someone who has not linked Steam: Backlog reads each
+               person's own library, never anyone else's. -->
+          <form id="steam-link" class="steam-link" hidden>
+            <input id="steam-profile" type="text" required autocomplete="off"
+                   placeholder="steamcommunity.com/id/yourname" aria-label="Your Steam profile link">
+            <button class="btn-sm" type="submit">Link Steam</button>
+          </form>
         </div>
 
         <!-- Taste profile -->
@@ -666,6 +673,25 @@ import Gate from '../../components/Gate.astro';
 
   #sync-status.stale { color: var(--color-amber); }
 
+  .steam-link {
+    display: flex;
+    gap: 8px;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+  .steam-link[hidden] { display: none; }
+  .steam-link input {
+    flex: 1 1 220px;
+    min-width: 0;
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
   .sync-actions {
     display: flex;
     gap: 8px;
@@ -968,6 +994,8 @@ import Gate from '../../components/Gate.astro';
   const dashEl      = document.getElementById('dashboard')!;
   const syncStatusEl = document.getElementById('sync-status')!;
   const syncNowBtn  = document.getElementById('sync-now') as HTMLButtonElement;
+  const steamLinkForm = document.getElementById('steam-link') as HTMLFormElement;
+  const steamProfileEl = document.getElementById('steam-profile') as HTMLInputElement;
 
   // ---- Taste profile ----
   const tasteToggle     = document.getElementById('taste-toggle') as HTMLButtonElement;
@@ -1106,12 +1134,37 @@ import Gate from '../../components/Gate.astro';
   async function loadSyncStatus() {
     try {
       const data = await api('/steam/sync-status');
-      syncStatusEl.textContent = `Steam library last synced ${relativeTime(data.lastSteamSync)}`;
-      syncStatusEl.classList.toggle('stale', !!data.stale);
+      // Everyone links their own Steam account; until they do there is no
+      // library to sync, so the bar asks for it instead.
+      const unlinked = data.linked === false;
+      steamLinkForm.hidden = !unlinked;
+      syncNowBtn.hidden = unlinked;
+      syncStatusEl.textContent = unlinked
+        ? 'No Steam library linked yet. Paste your Steam profile link (its game details must be public).'
+        : `Steam library last synced ${relativeTime(data.lastSteamSync)}`;
+      syncStatusEl.classList.toggle('stale', !unlinked && !!data.stale);
     } catch {
       syncStatusEl.textContent = 'Sync status unavailable';
     }
   }
+
+  steamLinkForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = steamLinkForm.querySelector('button') as HTMLButtonElement;
+    btn.disabled = true;
+    try {
+      await api('/steam/account', { method: 'POST', body: JSON.stringify({ profile: steamProfileEl.value }) });
+      steamProfileEl.value = '';
+      syncStatusEl.textContent = 'Linked. Fetching your library…';
+      await api('/steam/library/refresh', { method: 'POST' }).catch(() => {});
+      await loadSyncStatus();
+    } catch (err) {
+      syncStatusEl.textContent = (err as Error).message;
+      syncStatusEl.classList.add('stale');
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   syncNowBtn.addEventListener('click', async () => {
     syncNowBtn.disabled = true;
