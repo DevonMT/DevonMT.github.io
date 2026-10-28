@@ -67,9 +67,10 @@ the sign-in gate commit, so holding the gate means holding the grading client to
 (revert the later one first). The grading client is safe to ship before its server
 half: `sync.js` hides grading unless `/health` reports `grading === true`.
 
-Unattended runs need two things from Devon: the Pages:Edit token in
-`~/.cloudflare/pages-token`, and a valid Claude Code login on the mini (nightly.sh
-authors with `claude -p`; an expired login fails every run before it reaches publish).
+Unattended runs need the Pages:Edit token in `~/.cloudflare/pages-token`, and the
+ai-broker on the mini answering for the `recall` app (nightly.sh authors and reviews
+through it on the metered API key, under Recall's monthly cap; a refusal such as
+`budget_exceeded` is logged by name). No Claude Code login is involved any more.
 
 ## Auth: what the move actually buys
 

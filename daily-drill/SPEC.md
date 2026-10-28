@@ -557,10 +557,10 @@ had once, in the question reviewer, and it is guarded here for the same reason.
 
 **Where it runs.** The bundle has no server, so the call goes through the
 platform's existing sync API — `POST /api/drill/grade`, authenticated by the
-same session cookie sync already uses — and from there to the ai-broker on the
-subscription path. That path has no structured-output guarantee, so the reply is
-parsed and verified rather than trusted; one that will not parse leaves the
-attempt unchecked, which is a state the UI already shows.
+same session cookie sync already uses — and from there to the ai-broker, on the
+metered path since queue #142 (it was the subscription path, whose login expires).
+The reply is still parsed and verified rather than trusted; one that will not
+parse leaves the attempt unchecked, which is a state the UI already shows.
 
 **As built.** `POST /api/drill/grade` takes `{attempt_id, prompt, criteria}` and
 reads the answer from the *synced* attempt, so it grades only what has reached

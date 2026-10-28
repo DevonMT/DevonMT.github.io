@@ -15,8 +15,8 @@
  * nothing. Sense is a judgement, so it takes a judge.
  *
  * This applies verdicts produced by a reviewing model. It does NOT call the
- * model itself: nightly.sh already has `claude` on PATH with the subscription,
- * and keeping the call there means this file stays testable without a network.
+ * model itself: nightly.sh makes that call (through ask-broker.mjs), and
+ * keeping it there means this file stays testable without a network.
  *
  *   node daily-drill/review-drafts.mjs <draft.json> <verdicts.json>
  *
@@ -33,9 +33,9 @@
 import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-/** The subscription path has no structured-output guarantee, so the answer may
- *  arrive wrapped in prose or a fenced block. Find the JSON rather than trust
- *  the shape. */
+/** The broker now returns {verdicts: [...]} in a guaranteed shape, but a file of
+ *  verdicts may still be prose or a fenced block (a hand-run review, an older
+ *  run's output). Find the JSON rather than trust the shape. */
 export function extractVerdicts(raw) {
   const attempts = [];
   const trimmed = String(raw).trim();

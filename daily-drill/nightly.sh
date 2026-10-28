@@ -2,14 +2,17 @@
 #
 # Daily Drill - nightly question authoring.
 #
-# Runs on the mini via cron. Claude Code does exactly one thing: write a JSON
-# array of question drafts to a file. Everything that could corrupt the bank -
-# validation, duplicate detection, tests, the commit, the push - is done by this
-# script afterwards, so a bad night fails loudly and changes nothing.
+# Runs on the mini via cron. The model does exactly one thing: answer with a
+# JSON array of question drafts, which this script writes to a file.
+# Everything that could corrupt the bank - validation, duplicate detection,
+# tests, the commit, the push - is done by this script afterwards, so a bad
+# night fails loudly and changes nothing.
 #
-# Uses the Claude Code subscription, NOT API credits. That is why --bare is not
-# used anywhere here: bare mode refuses OAuth credentials and demands
-# ANTHROPIC_API_KEY.
+# Model calls go through the ai-broker as the `recall` app (ask-broker.mjs):
+# the metered API key, Opus 5.5, under Recall's monthly cap, with an audit line
+# per call. It used `claude -p` on the Max subscription until that login
+# expired on 2026-10-03 and stopped every night after it (queue #142). This
+# script holds no key and needs no login.
 #
 #   crontab -e
 #   0 3 * * * /home/devon/DevonMT.github.io/daily-drill/nightly.sh >> /home/devon/logs/daily-drill.log 2>&1
@@ -26,17 +29,17 @@ DRAFT="daily-drill/drafts/auto-$(date +%F).json"
 # a second run on the same day must not collide with the morning's committed draft
 [ -e "$REPO/$DRAFT" ] && DRAFT="daily-drill/drafts/auto-$(date +%F-%H%M).json"
 
-# cron gets a minimal PATH; claude lives in the user-prefix npm bin
+# cron gets a minimal PATH
 export PATH="$HOME/.npm-global/bin:/usr/local/bin:/usr/bin:/bin"
 
 log() { printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 fail() { log "FAILED: $*"; exit 1; }
-# fail, with the reason a claude run gave in its captured output (the temp file
-# is overwritten tomorrow night; the log is not)
-fail_run() {
+# fail, with the one-line reason ask-broker.mjs left in $2 (the temp file is
+# overwritten tomorrow night; the log is not)
+fail_call() {
   local why
-  why=$(node "$REPO/daily-drill/run-reason.mjs" "$2" 2>/dev/null) || why="unreadable output in $2"
-  fail "$1: $why"
+  why=$(tr -s '\n' ' ' < "$2" 2>/dev/null) || why=""
+  fail "$1: ${why:-no reason given}"
 }
 
 # A failed run must not poison the next one. Without this the leftover briefing
@@ -59,8 +62,7 @@ trap cleanup EXIT
 # fails unless the live bank counts match the repo afterwards.
 publish() { DRILL_PUBLISH_DRY="$DRY" bash "$REPO/daily-drill/publish.sh" || fail "publish to recall.devondoes.dev failed"; }
 
-command -v claude >/dev/null || fail "claude not on PATH (npm i -g @anthropic-ai/claude-code)"
-command -v node   >/dev/null || fail "node not on PATH"
+command -v node >/dev/null || fail "node not on PATH"
 cd "$REPO" || fail "no repo at $REPO"
 
 log "=== daily drill: authoring run ==="
@@ -83,10 +85,16 @@ if [ "$(node -e "process.stdout.write(String(require('./$BRIEFING').concepts.len
   exit 0
 fi
 
-# 2. Claude authors drafts. Read and Write only - it cannot run commands, touch
-#    git, or reach the network. --permission-prompts none is passed only if this
-#    CLI version knows the flag.
-PROMPT="Read daily-drill/AUTHORING.md for the rules, then read $BRIEFING.
+# 2. Claude authors drafts. It sees the rules and the briefing in the prompt and
+#    answers with the array; it cannot run commands, touch files or git, or
+#    reach the network. ask-broker.mjs writes the array to $DRAFT.
+{
+  printf '%s\n\n' "The rules for writing questions (daily-drill/AUTHORING.md):"
+  cat daily-drill/AUTHORING.md
+  printf '\n\n%s\n\n' "The briefing (daily-drill/.briefing.json):"
+  cat "$BRIEFING"
+  cat <<'ASK'
+
 
 For each concept in that briefing, write the number of questions its
 write_total says, honouring write_free_text and write_static, and avoiding
@@ -96,22 +104,16 @@ Do not restate any prompt in that concept's existing_prompts, and do not
 reword one - a near-duplicate is rejected by the importer and the run is
 wasted. Write a genuinely different angle on the concept instead.
 
-Write the complete JSON array to $DRAFT and nothing else. No prose, no
-markdown fence, no commentary."
-
-PERM_FLAGS=()
-if claude --help 2>/dev/null | grep -q -- '--permission-prompts'; then
-  PERM_FLAGS+=(--permission-prompts none)
-fi
+Reply with the complete JSON array and nothing else. No prose, no markdown
+fence, no commentary.
+ASK
+} > /tmp/drill-author-prompt.txt
 
 log "authoring $DRAFT"
-claude -p "$PROMPT" \
-  --allowedTools "Read,Write" \
-  --permission-mode acceptEdits \
-  "${PERM_FLAGS[@]}" \
-  --output-format json > /tmp/drill-run.json || fail_run "claude run failed" /tmp/drill-run.json
+node daily-drill/ask-broker.mjs /tmp/drill-author-prompt.txt "$DRAFT" --array --max-tokens 64000 \
+  2> /tmp/drill-run.err || fail_call "authoring call failed" /tmp/drill-run.err
 
-[ -s "$DRAFT" ] || fail_run "no draft written" /tmp/drill-run.json
+[ -s "$DRAFT" ] || fail "no draft written"
 node -e "JSON.parse(require('fs').readFileSync('$DRAFT','utf8'))" || fail "draft is not valid JSON"
 
 # 2b. A second opinion, before anything is imported.
@@ -123,9 +125,10 @@ node -e "JSON.parse(require('fs').readFileSync('$DRAFT','utf8'))" || fail "draft
 #     was tried and thrown away — on the real bank it rejected good questions,
 #     and a validator that does so gets switched off.
 #
-#     So the reviewer is another Claude run, on the same subscription, reading
+#     So the reviewer is a second model call, through the same broker, reading
 #     each draft cold with no idea which concept it came from. Failing this
-#     step costs one night's questions and nothing else.
+#     step costs one night's questions and nothing else. The verdicts come back
+#     in a schema the broker guarantees, so there is no prose to dig out.
 REVIEW_RUBRIC='You are reviewing drill questions before they enter a spaced-repetition bank.
 Judge each ONE AT A TIME, as a reader who sees only that question, at night, with nothing else on screen.
 
@@ -138,18 +141,22 @@ Drop a question if ANY of these is true:
 
 Keep everything else. Being terse, opinionated or hard is not a reason to drop.
 
-Reply with ONLY a JSON array, one entry per question, in the order given.
+Give one verdict per question, in the order given.
 "index" is the position of the question in the array you were shown, counting from 0.
-[{"index": 0, "verdict": "keep" | "drop", "reason": "one sentence, only when dropping"}]'
+"reason" is one sentence, only when dropping.'
+
+cat > /tmp/drill-review-schema.json <<'SCHEMA'
+{"type": "object", "required": ["verdicts"], "properties": {"verdicts": {"type": "array", "items": {
+  "type": "object", "required": ["index", "verdict"],
+  "properties": {"index": {"type": "integer"}, "verdict": {"type": "string", "enum": ["keep", "drop"]},
+                 "reason": {"type": "string"}}}}}}
+SCHEMA
+printf '%s\n\nHere are the questions:\n%s\n' "$REVIEW_RUBRIC" "$(cat "$REPO/$DRAFT")" > /tmp/drill-review-prompt.txt
 
 log "reviewing"
-claude -p "$REVIEW_RUBRIC
-
-Here are the questions:
-$(cat "$REPO/$DRAFT")" \
-  --permission-mode acceptEdits \
-  "${PERM_FLAGS[@]}" \
-  --output-format text > /tmp/drill-review.txt || fail_run "review run failed" /tmp/drill-review.txt
+node daily-drill/ask-broker.mjs /tmp/drill-review-prompt.txt /tmp/drill-review.txt \
+  --schema /tmp/drill-review-schema.json 2> /tmp/drill-run.err \
+  || fail_call "review call failed" /tmp/drill-run.err
 
 node daily-drill/review-drafts.mjs "$DRAFT" /tmp/drill-review.txt \
   || fail "review rejected the whole batch (see /tmp/drill-review.txt)"
@@ -191,7 +198,7 @@ git commit --quiet -m "Add $ADDED drilled questions ($(date +%F))
 Authored by the nightly routine from daily-drill/AUTHORING.md.
 Validated and de-duplicated by daily-drill/import-drafts.mjs.
 
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 git push --quiet origin main || fail "git push failed"
 
 log "pushed $ADDED question(s)"
