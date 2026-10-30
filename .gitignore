@@ -30,9 +30,6 @@ Thumbs.db
 
 # daily drill: transient authoring briefing
 daily-drill/.briefing.json
-dist-hub/
-dist-hub-build/
-dist-playfinder/
 
 # wrangler's cache, written by daily-drill/publish.sh on the mini. Untracked,
 # it made the tree dirty and nightly.sh refused every run (queue #496).

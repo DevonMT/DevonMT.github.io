@@ -1,32 +1,15 @@
 ---
-import { AUTH_MODE } from '../lib/privateClient';
-import EstateBar from './EstateBar.astro';
 
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
-// One source, two estates -- and on the hub, this is not the nav at all.
-//
-// It used to carry the estate's apps as links. That was still the PERSONAL
-// SITE'S nav wearing a different list: a burger menu, a "Say Hi" call to
-// action, and a shape nothing else on the estate had. Every app now gets the
-// same estate bar instead, so on the hub this component just delegates.
-const HUB = AUTH_MODE === 'access';
-
-const navLinks = HUB
-  ? []
-  : [
+const navLinks = [
       { href: '/about',           label: 'About' },
       { href: '/projects',        label: 'Projects' },
       { href: '/blog',            label: 'Writing' },
-      { href: '/games/discover',  label: 'Games' },
       { href: '/#now',            label: 'Now' },
     ];
 
-// The wordmark said devondoes.dev on BOTH builds -- so devontroedel.com has
-// been introducing itself as a different site since the BI Console redesign.
-const mark = HUB
-  ? { name: 'devondoes', tld: '.dev', home: 'https://devondoes.dev/' }
-  : { name: 'devontroedel', tld: '.com', home: '/' };
+const mark = { name: 'devontroedel', tld: '.com', home: '/' };
 
 function isActive(href: string): boolean {
   if (href.includes('#')) return false;
@@ -35,7 +18,6 @@ function isActive(href: string): boolean {
 }
 ---
 
-{HUB ? <EstateBar /> : (
 <header class="site-nav">
   <div class="nav-inner">
     <a href={mark.home} class="logo" aria-label={`${mark.name}${mark.tld} — home`}>
@@ -62,7 +44,6 @@ function isActive(href: string): boolean {
     </nav>
   </div>
 </header>
-)}
 
 <style>
   .site-nav {

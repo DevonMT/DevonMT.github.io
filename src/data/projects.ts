@@ -35,24 +35,6 @@ export const projects: Project[] = [
       "Personal finance, minus the spreadsheet shame. Pulls transactions, categorizes them, and tells me things I'd rather not know.",
   },
   {
-    slug: 'games-dashboard',
-    title: 'Game Releases Dashboard',
-    description:
-      'A full-stack dashboard for tracking upcoming and recent game releases, with Claude-powered recommendations ranked against a connected Steam library.',
-    longDescription:
-      'Pulls game release data from the RAWG API, cross-references it with owned titles via the Steam Web API, and uses Claude Haiku to score and rank upcoming games based on play history and taste profile. Filter by type (AAA, indie, early access) and genre. The backend is a Hono server running on Railway; the frontend is a static Astro page. Game data is cached in SQLite and refreshed on each deploy. A companion tool, Playfinder, turns a quick taste profile into Claude-brainstormed picks; it is invite-only for now.',
-    tags: ['TypeScript', 'Hono', 'Astro', 'Railway', 'Claude AI', 'SQLite'],
-    repo: 'https://github.com/DevonMT/games-backend',
-    featured: true,
-    status: 'complete',
-    tag: 'TypeScript',
-    tagColor: 'amber',
-    sparkline: '0,22 20,8 40,28 60,15 80,30 100,10 120,20 140,5',
-    runtimeNote: '▲ Claude picks',
-    cardBlurb:
-      "Upcoming game releases ranked against a Steam library by Claude. Because 'what should we play next?' deserved better than vibes.",
-  },
-  {
     slug: 'media-tracker',
     title: 'Media Recommendation Tracker',
     description:

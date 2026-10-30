@@ -8,7 +8,7 @@ export interface Props {
 const { project: p } = Astro.props;
 const body = p.longDescription ?? p.description;
 
-// Internal demos (e.g. "/games/discover") open in the same tab; external ones open in a new tab.
+// Internal demos (paths starting with "/") open in the same tab; external ones open in a new tab.
 const demoIsInternal = !!p.demo && p.demo.startsWith('/');
 
 const amber = p.tagColor === 'amber';

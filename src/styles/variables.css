@@ -46,12 +46,8 @@
   --transition-slow: 250ms ease;
 }
 
-/* Names this site shares with the estate's design-system contract
-   (ds-tokens.css, imported after this file at the same specificity).
-   Declared here only for the site's own pages: without the :not(), the estate's
-   values won on devontroedel.com too — its card shadow already did, silently —
-   and on the estate's pages (data-ds="app") the contract's values should win. */
-:root:not([data-ds='app']) {
+/* Names this site shares with the estate's design-system contract. */
+:root {
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
   --radius:       12px;

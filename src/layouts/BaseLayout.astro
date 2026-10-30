@@ -1,27 +1,5 @@
 ---
 import '../styles/global.css';
-// The estate's shared contract and the palette that answers it, plus the bar
-// every app wears. All three ship in both builds; only data-ds="app" below
-// applies them, so devontroedel.com is untouched and keeps BI Console.
-import '../styles/ds-tokens.css';
-import '../styles/app-palette.css';
-import '../styles/ds-chrome.css';
-import { AUTH_MODE } from '../lib/privateClient';
-
-// One source, two estates. The 'access' build is served from the estate's own
-// hostnames next to the platform, Mise and Runway, so it wears what they wear.
-// devontroedel.com keeps BI Console, its own identity.
-const HUB = AUTH_MODE === 'access';
-// Each hub app's display face, loaded only on that app's pages (ds/themes).
-const DISPLAY_FACE = !HUB ? ''
-  : Astro.url.pathname.startsWith('/backlog') || Astro.url.pathname.startsWith('/games') ? '&family=Silkscreen:wght@400;700'
-  : '';
-// On the estate's hostnames, each app's own emblem (devondoes/ds/emblems).
-// The personal site keeps its DT mark.
-const path = Astro.url.pathname;
-const ICON = !HUB ? '/favicon.svg'
-  : path.startsWith('/backlog') || path.startsWith('/games') ? '/emblems/backlog.svg'
-  : '/favicon.svg';
 
 export interface Props {
   title?: string;
@@ -54,7 +32,7 @@ const personSchema = {
 ---
 
 <!doctype html>
-<html lang="en" data-ds={HUB ? 'app' : 'bi'}>
+<html lang="en" data-ds="bi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -65,11 +43,9 @@ const personSchema = {
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href={ICON} />
-    <!-- The hub follows the device, so its ground is not a fixed value; the
-         bar's script keeps this in step with --bg. -->
-    <meta name="color-scheme" content={HUB ? 'light dark' : 'dark'} />
-    <meta name="theme-color" content={HUB ? '#f2f4f3' : '#0a0e1a'} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0e1a" />
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -90,9 +66,7 @@ const personSchema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href={HUB
-        ? `https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700${DISPLAY_FACE}&display=swap`
-        : 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'}
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
     />
 
     <!-- Structured data -->

@@ -9,10 +9,7 @@ const SITE = 'https://devontroedel.com';
 export default defineConfig({
   site: SITE,
   integrations: [
-    sitemap({
-      // /games is a private, password-gated tool — keep it out of the sitemap.
-      filter: (page) => !page.includes('/games'),
-    }),
+    sitemap(),
   ],
   // Build to ./dist — this is what gets deployed to GitHub Pages.
   build: {
