@@ -99,6 +99,10 @@ const personSchema = {
 
     <!-- Structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+    <!-- The estate bar's behaviour. In <head>, no defer: it sets the theme
+         before first paint, so a pick that differs from the device never flashes. -->
+    {HUB && <script is:inline src="/ds-chrome.js"></script>}
   </head>
   <body>
     <slot />
