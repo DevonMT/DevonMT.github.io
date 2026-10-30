@@ -1,6 +1,6 @@
 /**
- * Build the devondoes.dev deployments of this site: the hub pages (Backlog and
- * Stacks) and the standalone Playfinder.
+ * Build the devondoes.dev deployments of this site: the hub page (Backlog)
+ * and the standalone Playfinder.
  *
  * One Astro source produces several sites. `npm run build` makes the personal
  * one for devontroedel.com; this makes the hub build, with
@@ -47,8 +47,8 @@ const TARGETS = [
     name: 'hub',
     out: join(ROOT, 'dist-hub'),
     dir: '/home/devon/apps/games-frontend',       // games-backend's /app/public
-    files: { ...SHARED, backlog: 'backlog', stacks: 'stacks' },
-    pages: ['backlog/index.html', 'stacks/index.html', 'stacks/studied/index.html'],
+    files: { ...SHARED, backlog: 'backlog' },
+    pages: ['backlog/index.html'],
   },
   {
     name: 'playfinder',

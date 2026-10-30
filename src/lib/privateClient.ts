@@ -1,4 +1,4 @@
-// Shared config + helpers for the key-gated private apps (/learn, /hub, /games).
+// Shared config + helpers for the key-gated private apps (/hub, /games).
 // Single source of truth for the backend URL and the localStorage key name so a
 // new private page never has to redefine them.
 
@@ -21,19 +21,17 @@ export const AUTH_MODE: 'key' | 'access' =
 /**
  * Where each hub app answers.
  *
- * One constant per app, not one for "the hub": they share a container but they
- * are two apps on two hostnames now, and each hostname serves only its own —
- * the other app's paths 404 there on purpose. Kept here so a link across
+ * One constant per app, not one for "the hub": each hostname serves only its
+ * own app. Kept here so a link across
  * origins is never a hostname typed into a page.
  */
 export const APP_ORIGIN = {
   backlog: 'https://backlog.devondoes.dev',
-  stacks: 'https://stacks.devondoes.dev',
 } as const;
 
 export const API_BASE =
   AUTH_MODE === 'access'
-    ? '' // same-origin: /learn, /releases, ... are served by this very host
+    ? '' // same-origin: /releases, ... are served by this very host
     // Dead-fallback note: the Railway backend this used to name no longer
     // exists. In 'key' mode the pages redirect to the hub before any request
     // is made, so this value is never used — it points at the hub so that if
